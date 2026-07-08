@@ -3030,16 +3030,19 @@ void mcpwm_foc_adc_int_handler(void *p, uint32_t flags) {
 #endif
 
 	// Store raw ADC readings
+	//adcÔ­Ê¼Öµ
 	motor_now->m_currents_adc[0] = curr0;
 	motor_now->m_currents_adc[1] = curr1;
 	motor_now->m_currents_adc[2] = curr2;
 
 	// Shift to midpoint using offset (should be close to 2048)
+	//¼õÈ¥ÁãÆ«
 	curr0 -= conf_now->foc_offsets_current[0];
 	curr1 -= conf_now->foc_offsets_current[1];
 	curr2 -= conf_now->foc_offsets_current[2];
 
 	// Store midshifted raw ADC readings for raw sampling mode.
+	//¼õÈ¥ÁãÆ«ºóµÄadcÖµ
 	ADC_curr_raw[0 + norm_curr_ofs] = curr0;
 	ADC_curr_raw[1 + norm_curr_ofs] = curr1;
 	ADC_curr_raw[2 + norm_curr_ofs] = curr2;
@@ -3228,6 +3231,7 @@ void mcpwm_foc_adc_int_handler(void *p, uint32_t flags) {
 	FOC_PROFILE_LINE_FINE();
 
 	// Store the currents for sampling
+	//ÒÑ¾­»»Ëã³ÉÕæÊµµçÁ÷µ¥Î»ºóµÄ²ÉÑùÖµ
 	ADC_curr_norm_value[0 + norm_curr_ofs] = curr0;
 	ADC_curr_norm_value[1 + norm_curr_ofs] = curr1;
 	ADC_curr_norm_value[2 + norm_curr_ofs] = curr2;
@@ -3240,7 +3244,7 @@ void mcpwm_foc_adc_int_handler(void *p, uint32_t flags) {
 
 	volatile float enc_ang = 0;
 	volatile bool encoder_is_being_used = false;
-
+	//ÐéÄâµç»úÌá¹©ÐéÄâ½Ç¶È£¬Ã»ÓÐ´«¸ÐÆ÷·´À¡½Ç¶ÈÊ±Ê¹ÓÃ
 	if (virtual_motor_is_connected()) {
 		if (conf_now->foc_sensor_mode == FOC_SENSOR_MODE_ENCODER ||
 				conf_now->foc_sensor_mode == FOC_SENSOR_MODE_ENCODER_AB) {
@@ -3279,6 +3283,7 @@ void mcpwm_foc_adc_int_handler(void *p, uint32_t flags) {
 
 	FOC_PROFILE_LINE_FINE();
 
+	//¿ËÀ­¿Ë±ä»»
 	if (motor_now->m_state == MC_STATE_RUNNING) {
 		if (full_clarke) {
 			// Full Clarke Transform
@@ -3293,6 +3298,7 @@ void mcpwm_foc_adc_int_handler(void *p, uint32_t flags) {
 		motor_now->m_i_alpha_sample_with_offset = state_now->i_alpha;
 		motor_now->m_i_beta_sample_with_offset = state_now->i_beta;
 
+		//Á½´Î²ÉÑùÆ½¾ù£¬V0/V7 »òÌØÊâË«²ÉÑùÁ½¸ö²ÉÑùµãµÄµçÁ÷Æ½¾ùÒ»ÏÂ£¬¿ÉÒÔ¸ü½Ó½üÕâ¸ö PWM ÖÜÆÚµÄÖÐÐÄµçÁ÷£¬¼õÐ¡²ÉÑùÊ±¿ÌÆ«²î¶ÔµçÁ÷»·µÄÓ°Ïì
 		if (motor_now->m_i_alpha_beta_has_offset) {
 			state_now->i_alpha = 0.5 * (state_now->i_alpha + motor_now->m_i_alpha_sample_next);
 			state_now->i_beta = 0.5 * (state_now->i_beta + motor_now->m_i_beta_sample_next);
@@ -4631,7 +4637,7 @@ static void control_current(motor_all_state_t *motor, float dt) {
 	// Decoupling. Using feedforward this compensates for the fact that the equations of a PMSM
 	// are not really decoupled (the d axis current has impact on q axis voltage and visa-versa):
 	//      Resistance  Inductance   Cross terms   Back-EMF   (see www.mathworks.com/help/physmod/sps/ref/pmsm.html)
-	// vd = Rs*id   +   Ld*did/dt âˆ’  Ï‰e*iq*Lq
+	// vd = Rs*id   +   Ld*did/dt âˆ?  Ï‰e*iq*Lq
 	// vq = Rs*iq   +   Lq*diq/dt +  Ï‰e*id*Ld     + Ï‰e*Ïˆm
 	float dec_vd = 0.0;
 	float dec_vq = 0.0;
