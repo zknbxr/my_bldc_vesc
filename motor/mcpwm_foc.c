@@ -2896,6 +2896,8 @@ void mcpwm_foc_adc_int_handler(void *p, uint32_t flags) {
 	FOC_PROFILE_LINE_FINE();
 
 	// Update modulation for V7 and collect current samples. This is used by the HFI.
+	//处理上一轮提前算好的占空比，再某些模式下，代码会提前算一组“下一半周期”的调制量，然后不立刻写，而是保存到：duty1_next、2、3
+	//duty是上一轮foc为下一个采样/调制时刻预计算好的占空比，服务点未知，还在探索
 	if (motor_other->m_duty_next_set) {
 		motor_other->m_duty_next_set = false;
 		skip_interpolation = true;
@@ -2944,7 +2946,7 @@ void mcpwm_foc_adc_int_handler(void *p, uint32_t flags) {
 
 	float fs = motor_now->p_fs;
 	float dt = motor_now->p_dt;
-
+	//在V0或者V7插值采样模式下，对另一个半周期的PWM提前更新
 	if (conf_other->foc_control_sample_mode == FOC_CONTROL_SAMPLE_MODE_V0_V7_INTERPOL && !skip_interpolation) {
 		float interpolated_phase = motor_other->m_motor_state.phase + motor_other->m_speed_est_fast * dt * 0.5;
 		utils_norm_angle_rad(&interpolated_phase);
@@ -3917,8 +3919,9 @@ void mcpwm_foc_adc_int_handler(void *p, uint32_t flags) {
 
 	FOC_PROFILE_LINE_FINE();
 
+	//角度限制
 	utils_norm_angle(&angle_now);
-
+	// 更新 位置 PID 使用的当前位置角度 m_pos_pid_now
 	if (conf_now->p_pid_ang_div > 0.98 && conf_now->p_pid_ang_div < 1.02) {
 		motor_now->m_pos_pid_now = angle_now;
 	} else {
