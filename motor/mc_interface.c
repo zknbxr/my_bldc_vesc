@@ -608,11 +608,13 @@ void mc_interface_set_duty_noramp(float dutyCycle) {
 }
 
 void mc_interface_set_pid_speed(float rpm) {
+	//非零速命令，系统还在被使用，重置
 	if (fabsf(rpm) > 0.001) {
 		SHUTDOWN_RESET();
 	}
 
 	if (mc_interface_try_input()) {
+		//当前不允许控制电机，直接退出
 		return;
 	}
 

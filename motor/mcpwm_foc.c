@@ -752,20 +752,23 @@ void mcpwm_foc_set_pid_speed(float rpm) {
 	volatile motor_all_state_t *motor = get_motor_now();
 
 	if (motor->m_conf->s_pid_ramp_erpms_s > 0.0 ) {
+		//如果设置了速度斜坡 s_pid_ramp_erpms_s
 		if (motor->m_control_mode != CONTROL_MODE_SPEED ||
 				motor->m_state != MC_STATE_RUNNING) {
+			//如果之前不是速度模式，或者电机还没运行，就把速度PID当前目标值初始化为“当前速度值”
 			motor->m_speed_pid_set_rpm = mcpwm_foc_get_rpm();
 		}
-
+		//保存最终命令目标，会让m_speed_pid_set_rpm一步步接近这个目标值
 		motor->m_speed_command_rpm = rpm;
 	} else {
 		motor->m_speed_pid_set_rpm = rpm;
 	}
-
+	//切换为速度模式
 	motor->m_control_mode = CONTROL_MODE_SPEED;
 
 	if (motor->m_state != MC_STATE_RUNNING &&
 			fabsf(rpm) >= motor->m_conf->s_pid_min_erpm) {
+		//让点击进入RUNNING状态
 		motor->m_motor_released = false;
 		motor->m_state = MC_STATE_RUNNING;
 	}
@@ -797,13 +800,14 @@ void mcpwm_foc_set_pid_pos(float pos) {
  * @param current
  * The current to use.
  */
+//怎么给iq_target赋值，把电流目标值写进去
 void mcpwm_foc_set_current(float current) {
 	volatile motor_all_state_t *motor = get_motor_now();
 
 	motor->m_control_mode = CONTROL_MODE_CURRENT;
 	motor->m_iq_set = current;
 	motor->m_id_set = 0;
-	
+	//
 	if (fabsf(current) < motor->m_conf->cc_min_current) {
 		return;
 	}
