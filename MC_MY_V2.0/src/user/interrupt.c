@@ -1,0 +1,269 @@
+/*******************************************************************************
+ * 版权所有 (C)2019, Bright Power Semiconductor Co.ltd
+ *
+ * 文件名称： interrupt.c
+ * 文件标识：
+ * 内容摘要： 中断服务程序文件
+ * 其它说明： 无
+ * 当前版本： V 1.0
+ * 作    者： BPS IOT TEAM.
+ * 完成日期： 2019年10月1日
+ *
+ *
+ *******************************************************************************/
+#include "main.h"
+
+
+
+
+UINT16 g_CMP_IF=0;
+UINT16 g_CMP_DATA=0;
+volatile UINT16 gMcpwmEifAtShort;
+volatile UINT16 gMcpwmFail012AtShort;
+volatile UINT16 gCmpDataAtShort;
+volatile UINT16 gShortFaultCount;
+#define CMP_0
+#define CMP0_OUT ((CMP_DATA & (0x04))>>2)
+#define CMP1_OUT ((CMP_DATA & (0x08))>>3)
+
+
+/*******************************************************************************
+ 函数名称：    void FeedDogcmd(void)
+ 功能描述：    执行喂狗操作
+ 操作的表：    无
+ 输入参数：    无
+ 输出参数：    无
+ 返 回 值：    无
+ 多任务访问:   该函数涉及全局表项操作，不可重入
+ 其它说明：
+ 修改日期      版本号          修改人            修改内容
+ -----------------------------------------------------------------------------
+ 2021/02/20     V1.0           BPS IOT TEAM         创建
+ *******************************************************************************/
+void FeedDogcmd(void)
+{
+    static UINT16 FeedDog_cnt=0;
+
+    if(++FeedDog_cnt>8000)
+    {
+        FeedDog_cnt=0;
+        IWDG_Feed();
+    }
+}
+/*******************************************************************************
+ 函数名称：    void MCPWM0_IRQHandler(void)
+ 功能描述：    MCPWM0中断函数
+ 操作的表：    无
+ 输入参数：    无
+ 输出参数：    无
+ 返 回 值：    无
+ 多任务访问:   该函数涉及全局表项操作，不可重入
+ 其它说明：
+ 修改日期      版本号          修改人            修改内容
+ -----------------------------------------------------------------------------
+ 2021/02/20     V1.0           BPS IOT TEAM         创建
+ *******************************************************************************/
+void MCPWM0_IRQHandler(void)
+{
+    ADC_CFG |= BIT11;
+    MCPWM_IF0 = BIT1 | BIT0;
+}
+
+
+/*******************************************************************************
+ 函数名称：    void ADC_IRQHandler(void)
+ 功能描述：    ADC中断函数
+ 操作的表：    无
+ 输入参数：    无
+ 输出参数：    无
+ 返 回 值：    无
+ 多任务访问:   该函数涉及全局表项操作，不可重入
+ 其它说明：
+ 修改日期      版本号          修改人            修改内容
+ -----------------------------------------------------------------------------
+ 2021/02/20     V1.0           BPS IOT TEAM         创建
+ *******************************************************************************/
+extern INT16 iAdcRes1;
+extern u16 FOC_angle;
+s16 s16Timer1,s16Timer2;
+s16 errTimer;
+/*
+ * 函数功能: ADC 采样完成中断服务函数。
+ * 触发时机: 由 PWM/ADC 采样时序触发, 是电机快速控制回路的核心中断之一。
+ * 主要处理: 清中断标志、执行电流采样后续控制、推进系统时基任务, 并检查硬件级短路保护。
+ */
+void ADC_IRQHandler(void)
+{
+    /* 清 ADC 中断标志, 避免重复进入同一次中断。 */
+    ADC_IF |= BIT1|BIT0;
+    /* 重新置位 ADC 配置位, 为下一次 PWM 触发采样做准备。 */
+    ADC_CFG |= BIT11;
+
+    /* 调试脉冲: 拉高 GPIO1.4, 便于示波器观察 ADC 中断执行时间。 */
+    GPIO_SetBits(GPIO1, GPIO_Pin_4);
+
+    /* 记录进入中断时的 PWM 计数值, 用于统计本次中断执行耗时。 */
+    s16Timer1 = MCPWM_CNT0;
+    FeedDogcmd();
+    /* ADC 采样后处理: 电流采样换算、FOC 控制步进、霍尔角度更新和母线电压更新。 */
+    AdcEocHandler();
+    /* 在高速中断节拍里喂狗, 防止控制循环繁忙时看门狗复位。 */
+    
+//    /* 推进系统软件定时基准, 供 1ms/10ms/100ms 等任务调度使用。 */
+    Task_vTickTimerEvent();
+
+    /* 统计本次 ADC 中断执行结束时的 PWM 计数值。 */
+    s16Timer2 = MCPWM_CNT0;
+    /* 计算中断执行时间差, 便于调试控制回路耗时裕量。 */
+    errTimer = s16Timer2 - s16Timer1;
+    /* 调试脉冲结束: 拉低 GPIO1.4。 */
+    GPIO_ResetBits(GPIO1, GPIO_Pin_4);
+	
+    /* 检查 MCPWM 扩展故障标志 BIT4/BIT5, 一般用于桥臂短路/过流等硬件级保护。CMP直接输出到 */
+    if((MCPWM_EIF & BIT4)||(MCPWM_EIF & BIT5))
+    {
+        gMcpwmEifAtShort = MCPWM_EIF;
+        gMcpwmFail012AtShort = MCPWM_FAIL012;
+        gCmpDataAtShort = CMP_DATA;
+        gShortFaultCount++;
+        /* 发现硬件保护故障后立即停机, 防止功率器件继续受冲击。 */
+        StopMotorImmdly();
+        /* 清对应 MCPWM 故障标志位。 */
+        MCPWM_EIF = BIT4|BIT5;
+        /* 上报短路故障到系统错误字。 */
+//        SetSysErrorFlag(E_FAULT_SHORT_ERROR);
+        /* 调试标记: 1 表示在 ADC 中断里捕获到该类故障。 */
+    }
+
+}
+
+
+/*******************************************************************************
+ 函数名称：    void CMP_IRQHandler(void)
+ 功能描述：    CMP中断函数
+ 操作的表：    无
+ 输入参数：    无
+ 输出参数：    无
+ 返 回 值：    无
+ 多任务访问:   该函数涉及全局表项操作，不可重入
+ 其它说明：
+ 修改日期      版本号          修改人            修改内容
+ -----------------------------------------------------------------------------
+ 2021/02/20     V1.0           BPS IOT TEAM         创建
+ *******************************************************************************/
+//实际并未使用，CMP的过流保护直接由硬件链路到MCPWM，无需单独开NVIC中断，除非需要在软件层面捕获该事件进行特殊处理
+ void CMP_IRQHandler(void)
+{
+    g_CMP_IF = CMP_IF;
+    //中断触发
+    if(CMP_IF & (BIT0))
+    {
+        volatile u8 t_bi;
+        volatile u8 t_bcnt;
+
+        t_bcnt = 0;
+
+        for(t_bi = 0; t_bi < 5; t_bi++)
+        {
+            if(CMP_DATA & BIT0)                                                                        /* BIT14 CMP0 OUT Flag| BIT15 CMP1 OUT Flag */
+            {
+                t_bcnt ++;
+            }
+        }
+        if(t_bcnt > 3)
+        {
+//            StopMotorImmdly();
+//            g_CMP_DATA = MCPWM_EIF;
+//            MCPWM_EIF = BIT4|BIT5;
+//            SetSysErrorFlag(E_FAULT_SHORT_ERROR);
+//			textbu = 2;
+        }
+    }
+    CMP_IF = BIT0 | BIT1;
+}
+
+/*******************************************************************************
+ 函数名称：    void HardFault_Handler(void)
+ 功能描述：    HardFault中断函数
+ 操作的表：    无
+ 输入参数：    无
+ 输出参数：    无
+ 返 回 值：    无
+ 多任务访问:   该函数涉及全局表项操作，不可重入
+ 其它说明：
+ 修改日期      版本号          修改人            修改内容
+ -----------------------------------------------------------------------------
+ 2021/02/20     V1.0           BPS IOT TEAM         创建
+ *******************************************************************************/
+void HardFault_Handler(void)
+{
+
+    MCPWM_PRT = 0x0000DEAD;
+    StopMotorImmdly();
+    NVIC_SystemReset();
+
+}
+
+/*******************************************************************************
+ 函数名称：    void UART_IRQHandler(void)
+ 功能描述：    UART0中断处理函数
+ 输入参数：    无
+ 输出参数：    无
+ 返 回 值：    无
+ 其它说明：
+ 修改日期      版本号          修改人            修改内容
+ -----------------------------------------------------------------------------
+ 2023/2/21      V1.0           LLYY                创建
+ *******************************************************************************/
+void UART_IRQHandler(void)
+{
+	uint8_t hRec = 0;
+	
+    if(UART0->IF & UART_IF_SendOver){
+			UART0->IF = UART_IF_SendOver;
+			if(UART0_Message.RecStatus == UART_TRN){
+				if(UART0_Message.T_Index < UART0_Message.MAX_Len){
+					UART_SendData(UART0,UART0_Message.TXBuffer[UART0_Message.T_Index++]); 			
+				}
+				else{
+					UART0_Message.RecStatus = UART_STY;
+					UART0_Message.T_Index = 0;				
+				}	
+			}
+			else{
+				UART0_Message.RecStatus = UART_STY;
+				UART0_Message.T_Index = 0;				
+			}
+		}
+    if(UART0->IF & UART_IF_RcvOver){
+			UART0->IF = UART_IF_RcvOver;
+			hRec=UART_ReadData(UART0);
+			if(UART0_Message.RecStatus == UART_STY){		//是否空闲
+				TickRecevice = 0;
+				if(UART0_Message.R_Index == 0){			//帧头是否正确
+					if(hRec == Head_RxH){	
+					}
+					else{
+						UART0_Message.R_Index = 0;
+						return;
+					}
+				}
+				if(UART0_Message.R_Index < UartMaxLen){				//是否在最大范围内		
+					UART0_Message.RXBuffer[UART0_Message.R_Index++] = hRec;
+				}
+				else{
+					UART0_Message.R_Index = 0;
+				}
+			}
+			else{
+				UART0_Message.R_Index = 0;
+			}
+    }
+    if(UART0->IF & UART_IF_SendBufEmpty)
+    {
+        UART0->IF = UART_IF_SendBufEmpty;
+    }
+}
+
+/************************ (C) COPYRIGHT LINKO SEMICONDUCTOR *****END OF FILE****/
+

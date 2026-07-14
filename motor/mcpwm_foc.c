@@ -4529,7 +4529,7 @@ static THD_FUNCTION(hfi_thread, arg) {
 		chThdSleepMicroseconds(500);
 	}
 }
-
+//独立的pid线程，用来使用速度环或者位置环
 static THD_FUNCTION(pid_thread, arg) {
 	(void)arg;
 
@@ -4604,6 +4604,7 @@ static THD_FUNCTION(pid_thread, arg) {
  * @param dt
  * The time step in seconds.
  */
+//FOC核心电流内环，接收id和iq，根据实际电流计算出需要的vd/vq，最后通过svpwm得到三相占空比。
 static void control_current(motor_all_state_t *motor, float dt) {
 	volatile motor_state_t *state_m = &motor->m_motor_state;
 	volatile mc_configuration *conf_now = motor->m_conf;
@@ -4614,7 +4615,7 @@ static void control_current(motor_all_state_t *motor, float dt) {
 	float abs_rpm = fabsf(RADPS2RPM_f(motor->m_speed_est_fast));
 
 	FOC_PROFILE_LINE_FINE();
-
+	//是否需要高频注入
 	bool do_hfi = (conf_now->foc_sensor_mode == FOC_SENSOR_MODE_HFI ||
 			conf_now->foc_sensor_mode == FOC_SENSOR_MODE_HFI_V2 ||
 			conf_now->foc_sensor_mode == FOC_SENSOR_MODE_HFI_V3 ||
@@ -4714,11 +4715,14 @@ static void control_current(motor_all_state_t *motor, float dt) {
 
 	// Calculate the max length of the voltage space vector without overmodulation.
 	// Is simply 1/sqrt(3) * v_bus. See https://microchipdeveloper.com/mct5001:start. Adds margin with max_duty.
+	// 电压矢量限幅和抗积分饱和
 	float max_v_mag = ONE_BY_SQRT3 * max_duty * state_m->v_bus * conf_now->foc_overmod_factor;
 
 	// Saturation and anti-windup. Notice that the d-axis has priority as it controls field
 	// weakening and the efficiency.
+	//先限制d轴
 	utils_truncate_number_abs((float*)&state_m->vd, max_v_mag * conf_now->foc_mag_vd_max);
+	//再把剩余电压给q轴
 	utils_truncate_number_abs((float*)&state_m->vd_int, max_v_mag * conf_now->foc_mag_vd_max);
 
 	float max_vq = sqrtf(SQ(max_v_mag) - SQ(state_m->vd));
@@ -4733,6 +4737,7 @@ static void control_current(motor_all_state_t *motor, float dt) {
 	//    voltage_normalize = 1/(2/3*V_bus)
 	// This includes overmodulation and therefore cannot be made in any direction.
 	// Note that this scaling is different from max_v_mag, which is without over modulation.
+	//电压归一化
 	const float voltage_normalize = 1.5 / state_m->v_bus;
 	state_m->mod_d = state_m->vd * voltage_normalize;
 	state_m->mod_q = state_m->vq * voltage_normalize;
@@ -4747,20 +4752,23 @@ static void control_current(motor_all_state_t *motor, float dt) {
 	// TODO: Also calculate motor power based on v_alpha, v_beta, i_alpha and i_beta. This is much more accurate
 	// with phase filters than using the modulation and bus current.
 #endif
+	// 计算电机电流幅值
 	state_m->i_abs = NORM2_f(state_m->id, state_m->iq);
 	state_m->i_abs_filter = NORM2_f(state_m->id_filter, state_m->iq_filter);
 
 	// Inverse Park transform: transforms the (normalized) voltages from the rotor reference frame to the stator frame
+	// 反park变换
 	state_m->mod_alpha_raw = c * state_m->mod_d - s * state_m->mod_q;
 	state_m->mod_beta_raw  = c * state_m->mod_q + s * state_m->mod_d;
 
 	FOC_PROFILE_LINE_FINE();
-
+	// 更新实际输出电压估计
 	update_valpha_vbeta(motor, state_m->mod_alpha_raw, state_m->mod_beta_raw, voltage_normalize);
 
 	FOC_PROFILE_LINE_FINE();
 
 	// Dead time compensated values for vd and vq. Note that these are not used to control the switching times.
+	//转成实际vq/vd
 	state_m->vd = c * motor->m_motor_state.v_alpha + s * motor->m_motor_state.v_beta;
 	state_m->vq = c * motor->m_motor_state.v_beta  - s * motor->m_motor_state.v_alpha;
 
@@ -5049,12 +5057,14 @@ static void control_current(motor_all_state_t *motor, float dt) {
 
 	// Calculate the duty cycles for all the phases. This also injects a zero modulation signal to
 	// be able to fully utilize the bus voltage. See https://microchipdeveloper.com/mct5001:start
+	// svpwm计算三相占空比
 	foc_svm(state_m->mod_alpha_raw, state_m->mod_beta_raw, conf_now->l_max_duty, top,
 			&duty1, &duty2, &duty3, (uint32_t*)&state_m->svm_sector);
 
 	FOC_PROFILE_LINE_FINE();
 
 	if (motor == &m_motor_1) {
+		// 写入PWM定时器
 		TIMER_UPDATE_DUTY_M1(duty1, duty2, duty3);
 #ifdef HW_HAS_DUAL_PARALLEL
 		TIMER_UPDATE_DUTY_M2(duty1, duty2, duty3);

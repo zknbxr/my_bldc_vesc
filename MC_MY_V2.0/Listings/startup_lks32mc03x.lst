@@ -1,0 +1,794 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ;/******************************************************
+                       *************************
+    2 00000000         ; * 版权所有 (C)2015, LINKO SEMICONDUCTOR Co.ltd
+    3 00000000         ; *
+    4 00000000         ; * 文件名称： startup_lks32mc061.s
+    5 00000000         ; * 文件标识：
+    6 00000000         ; * 内容摘要： 启动代码
+    7 00000000         ; * 其它说明： 无
+    8 00000000         ; * 当前版本： V 1.0
+    9 00000000         ; * 作    者： 李鹏
+   10 00000000         ; * 完成日期： 2015年11月5日
+   11 00000000         ; *
+   12 00000000         ; * 修改记录1：
+   13 00000000         ; * 修改日期：2015年11月5日
+   14 00000000         ; * 版 本 号：V 1.0
+   15 00000000         ; * 修 改 人：李鹏
+   16 00000000         ; * 修改内容：创建
+   17 00000000         ; *
+   18 00000000         ; * 修改记录2：
+   19 00000000         ; * 修改日期：
+   20 00000000         ; * 版 本 号：
+   21 00000000         ; * 修 改 人：
+   22 00000000         ; * 修改内容：
+   23 00000000         ; *
+   24 00000000         ; ******************************************************
+                       *************************/
+   25 00000000         ;* <<< Use Configuration Wizard in Context Menu >>>   
+   26 00000000         ; <h> Stack Configuration
+   27 00000000         ;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
+   28 00000000         ; </h>
+   29 00000000         
+   30 00000000 00000400 
+                       Stack_Size
+                               EQU              0x00000400
+   31 00000000         
+   32 00000000                 AREA             STACK, NOINIT, READWRITE, ALIGN
+=3
+   33 00000000         Stack_Mem
+                               SPACE            Stack_Size
+   34 00000400         __initial_sp
+   35 00000400         
+   36 00000400         
+   37 00000400         ; <h> Heap Configuration
+   38 00000400         ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
+   39 00000400         ; </h>
+   40 00000400         
+   41 00000400 00000200 
+                       Heap_Size
+                               EQU              0x00000200
+   42 00000400         
+   43 00000400                 AREA             HEAP, NOINIT, READWRITE, ALIGN=
+3
+   44 00000000         __heap_base
+   45 00000000         Heap_Mem
+                               SPACE            Heap_Size
+   46 00000200         __heap_limit
+   47 00000200         
+   48 00000200                 PRESERVE8
+   49 00000200                 THUMB
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   50 00000200         
+   51 00000200         
+   52 00000200         ; Vector Table Mapped to Address 0 at Reset
+   53 00000200                 AREA             RESET, DATA, READONLY
+   54 00000000                 EXPORT           __Vectors
+   55 00000000                 EXPORT           __Vectors_End
+   56 00000000                 EXPORT           __Vectors_Size
+   57 00000000         
+   58 00000000 00000000 
+                       __Vectors
+                               DCD              __initial_sp ; Top of Stack
+   59 00000004 00000000        DCD              Reset_Handler ; Reset Handler
+   60 00000008 00000000        DCD              NMI_Handler ; NMI Handler
+   61 0000000C 00000000        DCD              HardFault_Handler ; Hard Fault 
+                                                            Handler
+   62 00000010 00000000        DCD              0           ; Reserved
+   63 00000014 00000000        DCD              0           ; Reserved
+   64 00000018 00000000        DCD              0           ; Reserved
+   65 0000001C 00000000        DCD              0           ; Reserved
+   66 00000020 00000000        DCD              0           ; Reserved
+   67 00000024 00000000        DCD              0           ; Reserved
+   68 00000028 00000000        DCD              0           ; Reserved
+   69 0000002C 00000000        DCD              SVC_Handler ; SVCall Handler
+   70 00000030 00000000        DCD              0           ; Reserved
+   71 00000034 00000000        DCD              0           ; Reserved
+   72 00000038 00000000        DCD              PendSV_Handler ; PendSV Handler
+                                                            
+   73 0000003C 00000000        DCD              SysTick_Handler 
+                                                            ; SysTick Handler
+   74 00000040         
+   75 00000040         ; External Interrupts
+   76 00000040         ; 0-3
+   77 00000040 00000000        DCD              TIMER0_IRQHandler ;
+   78 00000044 00000000        DCD              TIMER1_IRQHandler ;
+   79 00000048 00000000        DCD              MCPWM0_IRQHandler ;
+   80 0000004C 00000000        DCD              MCPWM1_IRQHandler ;
+   81 00000050         
+   82 00000050         ;4-7
+   83 00000050 00000000        DCD              I2C_IRQHandler ;
+   84 00000054 00000000        DCD              SPI_IRQHandler ;     
+   85 00000058 00000000        DCD              GPIO_IRQHandler ;
+   86 0000005C 00000000        DCD              HALL_IRQHandler ;
+   87 00000060         ;8-11
+   88 00000060 00000000        DCD              UART_IRQHandler ;
+   89 00000064 00000000        DCD              CMP_IRQHandler ;
+   90 00000068 00000000        DCD              ADC_IRQHandler ;
+   91 0000006C 00000000        DCD              DMA_IRQHandler ;
+   92 00000070         ;12-15
+   93 00000070 00000000        DCD              WAKE_IRQHandler ;
+   94 00000074 00000000        DCD              SW_IRQHandler ;
+   95 00000078 00000000        DCD              0           ;
+   96 0000007C 00000000        DCD              0           ;     
+   97 00000080         ;16-19
+   98 00000080 00000000        DCD              0           ;
+   99 00000084 00000000        DCD              0           ;
+  100 00000088 00000000        DCD              0           ;
+  101 0000008C 00000000        DCD              0           ;
+  102 00000090         
+  103 00000090         ;20-23
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+  104 00000090 00000000        DCD              0           ;
+  105 00000094 00000000        DCD              0           ;
+  106 00000098 00000000        DCD              0           ;
+  107 0000009C 00000000        DCD              0           ;
+  108 000000A0         
+  109 000000A0         ;24-27
+  110 000000A0 00000000        DCD              0           ;
+  111 000000A4 00000000        DCD              0           ;
+  112 000000A8 00000000        DCD              0           ;
+  113 000000AC 00000000        DCD              0           ;
+  114 000000B0         
+  115 000000B0         ;28-31
+  116 000000B0 00000000        DCD              0           ;
+  117 000000B4 00000000        DCD              0           ;
+  118 000000B8 00000000        DCD              0           ;
+  119 000000BC 00000000        DCD              0           ;
+  120 000000C0         
+  121 000000C0         __Vectors_End
+  122 000000C0         
+  123 000000C0 000000C0 
+                       __Vectors_Size
+                               EQU              __Vectors_End - __Vectors
+  124 000000C0         
+  125 000000C0                 AREA             |.text|, CODE, READONLY
+  126 00000000         
+  127 00000000         ; Reset handler routine
+  128 00000000         Reset_Handler
+                               PROC
+  129 00000000                 EXPORT           Reset_Handler                 [
+WEAK]
+  130 00000000                 IMPORT           __main
+  131 00000000                 IMPORT           SystemInit
+  132 00000000         
+  133 00000000         
+  134 00000000         
+  135 00000000 4806            LDR              R0, =__initial_sp ; set stack p
+                                                            ointer 
+  136 00000002 F380 8808       MSR              MSP, R0
+  137 00000006         
+  138 00000006         
+  139 00000006         ApplicationStart
+  140 00000006 4806            LDR              R0, =SystemInit
+  141 00000008 4780            BLX              R0
+  142 0000000A 4806            LDR              R0, =__main
+  143 0000000C 4700            BX               R0
+  144 0000000E                 ENDP
+  145 0000000E         
+  146 0000000E         ; Dummy Exception Handlers (infinite loops which can be 
+                       modified)
+  147 0000000E         
+  148 0000000E         NMI_Handler
+                               PROC
+  149 0000000E                 EXPORT           NMI_Handler                    
+[WEAK]
+  150 0000000E E7FE            B                .
+  151 00000010                 ENDP
+  153 00000010         HardFault_Handler
+                               PROC
+  154 00000010                 EXPORT           HardFault_Handler              
+
+
+
+ARM Macro Assembler    Page 4 
+
+
+[WEAK]
+  155 00000010 E7FE            B                .
+  156 00000012                 ENDP
+  157 00000012         SVC_Handler
+                               PROC
+  158 00000012                 EXPORT           SVC_Handler                    
+[WEAK]
+  159 00000012 E7FE            B                .
+  160 00000014                 ENDP
+  161 00000014         PendSV_Handler
+                               PROC
+  162 00000014                 EXPORT           PendSV_Handler                 
+[WEAK]
+  163 00000014 E7FE            B                .
+  164 00000016                 ENDP
+  165 00000016         SysTick_Handler
+                               PROC
+  166 00000016                 EXPORT           SysTick_Handler                
+[WEAK]
+  167 00000016 E7FE            B                .
+  168 00000018                 ENDP
+  169 00000018         
+  170 00000018         Default_Handler
+                               PROC
+  171 00000018         
+  172 00000018                 EXPORT           TIMER0_IRQHandler             [
+WEAK]
+  173 00000018                 EXPORT           TIMER1_IRQHandler             [
+WEAK]
+  174 00000018                 EXPORT           MCPWM0_IRQHandler             [
+WEAK]
+  175 00000018                 EXPORT           MCPWM1_IRQHandler             [
+WEAK]
+  176 00000018                 EXPORT           I2C_IRQHandler              [WE
+AK]
+  177 00000018                 EXPORT           SPI_IRQHandler              [WE
+AK]
+  178 00000018                 EXPORT           GPIO_IRQHandler               [
+WEAK]
+  179 00000018                 EXPORT           HALL_IRQHandler               [
+WEAK]
+  180 00000018                 EXPORT           UART_IRQHandler               [
+WEAK]
+  181 00000018                 EXPORT           CMP_IRQHandler                [
+WEAK]
+  182 00000018                 EXPORT           ADC_IRQHandler                [
+WEAK]
+  183 00000018                 EXPORT           DMA_IRQHandler                [
+WEAK]
+  184 00000018                 EXPORT           WAKE_IRQHandler               [
+WEAK]
+  185 00000018                 EXPORT           SW_IRQHandler                 [
+WEAK]
+  186 00000018         
+  187 00000018         TIMER0_IRQHandler
+  188 00000018         TIMER1_IRQHandler
+  189 00000018         MCPWM0_IRQHandler
+  190 00000018         MCPWM1_IRQHandler
+  191 00000018         I2C_IRQHandler
+
+
+
+ARM Macro Assembler    Page 5 
+
+
+  192 00000018         SPI_IRQHandler
+  193 00000018         GPIO_IRQHandler
+  194 00000018         HALL_IRQHandler
+  195 00000018         UART_IRQHandler
+  196 00000018         CMP_IRQHandler
+  197 00000018         ADC_IRQHandler
+  198 00000018         DMA_IRQHandler
+  199 00000018         WAKE_IRQHandler
+  200 00000018         SW_IRQHandler
+  201 00000018         
+  202 00000018         
+  203 00000018 E7FE            B                .
+  204 0000001A         
+  205 0000001A                 ENDP
+  206 0000001A         
+  207 0000001A 00 00           ALIGN
+  208 0000001C         
+  209 0000001C         ;*******************************************************
+                       ************************
+  210 0000001C         ; User Stack and Heap initialization
+  211 0000001C         ;*******************************************************
+                       ************************
+  212 0000001C                 IF               :DEF:__MICROLIB
+  213 0000001C         
+  214 0000001C                 EXPORT           __initial_sp
+  215 0000001C                 EXPORT           __heap_base
+  216 0000001C                 EXPORT           __heap_limit
+  217 0000001C         
+  218 0000001C                 ELSE
+  233                          ENDIF
+  234 0000001C         
+  235 0000001C                 END
+              00000000 
+              00000000 
+              00000000 
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M0 --apcs=interw
+ork --depend=.\objects\startup_lks32mc03x.d -o.\objects\startup_lks32mc03x.o -I
+E:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include -IE:\Keil_v5\ARM\CMSIS\Include --
+predefine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 542" --predef
+ine="LKS32MC034FLF6Q8B SETA 1" --list=.\listings\startup_lks32mc03x.lst vendor\
+LKS32MC03x_Periph_Driver\Source\startup_lks32mc03x.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+STACK 00000000
+
+Symbol: STACK
+   Definitions
+      At line 32 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+   Uses
+      None
+Comment: STACK unused
+Stack_Mem 00000000
+
+Symbol: Stack_Mem
+   Definitions
+      At line 33 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+   Uses
+      None
+Comment: Stack_Mem unused
+__initial_sp 00000400
+
+Symbol: __initial_sp
+   Definitions
+      At line 34 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+   Uses
+      At line 58 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 135 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+      At line 214 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+3 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+HEAP 00000000
+
+Symbol: HEAP
+   Definitions
+      At line 43 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+   Uses
+      None
+Comment: HEAP unused
+Heap_Mem 00000000
+
+Symbol: Heap_Mem
+   Definitions
+      At line 45 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+   Uses
+      None
+Comment: Heap_Mem unused
+__heap_base 00000000
+
+Symbol: __heap_base
+   Definitions
+      At line 44 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+   Uses
+      At line 215 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+Comment: __heap_base used once
+__heap_limit 00000200
+
+Symbol: __heap_limit
+   Definitions
+      At line 46 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+   Uses
+      At line 216 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+Comment: __heap_limit used once
+4 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+RESET 00000000
+
+Symbol: RESET
+   Definitions
+      At line 53 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+   Uses
+      None
+Comment: RESET unused
+__Vectors 00000000
+
+Symbol: __Vectors
+   Definitions
+      At line 58 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+   Uses
+      At line 54 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 123 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+__Vectors_End 000000C0
+
+Symbol: __Vectors_End
+   Definitions
+      At line 121 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 55 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 123 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+3 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+.text 00000000
+
+Symbol: .text
+   Definitions
+      At line 125 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      None
+Comment: .text unused
+ADC_IRQHandler 00000018
+
+Symbol: ADC_IRQHandler
+   Definitions
+      At line 197 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 90 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 182 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+ApplicationStart 00000006
+
+Symbol: ApplicationStart
+   Definitions
+      At line 139 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      None
+Comment: ApplicationStart unused
+CMP_IRQHandler 00000018
+
+Symbol: CMP_IRQHandler
+   Definitions
+      At line 196 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 89 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 181 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+DMA_IRQHandler 00000018
+
+Symbol: DMA_IRQHandler
+   Definitions
+      At line 198 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 91 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 183 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+Default_Handler 00000018
+
+Symbol: Default_Handler
+   Definitions
+      At line 170 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
+c03x.s
+   Uses
+      None
+Comment: Default_Handler unused
+GPIO_IRQHandler 00000018
+
+Symbol: GPIO_IRQHandler
+   Definitions
+      At line 193 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 85 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 178 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+HALL_IRQHandler 00000018
+
+Symbol: HALL_IRQHandler
+   Definitions
+      At line 194 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 86 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 179 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+HardFault_Handler 00000010
+
+Symbol: HardFault_Handler
+   Definitions
+      At line 153 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 61 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 154 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+I2C_IRQHandler 00000018
+
+Symbol: I2C_IRQHandler
+   Definitions
+      At line 191 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 83 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 176 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+MCPWM0_IRQHandler 00000018
+
+Symbol: MCPWM0_IRQHandler
+   Definitions
+      At line 189 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+
+
+
+ARM Macro Assembler    Page 3 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 79 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 174 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+MCPWM1_IRQHandler 00000018
+
+Symbol: MCPWM1_IRQHandler
+   Definitions
+      At line 190 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 80 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 175 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+NMI_Handler 0000000E
+
+Symbol: NMI_Handler
+   Definitions
+      At line 148 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 60 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 149 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+PendSV_Handler 00000014
+
+Symbol: PendSV_Handler
+   Definitions
+      At line 161 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 72 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 162 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+Reset_Handler 00000000
+
+Symbol: Reset_Handler
+   Definitions
+      At line 128 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 59 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 129 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+SPI_IRQHandler 00000018
+
+Symbol: SPI_IRQHandler
+   Definitions
+      At line 192 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+
+
+ARM Macro Assembler    Page 4 Alphabetic symbol ordering
+Relocatable symbols
+
+   Uses
+      At line 84 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 177 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+SVC_Handler 00000012
+
+Symbol: SVC_Handler
+   Definitions
+      At line 157 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 69 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 158 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+SW_IRQHandler 00000018
+
+Symbol: SW_IRQHandler
+   Definitions
+      At line 200 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 94 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 185 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+SysTick_Handler 00000016
+
+Symbol: SysTick_Handler
+   Definitions
+      At line 165 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 73 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 166 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+TIMER0_IRQHandler 00000018
+
+Symbol: TIMER0_IRQHandler
+   Definitions
+      At line 187 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 77 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 172 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+TIMER1_IRQHandler 00000018
+
+Symbol: TIMER1_IRQHandler
+   Definitions
+      At line 188 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+
+
+
+ARM Macro Assembler    Page 5 Alphabetic symbol ordering
+Relocatable symbols
+
+c03x.s
+   Uses
+      At line 78 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 173 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+UART_IRQHandler 00000018
+
+Symbol: UART_IRQHandler
+   Definitions
+      At line 195 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 88 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 180 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+WAKE_IRQHandler 00000018
+
+Symbol: WAKE_IRQHandler
+   Definitions
+      At line 199 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 93 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+      At line 184 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+
+23 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Absolute symbols
+
+Heap_Size 00000200
+
+Symbol: Heap_Size
+   Definitions
+      At line 41 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+   Uses
+      At line 45 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+Comment: Heap_Size used once
+Stack_Size 00000400
+
+Symbol: Stack_Size
+   Definitions
+      At line 30 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+   Uses
+      At line 33 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+Comment: Stack_Size used once
+__Vectors_Size 000000C0
+
+Symbol: __Vectors_Size
+   Definitions
+      At line 123 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 56 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32mc
+03x.s
+Comment: __Vectors_Size used once
+3 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+SystemInit 00000000
+
+Symbol: SystemInit
+   Definitions
+      At line 131 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 140 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+Comment: SystemInit used once
+__main 00000000
+
+Symbol: __main
+   Definitions
+      At line 130 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+   Uses
+      At line 142 in file vendor\LKS32MC03x_Periph_Driver\Source\startup_lks32m
+c03x.s
+Comment: __main used once
+2 symbols
+373 symbols in table

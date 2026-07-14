@@ -1,0 +1,85 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: ¦ÌVision V5.42.0.0
+Copyright (C) 2025 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: 1 xiangrui_xr@163.com
+1
+User-based license: Keil MDK Community (non-commercial free of charge)
+Valid until: Jun 1 2033. Cached until: Jul 21 2026
+ 
+Tool Versions:
+Toolchain:       Keil MDK Community (non-commercial free of charge  Version: 5.42.0.0
+Toolchain Path:  E:\Keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 update 7 (build 960)
+Assembler:       Armasm.exe V5.06 update 7 (build 960)
+Linker/Locator:  ArmLink.exe V5.06 update 7 (build 960)
+Library Manager: ArmAr.exe V5.06 update 7 (build 960)
+Hex Converter:   FromElf.exe V5.06 update 7 (build 960)
+CPU DLL:         SARMCM3.DLL V5.42.0.0
+Dialog DLL:      DARMCM1.DLL V1.19.6.0
+Target DLL:      Segger\JL2CM3.dll V2.97.0.0
+Dialog DLL:      TARMCM1.DLL V1.14.6.0
+ 
+<h2>Project:</h2>
+E:\Desktop\XR\bldc\MC_MY_V2.0\mc_my.uvprojx
+Project File Date:  06/22/2026
+
+<h2>Output:</h2>
+*** Warning: The configured compiler version '5.06 update 7 (build 960)' does not support the selected User Based Licensing technology.
+*** Using Compiler 'V5.06 update 7 (build 960)', folder: 'E:\Keil_v5\ARM\ARMCC\Bin'
+Build target 'Target_1'
+compiling manage.c...
+compiling app_control.c...
+compiling mcs_control.c...
+src\mcs\mcs_control.c(9): warning:  #177-D: function "Motor_LimitS32"  was declared but never referenced
+  static s32 Motor_LimitS32(s32 value, s32 min, s32 max)
+src\mcs\mcs_control.c: 1 warning, 0 errors
+compiling mcs_motor.c...
+compiling app_height.c...
+compiling app_uart_comm.c...
+compiling mcs_foc_hw.c...
+compiling mcs_math.c...
+compiling mcs_error_handling.c...
+compiling user_app.c...
+src\user\user_app.c(9): warning:  #177-D: variable "i"  was declared but never referenced
+      uint16_t i;
+src\user\user_app.c(14): warning:  #177-D: function "User_App_DispatchUartCommand"  was declared but never referenced
+  static void User_App_DispatchUartCommand(void)
+src\user\user_app.c: 2 warnings, 0 errors
+compiling interrupt.c...
+compiling hardware_init.c...
+compiling mcs_init.c...
+compiling sensorless_ctrl.c...
+compiling mcs_pwm_foc.c...
+compiling main.c...
+src\user\main.c(27): warning:  #177-D: variable "tick"  was declared but never referenced
+      TASK_TICK tick;
+src\user\main.c: 1 warning, 0 errors
+compiling mcs_hall.c...
+compiling mcs_task.c...
+src\mcs\mcs_task.c(8): warning:  #177-D: variable "i"  was declared but never referenced
+      uint16_t i;
+src\mcs\mcs_task.c: 1 warning, 0 errors
+linking...
+Program Size: Code=7000 RO-data=736 RW-data=128 ZI-data=1216  
+FromELF: creating hex file...
+".\Objects\mc_my.axf" - 0 Error(s), 5 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: Linko
+                https://www.lksmcu.com/index.php/LKS03Series/Linko.LKS03x.1.1.8.pack
+                Linko::LKS03x@1.1.8
+                LKS03 Device Family Pack
+
+<h2>Collection of Component include folders:</h2>
+  E:/ARM/Pack/Linko/LKS03x/1.1.8/Device/Include
+
+<h2>Collection of Component Files used:</h2>
+Build Time Elapsed:  00:00:04
+</pre>
+</body>
+</html>

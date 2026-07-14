@@ -487,7 +487,7 @@ void foc_run_pid_control_pos(bool index_found, float dt, motor_all_state_t *moto
 		motor->m_iq_set = output * conf_now->l_current_max * conf_now->l_current_max_scale;;
 	}
 }
-
+//由独立的pid_thread周期调用
 void foc_run_pid_control_speed(bool index_found, float dt, motor_all_state_t *motor) {
 	mc_configuration *conf_now = motor->m_conf;
 	float p_term;
@@ -511,14 +511,18 @@ void foc_run_pid_control_speed(bool index_found, float dt, motor_all_state_t *mo
 	}
 
 	float rpm = 0.0;
+	//获取实际速度
 	switch (conf_now->s_pid_speed_source) {
 	case S_PID_SPEED_SRC_PLL:
+		// 使用PLL速度，较平滑
 		rpm = RADPS2RPM_f(motor->m_pll_speed);
 		break;
 	case S_PID_SPEED_SRC_FAST:
+		// 角度差分后的快速估计速度
 		rpm = RADPS2RPM_f(motor->m_speed_est_fast);
 		break;
 	case S_PID_SPEED_SRC_FASTER:
+		// 滤波更弱，相应更快，但噪声更大
 		rpm = RADPS2RPM_f(motor->m_speed_est_faster);
 		break;
 	}
@@ -534,6 +538,13 @@ void foc_run_pid_control_speed(bool index_found, float dt, motor_all_state_t *mo
 	}
 
 	// Compute parameters
+	
+	/*
+	P：速度差越大，立即给越大的转矩。
+	I：补偿负载，解决有负载时长期达不到目标速度的问题。
+	D：抑制速度快速变化和超调。
+	*/
+	
 	p_term = error * conf_now->s_pid_kp * (1.0 / 20.0);
 	d_term = (error - motor->m_speed_prev_error) * (conf_now->s_pid_kd / dt) * (1.0 / 20.0);
 

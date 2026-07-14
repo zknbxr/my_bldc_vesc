@@ -43,3 +43,57 @@
 ### 弱磁控制
 
 这段是在高速电压不够时自动或手动加入负 d 轴弱磁电流，并相应减少 q 轴转矩电流，让电机能超过基速运行，同时避免总电流过大。
+
+
+
+## 速度环
+
+### 接收速度命令
+
+```
+case COMM_SET_RPM:
+    mc_interface_set_pid_speed(rpm);
+```
+
+foc电机调用
+
+mcpwm_foc_set_pid_speed(DIR_MULT * rpm);
+
+### mcpwm_foc_set_pid_speed()
+
+#### 保存目标速度
+
+设置速度斜坡后把速度环当前目标设为实际速度：应该也就是距离最近的斜坡速度作为当前速度，防止速度命令变换过大。如果没有斜坡就直接设定目标速度。
+
+#### 切换为速度模式
+
+#### 启动电机运行状态
+
+这里要判断速度命令不得小于某值
+
+### 真正速度环
+
+foc_run_pid_control_speed()
+
+由独立的pid_thread周期调用
+
+
+
+
+
+### 阅读顺序
+
+mcpwm_foc_set_pid_speed()
+    ↓
+pid_thread()
+    ↓
+foc_run_pid_control_speed()
+    ↓
+mcpwm_foc_adc_int_handler() 中的 iq_set_tmp
+    ↓
+control_current()
+    ↓
+foc_svm()
+    ↓
+TIMER_UPDATE_DUTY_M1()
+
