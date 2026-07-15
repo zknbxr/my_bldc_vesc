@@ -1,6 +1,6 @@
 Dependencies for Project 'mc_my', Target 'Target_1': (DO NOT MODIFY !)
 CompilerVersion: 5060960::V5.06 update 7 (build 960)::.\ARMCC
-F (.\src\user\main.c)(0x6A4603A7)(--c99 -c --cpu Cortex-M0 -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I .\vendor\LKS32MC03x_Periph_Driver\Include -I .\include\app -I .\include\bsp -I .\include\mcs -I .\CMSIS\HAll -I D:\Keil_v5\ARM\INC\Linko\LKS32MC03x-IE:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include-IE:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="542" -DLKS32MC034FLF6Q8B-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
+F (.\src\user\main.c)(0x6A56F2D6)(--c99 -c --cpu Cortex-M0 -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I .\vendor\LKS32MC03x_Periph_Driver\Include -I .\include\app -I .\include\bsp -I .\include\mcs -I .\CMSIS\HAll -I D:\Keil_v5\ARM\INC\Linko\LKS32MC03x-IE:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include-IE:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="542" -DLKS32MC034FLF6Q8B-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
 I (.\include\app\main.h)(0x6A152BB2)
 I (E:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include\lks32mc03x.h)(0x69CB3A4C)
 I (E:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include\basic.h)(0x69CB3A4C)
@@ -36,14 +36,14 @@ I (.\include\app\Type.h)(0x6A0A59A7)
 I (.\include\app\Prototype.h)(0x6A166065)
 I (.\include\app\Variable.h)(0x6A165E97)
 I (E:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x5E8E3CC2)
-I (.\include\bsp\bsp_user.h)(0x6A1F8FF4)
+I (.\include\bsp\bsp_user.h)(0x6A56F2BF)
 I (.\include\mcs\mcs_include.h)(0x6A39D083)
 I (.\include\mcs\mcs_state_type.h)(0x6A461513)
 I (.\include\mcs\mcs_ctrl_type.h)(0x6A461513)
 I (.\include\mcs\mcs_error_type.h)(0x6A0A615E)
 I (.\include\mcs\mcs_foc_hw_type.h)(0x6A461513)
-I (.\include\mcs\mcs_motor_type.h)(0x6A560123)
-I (.\include\mcs\sensorless_ctrl.h)(0x6A39FB72)
+I (.\include\mcs\mcs_motor_type.h)(0x6A56DFB3)
+I (.\include\mcs\sensorless_ctrl.h)(0x6A56DFB3)
 I (.\include\mcs\mcs_motor.h)(0x6A46158B)
 I (.\include\mcs\mcs_hall.h)(0x6A16AC79)
 I (.\include\mcs\mcs_bp_customer.h)(0x6A1101F3)
@@ -88,14 +88,14 @@ I (.\include\app\Type.h)(0x6A0A59A7)
 I (.\include\app\Prototype.h)(0x6A166065)
 I (.\include\app\Variable.h)(0x6A165E97)
 I (E:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x5E8E3CC2)
-I (.\include\bsp\bsp_user.h)(0x6A1F8FF4)
+I (.\include\bsp\bsp_user.h)(0x6A56F2BF)
 I (.\include\mcs\mcs_include.h)(0x6A39D083)
 I (.\include\mcs\mcs_state_type.h)(0x6A461513)
 I (.\include\mcs\mcs_ctrl_type.h)(0x6A461513)
 I (.\include\mcs\mcs_error_type.h)(0x6A0A615E)
 I (.\include\mcs\mcs_foc_hw_type.h)(0x6A461513)
-I (.\include\mcs\mcs_motor_type.h)(0x6A560123)
-I (.\include\mcs\sensorless_ctrl.h)(0x6A39FB72)
+I (.\include\mcs\mcs_motor_type.h)(0x6A56DFB3)
+I (.\include\mcs\sensorless_ctrl.h)(0x6A56DFB3)
 I (.\include\mcs\mcs_motor.h)(0x6A46158B)
 I (.\include\mcs\mcs_hall.h)(0x6A16AC79)
 I (.\include\mcs\mcs_bp_customer.h)(0x6A1101F3)
@@ -140,14 +140,14 @@ I (.\include\app\Type.h)(0x6A0A59A7)
 I (.\include\app\Prototype.h)(0x6A166065)
 I (.\include\app\Variable.h)(0x6A165E97)
 I (E:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x5E8E3CC2)
-I (.\include\bsp\bsp_user.h)(0x6A1F8FF4)
+I (.\include\bsp\bsp_user.h)(0x6A56F2BF)
 I (.\include\mcs\mcs_include.h)(0x6A39D083)
 I (.\include\mcs\mcs_state_type.h)(0x6A461513)
 I (.\include\mcs\mcs_ctrl_type.h)(0x6A461513)
 I (.\include\mcs\mcs_error_type.h)(0x6A0A615E)
 I (.\include\mcs\mcs_foc_hw_type.h)(0x6A461513)
-I (.\include\mcs\mcs_motor_type.h)(0x6A560123)
-I (.\include\mcs\sensorless_ctrl.h)(0x6A39FB72)
+I (.\include\mcs\mcs_motor_type.h)(0x6A56DFB3)
+I (.\include\mcs\sensorless_ctrl.h)(0x6A56DFB3)
 I (.\include\mcs\mcs_motor.h)(0x6A46158B)
 I (.\include\mcs\mcs_hall.h)(0x6A16AC79)
 I (.\include\mcs\mcs_bp_customer.h)(0x6A1101F3)
@@ -192,14 +192,14 @@ I (.\include\app\Type.h)(0x6A0A59A7)
 I (.\include\app\Prototype.h)(0x6A166065)
 I (.\include\app\Variable.h)(0x6A165E97)
 I (E:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x5E8E3CC2)
-I (.\include\bsp\bsp_user.h)(0x6A1F8FF4)
+I (.\include\bsp\bsp_user.h)(0x6A56F2BF)
 I (.\include\mcs\mcs_include.h)(0x6A39D083)
 I (.\include\mcs\mcs_state_type.h)(0x6A461513)
 I (.\include\mcs\mcs_ctrl_type.h)(0x6A461513)
 I (.\include\mcs\mcs_error_type.h)(0x6A0A615E)
 I (.\include\mcs\mcs_foc_hw_type.h)(0x6A461513)
-I (.\include\mcs\mcs_motor_type.h)(0x6A560123)
-I (.\include\mcs\sensorless_ctrl.h)(0x6A39FB72)
+I (.\include\mcs\mcs_motor_type.h)(0x6A56DFB3)
+I (.\include\mcs\sensorless_ctrl.h)(0x6A56DFB3)
 I (.\include\mcs\mcs_motor.h)(0x6A46158B)
 I (.\include\mcs\mcs_hall.h)(0x6A16AC79)
 I (.\include\mcs\mcs_bp_customer.h)(0x6A1101F3)
@@ -244,14 +244,14 @@ I (.\include\app\Type.h)(0x6A0A59A7)
 I (.\include\app\Prototype.h)(0x6A166065)
 I (.\include\app\Variable.h)(0x6A165E97)
 I (E:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x5E8E3CC2)
-I (.\include\bsp\bsp_user.h)(0x6A1F8FF4)
+I (.\include\bsp\bsp_user.h)(0x6A56F2BF)
 I (.\include\mcs\mcs_include.h)(0x6A39D083)
 I (.\include\mcs\mcs_state_type.h)(0x6A461513)
 I (.\include\mcs\mcs_ctrl_type.h)(0x6A461513)
 I (.\include\mcs\mcs_error_type.h)(0x6A0A615E)
 I (.\include\mcs\mcs_foc_hw_type.h)(0x6A461513)
-I (.\include\mcs\mcs_motor_type.h)(0x6A560123)
-I (.\include\mcs\sensorless_ctrl.h)(0x6A39FB72)
+I (.\include\mcs\mcs_motor_type.h)(0x6A56DFB3)
+I (.\include\mcs\sensorless_ctrl.h)(0x6A56DFB3)
 I (.\include\mcs\mcs_motor.h)(0x6A46158B)
 I (.\include\mcs\mcs_hall.h)(0x6A16AC79)
 I (.\include\mcs\mcs_bp_customer.h)(0x6A1101F3)
@@ -296,14 +296,14 @@ I (.\include\app\Type.h)(0x6A0A59A7)
 I (.\include\app\Prototype.h)(0x6A166065)
 I (.\include\app\Variable.h)(0x6A165E97)
 I (E:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x5E8E3CC2)
-I (.\include\bsp\bsp_user.h)(0x6A1F8FF4)
+I (.\include\bsp\bsp_user.h)(0x6A56F2BF)
 I (.\include\mcs\mcs_include.h)(0x6A39D083)
 I (.\include\mcs\mcs_state_type.h)(0x6A461513)
 I (.\include\mcs\mcs_ctrl_type.h)(0x6A461513)
 I (.\include\mcs\mcs_error_type.h)(0x6A0A615E)
 I (.\include\mcs\mcs_foc_hw_type.h)(0x6A461513)
-I (.\include\mcs\mcs_motor_type.h)(0x6A560123)
-I (.\include\mcs\sensorless_ctrl.h)(0x6A39FB72)
+I (.\include\mcs\mcs_motor_type.h)(0x6A56DFB3)
+I (.\include\mcs\sensorless_ctrl.h)(0x6A56DFB3)
 I (.\include\mcs\mcs_motor.h)(0x6A46158B)
 I (.\include\mcs\mcs_hall.h)(0x6A16AC79)
 I (.\include\mcs\mcs_bp_customer.h)(0x6A1101F3)
@@ -348,14 +348,14 @@ I (.\include\app\Type.h)(0x6A0A59A7)
 I (.\include\app\Prototype.h)(0x6A166065)
 I (.\include\app\Variable.h)(0x6A165E97)
 I (E:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x5E8E3CC2)
-I (.\include\bsp\bsp_user.h)(0x6A1F8FF4)
+I (.\include\bsp\bsp_user.h)(0x6A56F2BF)
 I (.\include\mcs\mcs_include.h)(0x6A39D083)
 I (.\include\mcs\mcs_state_type.h)(0x6A461513)
 I (.\include\mcs\mcs_ctrl_type.h)(0x6A461513)
 I (.\include\mcs\mcs_error_type.h)(0x6A0A615E)
 I (.\include\mcs\mcs_foc_hw_type.h)(0x6A461513)
-I (.\include\mcs\mcs_motor_type.h)(0x6A560123)
-I (.\include\mcs\sensorless_ctrl.h)(0x6A39FB72)
+I (.\include\mcs\mcs_motor_type.h)(0x6A56DFB3)
+I (.\include\mcs\sensorless_ctrl.h)(0x6A56DFB3)
 I (.\include\mcs\mcs_motor.h)(0x6A46158B)
 I (.\include\mcs\mcs_hall.h)(0x6A16AC79)
 I (.\include\mcs\mcs_bp_customer.h)(0x6A1101F3)
@@ -369,7 +369,7 @@ F (.\include\app\main.h)(0x6A152BB2)()
 F (.\include\app\Prototype.h)(0x6A166065)()
 F (.\include\app\Type.h)(0x6A0A59A7)()
 F (.\include\app\Variable.h)(0x6A165E97)()
-F (.\src\mcs\mcs_init.c)(0x6A560123)(--c99 -c --cpu Cortex-M0 -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I .\vendor\LKS32MC03x_Periph_Driver\Include -I .\include\app -I .\include\bsp -I .\include\mcs -I .\CMSIS\HAll -I D:\Keil_v5\ARM\INC\Linko\LKS32MC03x-IE:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include-IE:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="542" -DLKS32MC034FLF6Q8B-o .\objects\mcs_init.o --omf_browse .\objects\mcs_init.crf --depend .\objects\mcs_init.d)
+F (.\src\mcs\mcs_init.c)(0x6A56F2BF)(--c99 -c --cpu Cortex-M0 -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I .\vendor\LKS32MC03x_Periph_Driver\Include -I .\include\app -I .\include\bsp -I .\include\mcs -I .\CMSIS\HAll -I D:\Keil_v5\ARM\INC\Linko\LKS32MC03x-IE:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include-IE:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="542" -DLKS32MC034FLF6Q8B-o .\objects\mcs_init.o --omf_browse .\objects\mcs_init.crf --depend .\objects\mcs_init.d)
 I (.\include\app\main.h)(0x6A152BB2)
 I (E:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include\lks32mc03x.h)(0x69CB3A4C)
 I (E:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include\basic.h)(0x69CB3A4C)
@@ -405,14 +405,14 @@ I (.\include\app\Type.h)(0x6A0A59A7)
 I (.\include\app\Prototype.h)(0x6A166065)
 I (.\include\app\Variable.h)(0x6A165E97)
 I (E:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x5E8E3CC2)
-I (.\include\bsp\bsp_user.h)(0x6A1F8FF4)
+I (.\include\bsp\bsp_user.h)(0x6A56F2BF)
 I (.\include\mcs\mcs_include.h)(0x6A39D083)
 I (.\include\mcs\mcs_state_type.h)(0x6A461513)
 I (.\include\mcs\mcs_ctrl_type.h)(0x6A461513)
 I (.\include\mcs\mcs_error_type.h)(0x6A0A615E)
 I (.\include\mcs\mcs_foc_hw_type.h)(0x6A461513)
-I (.\include\mcs\mcs_motor_type.h)(0x6A560123)
-I (.\include\mcs\sensorless_ctrl.h)(0x6A39FB72)
+I (.\include\mcs\mcs_motor_type.h)(0x6A56DFB3)
+I (.\include\mcs\sensorless_ctrl.h)(0x6A56DFB3)
 I (.\include\mcs\mcs_motor.h)(0x6A46158B)
 I (.\include\mcs\mcs_hall.h)(0x6A16AC79)
 I (.\include\mcs\mcs_bp_customer.h)(0x6A1101F3)
@@ -457,14 +457,14 @@ I (.\include\app\Type.h)(0x6A0A59A7)
 I (.\include\app\Prototype.h)(0x6A166065)
 I (.\include\app\Variable.h)(0x6A165E97)
 I (E:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x5E8E3CC2)
-I (.\include\bsp\bsp_user.h)(0x6A1F8FF4)
+I (.\include\bsp\bsp_user.h)(0x6A56F2BF)
 I (.\include\mcs\mcs_include.h)(0x6A39D083)
 I (.\include\mcs\mcs_state_type.h)(0x6A461513)
 I (.\include\mcs\mcs_ctrl_type.h)(0x6A461513)
 I (.\include\mcs\mcs_error_type.h)(0x6A0A615E)
 I (.\include\mcs\mcs_foc_hw_type.h)(0x6A461513)
-I (.\include\mcs\mcs_motor_type.h)(0x6A560123)
-I (.\include\mcs\sensorless_ctrl.h)(0x6A39FB72)
+I (.\include\mcs\mcs_motor_type.h)(0x6A56DFB3)
+I (.\include\mcs\sensorless_ctrl.h)(0x6A56DFB3)
 I (.\include\mcs\mcs_motor.h)(0x6A46158B)
 I (.\include\mcs\mcs_hall.h)(0x6A16AC79)
 I (.\include\mcs\mcs_bp_customer.h)(0x6A1101F3)
@@ -509,14 +509,14 @@ I (.\include\app\Type.h)(0x6A0A59A7)
 I (.\include\app\Prototype.h)(0x6A166065)
 I (.\include\app\Variable.h)(0x6A165E97)
 I (E:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x5E8E3CC2)
-I (.\include\bsp\bsp_user.h)(0x6A1F8FF4)
+I (.\include\bsp\bsp_user.h)(0x6A56F2BF)
 I (.\include\mcs\mcs_include.h)(0x6A39D083)
 I (.\include\mcs\mcs_state_type.h)(0x6A461513)
 I (.\include\mcs\mcs_ctrl_type.h)(0x6A461513)
 I (.\include\mcs\mcs_error_type.h)(0x6A0A615E)
 I (.\include\mcs\mcs_foc_hw_type.h)(0x6A461513)
-I (.\include\mcs\mcs_motor_type.h)(0x6A560123)
-I (.\include\mcs\sensorless_ctrl.h)(0x6A39FB72)
+I (.\include\mcs\mcs_motor_type.h)(0x6A56DFB3)
+I (.\include\mcs\sensorless_ctrl.h)(0x6A56DFB3)
 I (.\include\mcs\mcs_motor.h)(0x6A46158B)
 I (.\include\mcs\mcs_hall.h)(0x6A16AC79)
 I (.\include\mcs\mcs_bp_customer.h)(0x6A1101F3)
@@ -525,7 +525,7 @@ I (.\include\mcs\mcs_prototype.h)(0x6A560123)
 I (.\include\mcs\mcs_variable.h)(0x6A560123)
 I (.\include\app\app_control.h)(0x6A0A59A7)
 I (.\include\app\app_height.h)(0x6A0A9FC2)
-F (.\src\mcs\mcs_foc_hw.c)(0x6A560123)(--c99 -c --cpu Cortex-M0 -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I .\vendor\LKS32MC03x_Periph_Driver\Include -I .\include\app -I .\include\bsp -I .\include\mcs -I .\CMSIS\HAll -I D:\Keil_v5\ARM\INC\Linko\LKS32MC03x-IE:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include-IE:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="542" -DLKS32MC034FLF6Q8B-o .\objects\mcs_foc_hw.o --omf_browse .\objects\mcs_foc_hw.crf --depend .\objects\mcs_foc_hw.d)
+F (.\src\mcs\mcs_foc_hw.c)(0x6A56EFA3)(--c99 -c --cpu Cortex-M0 -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I .\vendor\LKS32MC03x_Periph_Driver\Include -I .\include\app -I .\include\bsp -I .\include\mcs -I .\CMSIS\HAll -I D:\Keil_v5\ARM\INC\Linko\LKS32MC03x-IE:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include-IE:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="542" -DLKS32MC034FLF6Q8B-o .\objects\mcs_foc_hw.o --omf_browse .\objects\mcs_foc_hw.crf --depend .\objects\mcs_foc_hw.d)
 I (.\include\app\main.h)(0x6A152BB2)
 I (E:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include\lks32mc03x.h)(0x69CB3A4C)
 I (E:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include\basic.h)(0x69CB3A4C)
@@ -561,14 +561,14 @@ I (.\include\app\Type.h)(0x6A0A59A7)
 I (.\include\app\Prototype.h)(0x6A166065)
 I (.\include\app\Variable.h)(0x6A165E97)
 I (E:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x5E8E3CC2)
-I (.\include\bsp\bsp_user.h)(0x6A1F8FF4)
+I (.\include\bsp\bsp_user.h)(0x6A56F2BF)
 I (.\include\mcs\mcs_include.h)(0x6A39D083)
 I (.\include\mcs\mcs_state_type.h)(0x6A461513)
 I (.\include\mcs\mcs_ctrl_type.h)(0x6A461513)
 I (.\include\mcs\mcs_error_type.h)(0x6A0A615E)
 I (.\include\mcs\mcs_foc_hw_type.h)(0x6A461513)
-I (.\include\mcs\mcs_motor_type.h)(0x6A560123)
-I (.\include\mcs\sensorless_ctrl.h)(0x6A39FB72)
+I (.\include\mcs\mcs_motor_type.h)(0x6A56DFB3)
+I (.\include\mcs\sensorless_ctrl.h)(0x6A56DFB3)
 I (.\include\mcs\mcs_motor.h)(0x6A46158B)
 I (.\include\mcs\mcs_hall.h)(0x6A16AC79)
 I (.\include\mcs\mcs_bp_customer.h)(0x6A1101F3)
@@ -613,14 +613,14 @@ I (.\include\app\Type.h)(0x6A0A59A7)
 I (.\include\app\Prototype.h)(0x6A166065)
 I (.\include\app\Variable.h)(0x6A165E97)
 I (E:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x5E8E3CC2)
-I (.\include\bsp\bsp_user.h)(0x6A1F8FF4)
+I (.\include\bsp\bsp_user.h)(0x6A56F2BF)
 I (.\include\mcs\mcs_include.h)(0x6A39D083)
 I (.\include\mcs\mcs_state_type.h)(0x6A461513)
 I (.\include\mcs\mcs_ctrl_type.h)(0x6A461513)
 I (.\include\mcs\mcs_error_type.h)(0x6A0A615E)
 I (.\include\mcs\mcs_foc_hw_type.h)(0x6A461513)
-I (.\include\mcs\mcs_motor_type.h)(0x6A560123)
-I (.\include\mcs\sensorless_ctrl.h)(0x6A39FB72)
+I (.\include\mcs\mcs_motor_type.h)(0x6A56DFB3)
+I (.\include\mcs\sensorless_ctrl.h)(0x6A56DFB3)
 I (.\include\mcs\mcs_motor.h)(0x6A46158B)
 I (.\include\mcs\mcs_hall.h)(0x6A16AC79)
 I (.\include\mcs\mcs_bp_customer.h)(0x6A1101F3)
@@ -666,14 +666,14 @@ I (.\include\app\Type.h)(0x6A0A59A7)
 I (.\include\app\Prototype.h)(0x6A166065)
 I (.\include\app\Variable.h)(0x6A165E97)
 I (E:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x5E8E3CC2)
-I (.\include\bsp\bsp_user.h)(0x6A1F8FF4)
+I (.\include\bsp\bsp_user.h)(0x6A56F2BF)
 I (.\include\mcs\mcs_include.h)(0x6A39D083)
 I (.\include\mcs\mcs_state_type.h)(0x6A461513)
 I (.\include\mcs\mcs_ctrl_type.h)(0x6A461513)
 I (.\include\mcs\mcs_error_type.h)(0x6A0A615E)
 I (.\include\mcs\mcs_foc_hw_type.h)(0x6A461513)
-I (.\include\mcs\mcs_motor_type.h)(0x6A560123)
-I (.\include\mcs\sensorless_ctrl.h)(0x6A39FB72)
+I (.\include\mcs\mcs_motor_type.h)(0x6A56DFB3)
+I (.\include\mcs\sensorless_ctrl.h)(0x6A56DFB3)
 I (.\include\mcs\mcs_motor.h)(0x6A46158B)
 I (.\include\mcs\mcs_hall.h)(0x6A16AC79)
 I (.\include\mcs\mcs_bp_customer.h)(0x6A1101F3)
@@ -718,14 +718,14 @@ I (.\include\app\Type.h)(0x6A0A59A7)
 I (.\include\app\Prototype.h)(0x6A166065)
 I (.\include\app\Variable.h)(0x6A165E97)
 I (E:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x5E8E3CC2)
-I (.\include\bsp\bsp_user.h)(0x6A1F8FF4)
+I (.\include\bsp\bsp_user.h)(0x6A56F2BF)
 I (.\include\mcs\mcs_include.h)(0x6A39D083)
 I (.\include\mcs\mcs_state_type.h)(0x6A461513)
 I (.\include\mcs\mcs_ctrl_type.h)(0x6A461513)
 I (.\include\mcs\mcs_error_type.h)(0x6A0A615E)
 I (.\include\mcs\mcs_foc_hw_type.h)(0x6A461513)
-I (.\include\mcs\mcs_motor_type.h)(0x6A560123)
-I (.\include\mcs\sensorless_ctrl.h)(0x6A39FB72)
+I (.\include\mcs\mcs_motor_type.h)(0x6A56DFB3)
+I (.\include\mcs\sensorless_ctrl.h)(0x6A56DFB3)
 I (.\include\mcs\mcs_motor.h)(0x6A46158B)
 I (.\include\mcs\mcs_hall.h)(0x6A16AC79)
 I (.\include\mcs\mcs_bp_customer.h)(0x6A1101F3)
@@ -735,7 +735,7 @@ I (.\include\mcs\mcs_variable.h)(0x6A560123)
 I (.\include\app\app_control.h)(0x6A0A59A7)
 I (.\include\app\app_height.h)(0x6A0A9FC2)
 I (.\include\mcs\mcs_motor_internal.h)(0x6A16AC79)
-F (.\src\mcs\sensorless_ctrl.c)(0x6A46145E)(--c99 -c --cpu Cortex-M0 -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I .\vendor\LKS32MC03x_Periph_Driver\Include -I .\include\app -I .\include\bsp -I .\include\mcs -I .\CMSIS\HAll -I D:\Keil_v5\ARM\INC\Linko\LKS32MC03x-IE:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include-IE:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="542" -DLKS32MC034FLF6Q8B-o .\objects\sensorless_ctrl.o --omf_browse .\objects\sensorless_ctrl.crf --depend .\objects\sensorless_ctrl.d)
+F (.\src\mcs\sensorless_ctrl.c)(0x6A56E000)(--c99 -c --cpu Cortex-M0 -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I .\vendor\LKS32MC03x_Periph_Driver\Include -I .\include\app -I .\include\bsp -I .\include\mcs -I .\CMSIS\HAll -I D:\Keil_v5\ARM\INC\Linko\LKS32MC03x-IE:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include-IE:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="542" -DLKS32MC034FLF6Q8B-o .\objects\sensorless_ctrl.o --omf_browse .\objects\sensorless_ctrl.crf --depend .\objects\sensorless_ctrl.d)
 I (.\include\app\main.h)(0x6A152BB2)
 I (E:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include\lks32mc03x.h)(0x69CB3A4C)
 I (E:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include\basic.h)(0x69CB3A4C)
@@ -771,14 +771,14 @@ I (.\include\app\Type.h)(0x6A0A59A7)
 I (.\include\app\Prototype.h)(0x6A166065)
 I (.\include\app\Variable.h)(0x6A165E97)
 I (E:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x5E8E3CC2)
-I (.\include\bsp\bsp_user.h)(0x6A1F8FF4)
+I (.\include\bsp\bsp_user.h)(0x6A56F2BF)
 I (.\include\mcs\mcs_include.h)(0x6A39D083)
 I (.\include\mcs\mcs_state_type.h)(0x6A461513)
 I (.\include\mcs\mcs_ctrl_type.h)(0x6A461513)
 I (.\include\mcs\mcs_error_type.h)(0x6A0A615E)
 I (.\include\mcs\mcs_foc_hw_type.h)(0x6A461513)
-I (.\include\mcs\mcs_motor_type.h)(0x6A560123)
-I (.\include\mcs\sensorless_ctrl.h)(0x6A39FB72)
+I (.\include\mcs\mcs_motor_type.h)(0x6A56DFB3)
+I (.\include\mcs\sensorless_ctrl.h)(0x6A56DFB3)
 I (.\include\mcs\mcs_motor.h)(0x6A46158B)
 I (.\include\mcs\mcs_hall.h)(0x6A16AC79)
 I (.\include\mcs\mcs_bp_customer.h)(0x6A1101F3)
@@ -787,7 +787,6 @@ I (.\include\mcs\mcs_prototype.h)(0x6A560123)
 I (.\include\mcs\mcs_variable.h)(0x6A560123)
 I (.\include\app\app_control.h)(0x6A0A59A7)
 I (.\include\app\app_height.h)(0x6A0A9FC2)
-I (E:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E3CC2)
 F (.\src\mcs\mcs_math.c)(0x6A560123)(--c99 -c --cpu Cortex-M0 -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I .\vendor\LKS32MC03x_Periph_Driver\Include -I .\include\app -I .\include\bsp -I .\include\mcs -I .\CMSIS\HAll -I D:\Keil_v5\ARM\INC\Linko\LKS32MC03x-IE:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include-IE:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="542" -DLKS32MC034FLF6Q8B-o .\objects\mcs_math.o --omf_browse .\objects\mcs_math.crf --depend .\objects\mcs_math.d)
 I (.\include\app\main.h)(0x6A152BB2)
 I (E:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include\lks32mc03x.h)(0x69CB3A4C)
@@ -824,14 +823,14 @@ I (.\include\app\Type.h)(0x6A0A59A7)
 I (.\include\app\Prototype.h)(0x6A166065)
 I (.\include\app\Variable.h)(0x6A165E97)
 I (E:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x5E8E3CC2)
-I (.\include\bsp\bsp_user.h)(0x6A1F8FF4)
+I (.\include\bsp\bsp_user.h)(0x6A56F2BF)
 I (.\include\mcs\mcs_include.h)(0x6A39D083)
 I (.\include\mcs\mcs_state_type.h)(0x6A461513)
 I (.\include\mcs\mcs_ctrl_type.h)(0x6A461513)
 I (.\include\mcs\mcs_error_type.h)(0x6A0A615E)
 I (.\include\mcs\mcs_foc_hw_type.h)(0x6A461513)
-I (.\include\mcs\mcs_motor_type.h)(0x6A560123)
-I (.\include\mcs\sensorless_ctrl.h)(0x6A39FB72)
+I (.\include\mcs\mcs_motor_type.h)(0x6A56DFB3)
+I (.\include\mcs\sensorless_ctrl.h)(0x6A56DFB3)
 I (.\include\mcs\mcs_motor.h)(0x6A46158B)
 I (.\include\mcs\mcs_hall.h)(0x6A16AC79)
 I (.\include\mcs\mcs_bp_customer.h)(0x6A1101F3)
@@ -840,7 +839,7 @@ I (.\include\mcs\mcs_prototype.h)(0x6A560123)
 I (.\include\mcs\mcs_variable.h)(0x6A560123)
 I (.\include\app\app_control.h)(0x6A0A59A7)
 I (.\include\app\app_height.h)(0x6A0A9FC2)
-F (.\src\mcs\mcs_pwm_foc.c)(0x6A560123)(--c99 -c --cpu Cortex-M0 -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I .\vendor\LKS32MC03x_Periph_Driver\Include -I .\include\app -I .\include\bsp -I .\include\mcs -I .\CMSIS\HAll -I D:\Keil_v5\ARM\INC\Linko\LKS32MC03x-IE:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include-IE:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="542" -DLKS32MC034FLF6Q8B-o .\objects\mcs_pwm_foc.o --omf_browse .\objects\mcs_pwm_foc.crf --depend .\objects\mcs_pwm_foc.d)
+F (.\src\mcs\mcs_pwm_foc.c)(0x6A56DFB3)(--c99 -c --cpu Cortex-M0 -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I .\vendor\LKS32MC03x_Periph_Driver\Include -I .\include\app -I .\include\bsp -I .\include\mcs -I .\CMSIS\HAll -I D:\Keil_v5\ARM\INC\Linko\LKS32MC03x-IE:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include-IE:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="542" -DLKS32MC034FLF6Q8B-o .\objects\mcs_pwm_foc.o --omf_browse .\objects\mcs_pwm_foc.crf --depend .\objects\mcs_pwm_foc.d)
 I (.\include\app\main.h)(0x6A152BB2)
 I (E:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include\lks32mc03x.h)(0x69CB3A4C)
 I (E:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include\basic.h)(0x69CB3A4C)
@@ -876,14 +875,14 @@ I (.\include\app\Type.h)(0x6A0A59A7)
 I (.\include\app\Prototype.h)(0x6A166065)
 I (.\include\app\Variable.h)(0x6A165E97)
 I (E:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x5E8E3CC2)
-I (.\include\bsp\bsp_user.h)(0x6A1F8FF4)
+I (.\include\bsp\bsp_user.h)(0x6A56F2BF)
 I (.\include\mcs\mcs_include.h)(0x6A39D083)
 I (.\include\mcs\mcs_state_type.h)(0x6A461513)
 I (.\include\mcs\mcs_ctrl_type.h)(0x6A461513)
 I (.\include\mcs\mcs_error_type.h)(0x6A0A615E)
 I (.\include\mcs\mcs_foc_hw_type.h)(0x6A461513)
-I (.\include\mcs\mcs_motor_type.h)(0x6A560123)
-I (.\include\mcs\sensorless_ctrl.h)(0x6A39FB72)
+I (.\include\mcs\mcs_motor_type.h)(0x6A56DFB3)
+I (.\include\mcs\sensorless_ctrl.h)(0x6A56DFB3)
 I (.\include\mcs\mcs_motor.h)(0x6A46158B)
 I (.\include\mcs\mcs_hall.h)(0x6A16AC79)
 I (.\include\mcs\mcs_bp_customer.h)(0x6A1101F3)
@@ -899,7 +898,7 @@ F (.\include\mcs\mcs_ctrl_type.h)(0x6A461513)()
 F (.\include\mcs\mcs_variable.h)(0x6A560123)()
 F (.\include\mcs\mcs_error_type.h)(0x6A0A615E)()
 F (.\include\mcs\mcs_foc_hw_type.h)(0x6A461513)()
-F (.\include\mcs\mcs_motor_type.h)(0x6A560123)()
+F (.\include\mcs\mcs_motor_type.h)(0x6A56DFB3)()
 F (.\include\mcs\mcs_bp_customer.h)(0x6A1101F3)()
 F (.\include\mcs\mcs_const.h)(0x6A4F6585)()
 F (.\src\bsp\hardware_init.c)(0x6A337BFF)(--c99 -c --cpu Cortex-M0 -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I .\vendor\LKS32MC03x_Periph_Driver\Include -I .\include\app -I .\include\bsp -I .\include\mcs -I .\CMSIS\HAll -I D:\Keil_v5\ARM\INC\Linko\LKS32MC03x-IE:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include-IE:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="542" -DLKS32MC034FLF6Q8B-o .\objects\hardware_init.o --omf_browse .\objects\hardware_init.crf --depend .\objects\hardware_init.d)
@@ -938,14 +937,14 @@ I (.\include\app\Type.h)(0x6A0A59A7)
 I (.\include\app\Prototype.h)(0x6A166065)
 I (.\include\app\Variable.h)(0x6A165E97)
 I (E:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x5E8E3CC2)
-I (.\include\bsp\bsp_user.h)(0x6A1F8FF4)
+I (.\include\bsp\bsp_user.h)(0x6A56F2BF)
 I (.\include\mcs\mcs_include.h)(0x6A39D083)
 I (.\include\mcs\mcs_state_type.h)(0x6A461513)
 I (.\include\mcs\mcs_ctrl_type.h)(0x6A461513)
 I (.\include\mcs\mcs_error_type.h)(0x6A0A615E)
 I (.\include\mcs\mcs_foc_hw_type.h)(0x6A461513)
-I (.\include\mcs\mcs_motor_type.h)(0x6A560123)
-I (.\include\mcs\sensorless_ctrl.h)(0x6A39FB72)
+I (.\include\mcs\mcs_motor_type.h)(0x6A56DFB3)
+I (.\include\mcs\sensorless_ctrl.h)(0x6A56DFB3)
 I (.\include\mcs\mcs_motor.h)(0x6A46158B)
 I (.\include\mcs\mcs_hall.h)(0x6A16AC79)
 I (.\include\mcs\mcs_bp_customer.h)(0x6A1101F3)
@@ -954,7 +953,7 @@ I (.\include\mcs\mcs_prototype.h)(0x6A560123)
 I (.\include\mcs\mcs_variable.h)(0x6A560123)
 I (.\include\app\app_control.h)(0x6A0A59A7)
 I (.\include\app\app_height.h)(0x6A0A9FC2)
-F (.\include\bsp\bsp_user.h)(0x6A1F8FF4)()
+F (.\include\bsp\bsp_user.h)(0x6A56F2BF)()
 F (.\vendor\LKS32MC03x_Periph_Driver\Source\lks32mc03x_adc.c)(0x6A0A59A7)(--c99 -c --cpu Cortex-M0 -D__MICROLIB -g -O2 --apcs=interwork --split_sections -I .\vendor\LKS32MC03x_Periph_Driver\Include -I .\include\app -I .\include\bsp -I .\include\mcs -I .\CMSIS\HAll -I D:\Keil_v5\ARM\INC\Linko\LKS32MC03x-IE:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include-IE:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="542" -DLKS32MC034FLF6Q8B-o .\objects\lks32mc03x_adc.o --omf_browse .\objects\lks32mc03x_adc.crf --depend .\objects\lks32mc03x_adc.d)
 I (.\vendor\LKS32MC03x_Periph_Driver\Include\lks32mc03x_adc.h)(0x6A0A59A7)
 I (E:\ARM\Pack\Linko\LKS03x\1.1.8\Device\Include\lks32mc03x.h)(0x69CB3A4C)

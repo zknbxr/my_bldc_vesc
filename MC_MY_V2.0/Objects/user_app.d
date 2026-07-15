@@ -65,10 +65,10 @@
 .\objects\user_app.o: .\include\mcs\mcs_foc_hw_type.h
 .\objects\user_app.o: .\include\mcs\mcs_motor_type.h
 .\objects\user_app.o: .\include\mcs\sensorless_ctrl.h
-.\objects\user_app.o: .\include\app\main.h
 .\objects\user_app.o: .\include\mcs\mcs_motor.h
 .\objects\user_app.o: .\include\mcs\mcs_hall.h
 .\objects\user_app.o: .\include\mcs\mcs_bp_customer.h
+.\objects\user_app.o: .\include\app\main.h
 .\objects\user_app.o: .\include\mcs\mcs_const.h
 .\objects\user_app.o: .\include\mcs\mcs_prototype.h
 .\objects\user_app.o: .\include\mcs\mcs_variable.h

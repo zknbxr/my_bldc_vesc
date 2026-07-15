@@ -56,7 +56,7 @@ static void DirectionTest_CalcPark(u16 angle)
 
 void Motor_DirectionTest_Stop(void)
 {
-    MCS_FLUX_OBS_ENABLE = 0U;
+    m_motor.m_phase_override = false;
     m_motor.m_control_mode = CONTROL_MODE_NONE;
     m_motor.m_id_set = 0;
     m_motor.m_iq_set = 0;
@@ -70,7 +70,8 @@ void Motor_DirectionTest_Stop(void)
 
 void Motor_DirectionTest_Task(void)
 {
-    MCS_FLUX_OBS_ENABLE = 0U;
+    /* 方向测试使用固定电角度，不允许无感观测角接管。 */
+    m_motor.m_phase_override = true;
     DirectionTest_CalcPark(gDirectionTestAngle);
 
     if(gDirectionTestMode != s_directionTestLastMode)

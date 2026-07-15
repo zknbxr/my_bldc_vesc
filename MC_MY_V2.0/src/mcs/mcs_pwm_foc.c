@@ -9,6 +9,9 @@
 #define MCS_SQRT3_BY_2_Q15                 (28378L)
 #define MCS_Q15_SHIFT                      (15U)
 #define MCS_Q15_ONE                        (32767L)
+#define FOC_MOTOR_R_MOHM                    (381L)
+#define FOC_MOTOR_L_UH                      (514L)
+#define FOC_MOTOR_FLUX_LINKAGE_UWB          (4450L)
 
 static mc_configuration m_motor_conf = {
     .foc_control_sample_mode = FOC_CONTROL_SAMPLE_MODE_V0,
@@ -19,7 +22,9 @@ static mc_configuration m_motor_conf = {
     .foc_current_filter_const = MCS_CURRENT_FILTER_Q15,
     .foc_current_kp = MCS_CURRENT_KP_Q15_PER_MA,
     .foc_cc_decoupling = FOC_CC_DECOUPLING_DISABLED,
-    .foc_motor_flux_linkage = 0,
+    .foc_motor_r = FOC_MOTOR_R_MOHM,
+    .foc_motor_l = FOC_MOTOR_L_UH,
+    .foc_motor_flux_linkage = FOC_MOTOR_FLUX_LINKAGE_UWB,
     .foc_overmod_factor = MCS_OVERMOD_FACTOR_Q15,
     .l_max_duty = MCS_SVM_MAX_MOD_Q15,
     .lo_current_min = -MCS_MOTOR_CURRENT_MAX_MA,
@@ -112,6 +117,8 @@ static void Foc_ResetCurrentPi(motor_all_state_t *motor)
     state_m->iq_error = 0;
     state_m->mod_alpha = 0;
     state_m->mod_beta = 0;
+    state_m->mod_alpha_raw = 0;
+    state_m->mod_beta_raw = 0;
 }
 
 

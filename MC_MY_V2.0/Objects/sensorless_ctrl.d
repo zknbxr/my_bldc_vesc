@@ -65,14 +65,13 @@
 .\objects\sensorless_ctrl.o: .\include\mcs\mcs_foc_hw_type.h
 .\objects\sensorless_ctrl.o: .\include\mcs\mcs_motor_type.h
 .\objects\sensorless_ctrl.o: .\include\mcs\sensorless_ctrl.h
-.\objects\sensorless_ctrl.o: .\include\app\main.h
 .\objects\sensorless_ctrl.o: .\include\mcs\mcs_motor.h
 .\objects\sensorless_ctrl.o: .\include\mcs\mcs_hall.h
 .\objects\sensorless_ctrl.o: .\include\mcs\mcs_bp_customer.h
+.\objects\sensorless_ctrl.o: .\include\app\main.h
 .\objects\sensorless_ctrl.o: .\include\mcs\mcs_const.h
 .\objects\sensorless_ctrl.o: .\include\mcs\mcs_prototype.h
 .\objects\sensorless_ctrl.o: .\include\mcs\mcs_variable.h
 .\objects\sensorless_ctrl.o: .\include\mcs\mcs_include.h
 .\objects\sensorless_ctrl.o: .\include\app\app_control.h
 .\objects\sensorless_ctrl.o: .\include\app\app_height.h
-.\objects\sensorless_ctrl.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

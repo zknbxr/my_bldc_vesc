@@ -1,9 +1,13 @@
 #include "main.h"
 
+/*
+MCPWM_THx0 = -phase;
+MCPWM_THx1 =  phase;
+计数器到达THx0以前：
+P 上管关闭
+N 下管导通
+*/
 void Task_Scheduler(void);
-
-volatile u8 gSensorlessStartedWatch;
-volatile MCS_MOTOR_START_RESULT gSensorlessStartRetWatch;
 
 int main(void)
 {

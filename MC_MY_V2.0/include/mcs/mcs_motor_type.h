@@ -93,6 +93,8 @@ typedef struct
     u16 svm_sector;    
     s16 max_duty;        /* Q15 */
     s32 v_bus;            /* filtered DC bus voltage in mV */
+    s32 v_alpha;          /* alpha-axis voltage in mV */
+    s32 v_beta;           /* beta-axis voltage in mV */
     s16 phase;
     
     s16 mod_alpha_raw;
@@ -110,6 +112,17 @@ typedef struct
     s16 iq_target;       /* current unit, presently mA */
     bool id_override_hfi;
 } motor_state_t;
+
+/*
+ * VESC observer_state 的定点版本。
+ * x1/x2 是估算的转子磁链，单位为 uWb；电流历史值单位为 mA。
+ */
+typedef struct {
+    s32 x1;
+    s32 x2;
+    s32 i_alpha_last;
+    s32 i_beta_last;
+} observer_state;
 
 typedef enum {
    MC_STATE_OFF = 0,
@@ -149,7 +162,9 @@ typedef struct {
     
     s16 foc_current_kp;           /* Q15 modulation/current-unit */
     mc_foc_cc_decoupling_mode foc_cc_decoupling;
-    s16 foc_motor_flux_linkage;
+    s32 foc_motor_r;              /* phase resistance in mOhm */
+    s32 foc_motor_l;              /* phase inductance in uH */
+    s32 foc_motor_flux_linkage;   /* flux linkage in uWb */
     s16 foc_overmod_factor;       /* Q15 */
     
     s16 foc_offsets_current[3];//电流零偏
@@ -205,6 +220,7 @@ typedef struct
     s16 duty_pi_duty_last;
     
     s16 m_phase_now_observer;
+    observer_state m_observer_state;
     s16 m_i_fw_override;
     s16 m_i_fw_set;
     s16 p_duty_norm;

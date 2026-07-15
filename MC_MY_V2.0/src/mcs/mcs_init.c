@@ -36,11 +36,12 @@ INT16 iAdcRes1,iAdcRes2;
 void ConfigAdcModeMotor0(void)
 {
     /* ADC regular sequence:
-     * CH0/CH1 sample phase current, CH2 samples DC bus, remaining channels
-     * are reserved for Hall/temperature/extra observation channels.
+     * Sample OPA0 after bus voltage and temperature. This keeps enough OPA
+     * settling time while moving both phase-current samples earlier in the V0 window.
      */
-    ADC_CHN0 = ADC_CURRETN_A_CHANNEL | (ADC_CURRETN_B_CHANNEL << 4) | (ADC_DC_VOL_CHN << 8) | (ADC0_4TH_SAMPLE_CHN << 12);
-    ADC_CHN1 = ADC0_4TH_SAMPLE2_CHN |  (ADC0_TEMP_SAMPLE_CHN<<4);
+    ADC_CHN0 = ADC_CURRETN_B_CHANNEL | (ADC_DC_VOL_CHN << 4) |
+               (ADC0_TEMP_SAMPLE_CHN << 8) | (ADC_CURRETN_A_CHANNEL << 12);
+    ADC_CHN1 = ADC0_4TH_SAMPLE_CHN | (ADC0_4TH_SAMPLE2_CHN << 4);
 
 }
 
@@ -59,7 +60,7 @@ void CurrentOffsetCalibration(void)
 
     t_offset1 = 0;
     t_offset2 = 0;
-    //纯软件触发，复位ADC状态机，配置成单次采样模式，连续采样6个通道（A相电流、B相电流、母线电压、4th采样1、4th采样2、温度），每轮采样结束后进入 ADC 中断，由 ADC IRQ 处理函数累加采样结果，最后取平均值作为零漂补偿值
+    // Sequence: OPA1(V), bus voltage, temperature, OPA0(U), Hall A, Hall B.
     ADC_SOFTWARE_TRIG_ONLY();
     ADC_STATE_RESET();
     ConfigAdcModeMotor0();
@@ -97,7 +98,7 @@ void CurrentOffsetCalibration(void)
 
 
     i32iAdcRes1Avg1=(INT32)hPhaseAOffset<<12;
-    i32iAdcRes1Avg2=(INT32)hPhaseBOffset<<12;;
+    i32iAdcRes1Avg2=(INT32)hPhaseBOffset<<12;
 }
 
 void judgement_offset(void)
@@ -125,6 +126,9 @@ void mc_sys_init(void)
     }
 	/*零飘校准*/
     CurrentOffsetCalibration();
+
+	/* 清零 VESC 风格的磁链观测器状态。 */
+	foc_observer_reset(&m_motor.m_observer_state);
 
 	/* Clear pending MCPWM fail events before exposing the MCS facade to APP. */
 	MCPWM_EIF = BIT4|BIT5;	
