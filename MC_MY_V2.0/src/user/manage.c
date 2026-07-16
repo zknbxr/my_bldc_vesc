@@ -13,8 +13,10 @@ float Uart_TargetSpeed = 1;//串口接收目标速度
 
 void Task_vTickTimerEvent(void)
 {
-	
-	TickCounter++;
+    if(TickCounter < 0xFFFFU)
+    {
+        TickCounter++;
+    }
 }
 
 

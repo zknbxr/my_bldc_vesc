@@ -11,6 +11,7 @@
 ".\objects\mcs_control.o"
 ".\objects\mcs_foc_hw.o"
 ".\objects\mcs_task.o"
+".\objects\mcs_direction_test.o"
 ".\objects\mcs_motor.o"
 ".\objects\mcs_hall.o"
 ".\objects\sensorless_ctrl.o"

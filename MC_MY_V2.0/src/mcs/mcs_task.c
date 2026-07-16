@@ -5,11 +5,13 @@
 
 void Mcs_Task_Run(const TASK_TICK *tick)
 {
-    uint16_t i;
-
     if(tick == NULL)
     {
         return;
     }
 
+    if(tick->ms1 != 0U)
+    {
+        Motor_DirectionTest_Task();
+    }
 }

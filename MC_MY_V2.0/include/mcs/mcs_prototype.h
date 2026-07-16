@@ -25,6 +25,13 @@ void Motor_FocLoopRun(u16 angle);
 
 MCS_TRIG_Q15 Motor_GetSinCosQ15(u16 angle);
 void Motor_WriteDqVector(u16 angle, s16 dRef, s16 qRef);
+
+/*
+    mcs_direction_test.c
+**/
+void Direction_Init(void);
+void Motor_DirectionTest_Task(void);
+void Motor_DirectionTest_Stop(void);
 /*
 	mcs_foc_hw.c
 **/

@@ -81,6 +81,25 @@ static s32 Motor_MaxAbs3(s32 a, s32 b, s32 c)
     return maxAbs;
 }
 
+static s16 Motor_PwmOffsetToModQ15(s32 offset)
+{
+    int64_t modulation;
+
+    /* Q15 modulation 1.0 represents 2/3 of the DC bus in alpha-beta. */
+    modulation = ((int64_t)offset * 3LL * 32768LL) /
+                 ((int64_t)PWM_PERIOD * 2LL);
+    if(modulation > 32767LL)
+    {
+        modulation = 32767LL;
+    }
+    else if(modulation < -32768LL)
+    {
+        modulation = -32768LL;
+    }
+
+    return (s16)modulation;
+}
+
 void Motor_WritePwmCompare(u16 phaseA, u16 phaseB, u16 phaseC)
 {
     MCPWM_TH20 = -phaseC;
@@ -163,6 +182,12 @@ static void Motor_WriteAlphaBetaVector(s16 alpha, s16 beta)
         phaseBOffset = -(alphaCmd / 2) + ((betaCmd * MCS_SQRT3_OVER_2_Q15) >> 15);
         phaseCOffset = -(alphaCmd / 2) - ((betaCmd * MCS_SQRT3_OVER_2_Q15) >> 15);
     }
+    /* Store the voltage command that will be active during the next ADC sample. */
+    m_motor.m_motor_state.mod_alpha = Motor_PwmOffsetToModQ15(alphaCmd);
+    m_motor.m_motor_state.mod_beta = Motor_PwmOffsetToModQ15(betaCmd);
+    m_motor.m_motor_state.mod_alpha_raw = m_motor.m_motor_state.mod_alpha;
+    m_motor.m_motor_state.mod_beta_raw = m_motor.m_motor_state.mod_beta;
+
     Motor_WritePwmCompare(
         Motor_ClampPwmCompare(center + phaseAOffset),
         Motor_ClampPwmCompare(center + phaseBOffset),

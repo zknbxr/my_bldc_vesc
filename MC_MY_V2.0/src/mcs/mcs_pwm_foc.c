@@ -228,6 +228,14 @@ static void control_current(motor_all_state_t *motor, u16 dt)
         Foc_MulQ15((s32)conf_now->foc_current_filter_const,
                    (s32)state_m->iq - (s32)state_m->iq_filter));
 
+    if(motor->m_control_mode == CONTROL_MODE_OPENLOOP_DUTY_PHASE)
+    {
+        /* Keep measuring d/q current without overwriting the direct PWM vector. */
+        state_m->id_error = 0;
+        state_m->iq_error = 0;
+        return;
+    }
+
     Ierr_d = (s32)state_m->id_target - id;
     Ierr_q = (s32)state_m->iq_target - iq;
     state_m->id_error = Ierr_d;

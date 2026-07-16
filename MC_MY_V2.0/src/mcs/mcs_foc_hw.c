@@ -157,9 +157,9 @@ void AdcSampleCal(void)
     motor_now->m_currents_adc[0] = iAdcRes1;
     motor_now->m_currents_adc[1] = iAdcRes2;
     motor_now->m_currents_adc[2] = 0;
-    // adc采样值减去零偏
-    curr0_adc = raw0 - (s32)conf_now->foc_offsets_current[0];
-    curr1_adc = raw1 - (s32)conf_now->foc_offsets_current[1];
+    /* Convert shunt polarity to the FOC phase-current convention. */
+    curr0_adc = (s32)conf_now->foc_offsets_current[0] - raw0;
+    curr1_adc = (s32)conf_now->foc_offsets_current[1] - raw1;
     curr2_adc = -(curr0_adc + curr1_adc);
 
     ADC_curr_raw[0] = FocHw_SatS16(curr0_adc);
@@ -208,7 +208,7 @@ void AdcSampleCal(void)
     }
     else
     {
-        /* 停机时只同步电流历史，避免再次启动时出现很大的 L*delta_i。 */
+        /* Stopped mode only synchronizes observer current history. */
         motor_now->m_observer_state.i_alpha_last = state_now->i_alpha;
         motor_now->m_observer_state.i_beta_last = state_now->i_beta;
     }
@@ -264,8 +264,8 @@ void PhaseCurrent_CheckFast(void)
     u16 absMaB;
     u32 peakAbsMa;
 
-    phaseA = (s32)GET_CURRENT_U_SAMPLE_RESULT() - (s32)hPhaseAOffset;
-    phaseB = (s32)GET_CURRENT_V_SAMPLE_RESULT() - (s32)hPhaseBOffset;
+    phaseA = (s32)hPhaseAOffset - (s32)GET_CURRENT_U_SAMPLE_RESULT();
+    phaseB = (s32)hPhaseBOffset - (s32)GET_CURRENT_V_SAMPLE_RESULT();
     gPhaseCurrentAAdc = FocHw_SatS16(phaseA);
     gPhaseCurrentBAdc = FocHw_SatS16(phaseB);
 

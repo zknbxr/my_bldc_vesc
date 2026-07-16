@@ -480,6 +480,11 @@
               <FilePath>.\src\mcs\mcs_task.c</FilePath>
             </File>
             <File>
+              <FileName>mcs_direction_test.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\mcs\mcs_direction_test.c</FilePath>
+            </File>
+            <File>
               <FileName>mcs_motor.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\mcs\mcs_motor.c</FilePath>
