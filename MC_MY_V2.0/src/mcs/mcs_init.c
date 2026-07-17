@@ -21,27 +21,27 @@
 /* Offect */
 s16 hPhaseAOffset;
 s16 hPhaseBOffset;
-s16 hBusCurrentOffset;
-s32 i32iAdcRes1Avg1,i32iAdcRes1Avg2;
 
 /****************************************************************************/
 /***        Exported Variables                                            ***/
 /****************************************************************************/
 
-INT16 iAdcRes1,iAdcRes2;
 
 /*
 	adc采样通道配置
 **/
 void ConfigAdcModeMotor0(void)
 {
-    /* ADC regular sequence:
-     * Sample OPA0 after bus voltage and temperature. This keeps enough OPA
-     * settling time while moving both phase-current samples earlier in the V0 window.
+    /*
+     * ADC_DAT0 is a discarded OPA1 sample. The SAR capacitor retains the last
+     * Hall-channel voltage across PWM periods, so sampling OPA1 twice prevents
+     * that residue from entering the current loop. Valid V/U samples are kept
+     * consecutive and all slow Hall channels remain at the end of the sequence.
      */
-    ADC_CHN0 = ADC_CURRETN_B_CHANNEL | (ADC_DC_VOL_CHN << 4) |
-               (ADC0_TEMP_SAMPLE_CHN << 8) | (ADC_CURRETN_A_CHANNEL << 12);
-    ADC_CHN1 = ADC0_4TH_SAMPLE_CHN | (ADC0_4TH_SAMPLE2_CHN << 4);
+    ADC_CHN0 = ADC_CURRETN_B_CHANNEL | (ADC_CURRETN_B_CHANNEL << 4) |
+               (ADC_CURRETN_A_CHANNEL << 8) | (ADC_DC_VOL_CHN << 12);
+    ADC_CHN1 = ADC0_TEMP_SAMPLE_CHN | (ADC0_4TH_SAMPLE_CHN << 4) |
+               (ADC0_4TH_SAMPLE2_CHN << 8);
 
 }
 
@@ -97,19 +97,8 @@ void CurrentOffsetCalibration(void)
     m_motor.m_conf->foc_offsets_current[2] = 0;
 
 
-    i32iAdcRes1Avg1=(INT32)hPhaseAOffset<<12;
-    i32iAdcRes1Avg2=(INT32)hPhaseBOffset<<12;
 }
 
-void judgement_offset(void)
-{
-    //实际判断并未生效，
-    /* Legacy hook: hBusCurrentOffset is not filled in the current path.
-     * Keep the function so later current-offset range checks have one place
-     * to report E_FAULT_OFFSET_ERROR.
-     */
-
-}
 
 void mc_sys_init(void)
 {

@@ -66,17 +66,16 @@ void InitAdcMotor0(void)
         // ADC_CFG 配成：左对齐 + MCPWM T0 硬件触发 + 单段转换
     ADC_CFG = (ADC_LEFT_ALIGN << 10) | (ADC_HARDWARE_T0_TRG) | (0x00 << 12) |
               (0x00 << 4) | (ADC_1SEG_TRG << 8);
-
-        // 单段采样每轮连续转换 6 个通道
-    ADC_CHNT = (0x06) | (0x00 << 4) |
+        // Seven conversions; ADC_DAT0 is a discarded OPA1 settling sample.
+    ADC_CHNT = (0x07) | (0x00 << 4) |
                (0x00 << 8) | (0x00 << 12);
 
 
 
 
     SYS_WR_PROTECT = 0x7a83;
-        // SAMP_TIME 设置 ADC 采样时间
-    SYS_AFE_REG2 = 0x04<<8;                                                                         /* sample time ,4+4 */
+        // SAMP_TIME=7 selects 12 ADC clocks for better channel settling.
+    SYS_AFE_REG2 = 0x07<<8;
     SYS_WR_PROTECT = 0;
 
         // 清 ADC 状态标志并复位状态机

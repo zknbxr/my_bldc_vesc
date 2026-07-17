@@ -1,7 +1,19 @@
 #include "main.h"
 
+/*
+ * 定点电流控制器各变量单位：
+ *   i_alpha/i_beta、id/iq 及其目标值       ：mA
+ *   phase、phase_sin/phase_cos              ：Q16 角度、Q15 正余弦
+ *   vd/vq、mod_alpha/mod_beta               ：Q15 调制度，不是 mV
+ *   pwm_a/pwm_b/pwm_c                       ：定时器比较计数值
+ *
+ * 本模块是 FOC 最内层控制环，不负责决定转速和角度，只负责让测量的 id/iq
+ * 跟随外层逻辑给出的目标值。
+ */
+
 #define MCS_CURRENT_KP_Q15_PER_MA          (4L)
-#define MCS_CURRENT_KI_Q15_PER_MA_TICK     (0L)
+#define MCS_CURRENT_KI_Q15_PER_MA_TICK     (6933L)
+#define MCS_CURRENT_KI_FRAC_SHIFT          (15U)
 #define MCS_CURRENT_FILTER_Q15              (32767L)
 #define MCS_SVM_MAX_MOD_Q15                (30000L)
 #define MCS_MOTOR_CURRENT_MAX_MA            (4000L)
@@ -9,8 +21,8 @@
 #define MCS_SQRT3_BY_2_Q15                 (28378L)
 #define MCS_Q15_SHIFT                      (15U)
 #define MCS_Q15_ONE                        (32767L)
-#define FOC_MOTOR_R_MOHM                    (381L)
-#define FOC_MOTOR_L_UH                      (514L)
+#define FOC_MOTOR_R_MOHM                    (254L)
+#define FOC_MOTOR_L_UH                      (343L)
 #define FOC_MOTOR_FLUX_LINKAGE_UWB          (4450L)
 
 static mc_configuration m_motor_conf = {
@@ -25,8 +37,8 @@ static mc_configuration m_motor_conf = {
     .foc_motor_r = FOC_MOTOR_R_MOHM,
     .foc_motor_l = FOC_MOTOR_L_UH,
     .foc_motor_flux_linkage = FOC_MOTOR_FLUX_LINKAGE_UWB,
-    .foc_overmod_factor = MCS_OVERMOD_FACTOR_Q15,
-    .l_max_duty = MCS_SVM_MAX_MOD_Q15,
+    .foc_overmod_factor = MCS_OVERMOD_FACTOR_Q15,         // 最大电压矢量的附加缩放系数
+    .l_max_duty = MCS_SVM_MAX_MOD_Q15,                    // 允许使用最大调制比例
     .lo_current_min = -MCS_MOTOR_CURRENT_MAX_MA,
     .lo_current_max = MCS_MOTOR_CURRENT_MAX_MA
 };
@@ -73,24 +85,26 @@ static s32 Foc_AbsS32(s32 value)
     return (value < 0) ? -value : value;
 }
 
-static s32 Foc_SatS32FromS64(int64_t value)
-{
-    if(value > 2147483647LL)
-    {
-        return 2147483647L;
-    }
-
-    if(value < (-2147483647LL - 1LL))
-    {
-        return (-2147483647L - 1L);
-    }
-
-    return (s32)value;
-}
-
 static s32 Foc_MulQ15(s32 a, s32 b)
 {
-    return Foc_SatS32FromS64(((int64_t)a * (int64_t)b) >> MCS_Q15_SHIFT);
+    return (a * b) >> MCS_Q15_SHIFT;
+}
+
+static s32 Foc_IntegrateCurrentError(s32 integral,
+                                     s32 error,
+                                     s32 ki_q15,
+                                     volatile s32 *residual)
+{
+    s32 accumulator;
+    s32 increment;
+
+    /* 保存小于一个 Q15 计数的余数，使很小的误差也能随时间累积。 */
+    accumulator = *residual + error * ki_q15;
+    increment = accumulator >> MCS_CURRENT_KI_FRAC_SHIFT;
+    *residual = accumulator -
+                increment * (1L << MCS_CURRENT_KI_FRAC_SHIFT);
+
+    return integral + increment;
 }
 
 static void Foc_InitMotorStruct(motor_all_state_t *motor)
@@ -111,6 +125,8 @@ static void Foc_ResetCurrentPi(motor_all_state_t *motor)
 
     state_m->vd_int = 0;
     state_m->vq_int = 0;
+    state_m->vd_int_residual = 0;
+    state_m->vq_int_residual = 0;
     state_m->vd = 0;
     state_m->vq = 0;
     state_m->id_error = 0;
@@ -122,6 +138,7 @@ static void Foc_ResetCurrentPi(motor_all_state_t *motor)
 }
 
 
+/* 将一组三相中心对齐比较值写入下一 PWM 周期。 */
 static void Foc_WriteSvmPwm(u32 phaseA, u32 phaseB, u32 phaseC)
 {
     if(phaseA > PWM_PERIOD)
@@ -146,7 +163,14 @@ static void Foc_WriteSvmPwm(u32 phaseA, u32 phaseB, u32 phaseC)
     MCPWM_TH00 = (u16)(0U - (u16)phaseA);
     MCPWM_TH01 = (u16)phaseA;
 }
-//FOC核心电流内环，接收id和iq，根据实际电流计算出需要的vd/vq，最后通过svpwm得到三相占空比。
+/*
+ * FOC 电流内环执行顺序：
+ *   1. Park：i_alpha/i_beta -> id/iq
+ *   2. PI：电流误差 -> vd/vq 调制度
+ *   3. 电压限幅及积分抗饱和
+ *   4. 反 Park：vd/vq -> alpha/beta 调制度
+ *   5. SVM：alpha/beta -> 三相 PWM 比较值
+ */
 static void control_current(motor_all_state_t *motor, u16 dt)
 {
     volatile motor_state_t *state_m;
@@ -170,15 +194,12 @@ static void control_current(motor_all_state_t *motor, u16 dt)
     s32 vq_int;
     s32 p_d;
     s32 p_q;
-    s32 dec_vd = 0;
-    s32 dec_vq = 0;
-    s32 dec_bemf = 0;
     s32 max_duty;
     s32 max_v_mag;
     s32 max_vq;
     s32 overmod_factor;
-    int64_t tmp64;
-    u32 vq_square;
+    s32 integral_before_limit;
+    s32 current_abs;
 
     // 如果未初始化，就初始化
     Foc_InitMotorStruct(motor);
@@ -186,10 +207,8 @@ static void control_current(motor_all_state_t *motor, u16 dt)
     state_m = &motor->m_motor_state;
     conf_now = motor->m_conf;
 
-    if(dt == 0U)
-    {
-        dt = 1U;
-    }
+    /* 当前 Ki 已经是每个快速环周期使用一次的离散增益。 */
+    (void)dt;
 
     if(motor->m_control_mode == CONTROL_MODE_NONE)
     {
@@ -199,6 +218,10 @@ static void control_current(motor_all_state_t *motor, u16 dt)
         return;
     }
     
+    /*
+     * 在局部变量中保存一份 sin/cos 快照，确保二者属于同一个角度；若反复读取
+     * volatile 状态字段，可能在更新边界处读到不同角度的数据。
+     */
     trig.cos = state_m->phase_cos;
     trig.sin = state_m->phase_sin;
 
@@ -209,9 +232,11 @@ static void control_current(motor_all_state_t *motor, u16 dt)
                                   0L,
                                   MCS_Q15_ONE);
     
+    /* 当前母线电压和最大占空比允许的 alpha-beta 电压矢量调制度上限。 */
     max_v_mag = Foc_MulQ15(max_duty, overmod_factor);
     max_v_mag = Foc_MulQ15(max_v_mag, MCS_SQRT3_BY_2_Q15);
 
+    /* Park 变换：静止坐标系采样电流 -> 转子坐标系 d/q 电流，单位 mA。 */
     id = (((s32)state_m->i_alpha * trig.cos) +
           ((s32)state_m->i_beta * trig.sin)) >> 15;
     iq = (((s32)state_m->i_beta * trig.cos) -
@@ -220,22 +245,19 @@ static void control_current(motor_all_state_t *motor, u16 dt)
     state_m->id = Foc_SatS16(id);
     state_m->iq = Foc_SatS16(iq);
 
-    /* 滤波值只供监控和慢速逻辑使用，PI反馈仍使用未滤波电流。 */
-    state_m->id_filter = Foc_SatS16((s32)state_m->id_filter +
-        Foc_MulQ15((s32)conf_now->foc_current_filter_const,
-                   (s32)state_m->id - (s32)state_m->id_filter));
-    state_m->iq_filter = Foc_SatS16((s32)state_m->iq_filter +
-        Foc_MulQ15((s32)conf_now->foc_current_filter_const,
-                   (s32)state_m->iq - (s32)state_m->iq_filter));
+    /* 快速环保留未滤波值，监控显示所需的滤波放到慢速任务中完成。 */
+    state_m->id_filter = state_m->id;
+    state_m->iq_filter = state_m->iq;
 
     if(motor->m_control_mode == CONTROL_MODE_OPENLOOP_DUTY_PHASE)
     {
-        /* Keep measuring d/q current without overwriting the direct PWM vector. */
+        /* 直接电压模式仍测量 d/q 电流，但不覆盖外部直接写入的 PWM 矢量。 */
         state_m->id_error = 0;
         state_m->iq_error = 0;
         return;
     }
 
+    /* 正 iq 在当前电角度和相序定义下产生正方向转矩。 */
     Ierr_d = (s32)state_m->id_target - id;
     Ierr_q = (s32)state_m->iq_target - iq;
     state_m->id_error = Ierr_d;
@@ -246,57 +268,46 @@ static void control_current(motor_all_state_t *motor, u16 dt)
          (s32)motor->m_current_ki_temp_comp :
          (s32)conf_now->foc_current_ki;
 
-    /* Kp/Ki输出直接是Q15调制度，Ki按快环tick积分。 */
-    
-    // Kp
-    p_d = Foc_SatS32FromS64((int64_t)Ierr_d * (int64_t)kp);
-    p_q = Foc_SatS32FromS64((int64_t)Ierr_q * (int64_t)kp);
+    /* Kp/Ki 输出均为 Q15 调制度，Ki 在每次 ADC 中断中积分一次。 */
+    p_d = Ierr_d * kp;
+    p_q = Ierr_q * kp;
 
-    // Ki
-    tmp64 = (int64_t)Ierr_d * (int64_t)ki * (int64_t)dt;
-    vd_int = Foc_SatS32FromS64((int64_t)state_m->vd_int + tmp64);
-    tmp64 = (int64_t)Ierr_q * (int64_t)ki * (int64_t)dt;
-    vq_int = Foc_SatS32FromS64((int64_t)state_m->vq_int + tmp64);
+    /* 保留 Ki 的小数余量，使较小误差也能平滑累积。 */
+    vd_int = Foc_IntegrateCurrentError(state_m->vd_int,
+                                       Ierr_d,
+                                       ki,
+                                       &state_m->vd_int_residual);
+    vq_int = Foc_IntegrateCurrentError(state_m->vq_int,
+                                       Ierr_q,
+                                       ki,
+                                       &state_m->vq_int_residual);
     
-    vd = Foc_SatS32FromS64((int64_t)vd_int + p_d);
-    vq = Foc_SatS32FromS64((int64_t)vq_int + p_q);
+    vd = vd_int + p_d;
+    vq = vq_int + p_q;
 
-    /* 可选解耦：速度、Ld/Lq增益和磁链补偿量均按Q15约定。 */
-    if(conf_now->foc_cc_decoupling != FOC_CC_DECOUPLING_DISABLED)
+    
+    /* 优先分配 d 轴电压，并同步限制积分项，防止积分饱和。 */
+    vd = Foc_LimitS32(vd, -max_v_mag, max_v_mag);
+    integral_before_limit = vd_int;
+    vd_int = Foc_LimitS32(vd_int, -max_v_mag, max_v_mag);
+    if(vd_int != integral_before_limit)
     {
-        if((conf_now->foc_cc_decoupling == FOC_CC_DECOUPLING_CROSS) ||
-           (conf_now->foc_cc_decoupling == FOC_CC_DECOUPLING_CROSS_BEMF))
-        {
-            tmp64 = (int64_t)iq * (int64_t)motor->m_speed_est_fast *
-                    (int64_t)motor->p_lq;
-            dec_vd = Foc_SatS32FromS64(tmp64 >> 30);
-
-            tmp64 = (int64_t)id * (int64_t)motor->m_speed_est_fast *
-                    (int64_t)motor->p_ld;
-            dec_vq = Foc_SatS32FromS64(tmp64 >> 30);
-        }
-
-        if((conf_now->foc_cc_decoupling == FOC_CC_DECOUPLING_BEMF) ||
-           (conf_now->foc_cc_decoupling == FOC_CC_DECOUPLING_CROSS_BEMF))
-        {
-            dec_bemf = Foc_MulQ15((s32)motor->m_speed_est_fast,
-                                  (s32)conf_now->foc_motor_flux_linkage);
-        }
+        state_m->vd_int_residual = 0;
     }
 
-    vd = Foc_SatS32FromS64((int64_t)vd - dec_vd);
-    vq = Foc_SatS32FromS64((int64_t)vq + dec_vq + dec_bemf);
-
-    
-    /* d轴优先分配电压，积分项同步限幅，防止饱和时积分继续累积。 */
-    vd = Foc_LimitS32(vd, -max_v_mag, max_v_mag);
-    vd_int = Foc_LimitS32(vd_int, -max_v_mag, max_v_mag);
-
-    vq_square = (u32)((int64_t)max_v_mag * max_v_mag -
-                      (int64_t)vd * vd);
-    max_vq = (s32)utils_sqrt_u32(vq_square);
+    /*
+     * 保守的菱形限幅：|vd| + |vq| <= max_v_mag。
+     * 这样可避免每次中断计算 sqrt，但电压利用率低于圆形限幅。
+     * 高速或大电流时会更早进入饱和，可能增大电流纹波、运行声音和相电流失真。
+     */
+    max_vq = max_v_mag - Foc_AbsS32(vd);
     vq = Foc_LimitS32(vq, -max_vq, max_vq);
+    integral_before_limit = vq_int;
     vq_int = Foc_LimitS32(vq_int, -max_vq, max_vq);
+    if(vq_int != integral_before_limit)
+    {
+        state_m->vq_int_residual = 0;
+    }
 
     state_m->vd_int = vd_int;
     state_m->vq_int = vq_int;
@@ -305,14 +316,16 @@ static void control_current(motor_all_state_t *motor, u16 dt)
     state_m->mod_d = state_m->vd;
     state_m->mod_q = state_m->vq;
     
-    // 计算电流幅值
-    tmp64 = (int64_t)state_m->id_filter * state_m->id_filter +
-            (int64_t)state_m->iq_filter * state_m->iq_filter;
-    //        
-    state_m->i_abs_filter = Foc_SatS16((s32)utils_sqrt_u32((u32)tmp64));
+    /* 不计算 sqrt，以 max(|id|, |iq|) 近似电流幅值供诊断使用。 */
+    current_abs = Foc_AbsS32(id);
+    if(Foc_AbsS32(iq) > current_abs)
+    {
+        current_abs = Foc_AbsS32(iq);
+    }
+    state_m->i_abs_filter = Foc_SatS16(current_abs);
     
     
-    // 反Park变换
+    /* 反 Park 变换：转子坐标系 d/q 调制度 -> 静止坐标系 alpha/beta 调制度。 */
     alpha = ((vd * trig.cos) - (vq * trig.sin)) >> 15;
     beta = ((vd * trig.sin) + (vq * trig.cos)) >> 15;
 
@@ -322,6 +335,7 @@ static void control_current(motor_all_state_t *motor, u16 dt)
     state_m->mod_alpha_raw = state_m->mod_alpha;
     state_m->mod_beta_raw = state_m->mod_beta;
 
+    /* SVM 将电压矢量转换为中心对齐的 U/V/W 三相占空比。 */
     FOC_SVM_Q15(state_m->mod_alpha,
                 state_m->mod_beta,
                 max_duty,
@@ -336,6 +350,7 @@ static void control_current(motor_all_state_t *motor, u16 dt)
     state_m->pwm_c = (u16)tC;
     state_m->svm_sector = (u16)sector;
 
+    /* 这些比较值会在下一次 PWM 更新事件中生效。 */
     Foc_WriteSvmPwm(tA, tB, tC);
 }
 

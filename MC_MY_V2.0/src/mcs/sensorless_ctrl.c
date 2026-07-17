@@ -2,10 +2,19 @@
 
 #define OBSERVER_MILLI_SCALE               (1000L)
 #define OBSERVER_CORDIC_ITERATIONS         (15U)
+#define OBSERVER_Q13_ONE                   (8192L)
+#define OBSERVER_FLUX_ERROR_SHIFT          (13U)
+/* 3.5 kHz 矫正频率下的离散 gamma/2 * lambda^2 * Ts 增益。 */
+#define OBSERVER_GAIN_TS_Q13               (256L)
+#define OBSERVER_PLL_KP_Q15                (4096L)
+#define OBSERVER_PLL_KI_Q15                (64L)
+#define OBSERVER_PLL_MAX_ERPM              (3000L)
+/* 一圈 65536 个角度计数，PLL 更新频率 = 14000 / 4 = 3500 Hz。 */
+#define OBSERVER_PLL_STEP_Q16_PER_ERPM     (20452L)
 
 /*
- * VESC 中 MxLemming 电压模型观测器的定点移植。
- * 原始观测器算法作者为 MESC 项目的 David Molony，复制或修改时需保留署名。
+ * 带非线性磁链矫正的定点电压模型。
+ * 状态量保存 eta = x_hat - L*i，因此 phase = atan2(eta)。
  *
  * 本实现不使用浮点数，各物理量单位如下：
  *   v_alpha/v_beta : mV
@@ -15,28 +24,26 @@
  *   dt             : us
  *   x1/x2          : uWb
  *   phase          : 一圈对应 65536
+ *
+ * 观测器有意拆分为三个步骤：
+ *   1. 积分电压模型和 L*di -> x1/x2 磁链矢量
+ *   2. 将矢量幅值矫正到配置的电机磁链附近
+ *   3. atan2 提取原始角度，再由 PLL 输出平滑角度和 ERPM
+ *
+ * 静止时几乎没有反电动势信息，因此直接无感启动可能先来回摆动，直到转子运动
+ * 为观测器提供足够信号。
  */
+
+volatile s16 gObserverFluxErrorQ13;
+volatile s16 gObserverCorrectionGainQ13;
+volatile s16 gObserverPllPhaseError;
+volatile s32 gObserverPllSpeedStepQ16;
 
 static const u16 observer_atan_table[OBSERVER_CORDIC_ITERATIONS] = {
     8192U, 4836U, 2555U, 1297U, 651U,
     326U, 163U, 81U, 41U, 20U,
     10U, 5U, 3U, 1U, 1U
 };
-
-static s32 observer_sat_s32(int64_t value)
-{
-    if(value > 2147483647LL)
-    {
-        return 2147483647L;
-    }
-
-    if(value < (-2147483647LL - 1LL))
-    {
-        return (-2147483647L - 1L);
-    }
-
-    return (s32)value;
-}
 
 static s32 observer_div_1000(s32 value)
 {
@@ -114,12 +121,21 @@ void foc_observer_reset(observer_state *state)
     state->x2 = 0L;
     state->i_alpha_last = 0L;
     state->i_beta_last = 0L;
+    state->pll_phase_q16 = 0UL;
+    state->pll_speed_step_q16 = 0L;
+    state->pll_initialized = false;
+    gObserverFluxErrorQ13 = 0;
+    gObserverCorrectionGainQ13 = 0;
+    gObserverPllPhaseError = 0;
+    gObserverPllSpeedStepQ16 = 0L;
 }
 
+/* 对静止坐标系电压模型积分，估算转子磁链。 */
 void foc_observer_update(s32 v_alpha, s32 v_beta,
-                         s32 i_alpha, s32 i_beta,
+                         s32 i_alpha_avg, s32 i_beta_avg,
+                         s32 i_alpha_now, s32 i_beta_now,
                          u16 dt, observer_state *state,
-                         s16 *phase, motor_all_state_t *motor)
+                         motor_all_state_t *motor)
 {
     mc_configuration *conf_now;
     s32 r_i_alpha;
@@ -127,64 +143,159 @@ void foc_observer_update(s32 v_alpha, s32 v_beta,
     s32 x1_step;
     s32 x2_step;
     s32 lambda;
-    u32 mag_sq;
-    u32 mag;
 
     conf_now = motor->m_conf;
     lambda = conf_now->foc_motor_flux_linkage;
     if((lambda <= 0L) || (dt == 0U))
     {
-        state->i_alpha_last = i_alpha;
-        state->i_beta_last = i_beta;
+        state->i_alpha_last = i_alpha_now;
+        state->i_beta_last = i_beta_now;
         return;
     }
 
-    /* x1^2 + x2^2 在该范围内不会超过有符号 32 位上限。 */
     if(lambda > 32767L)
     {
         lambda = 32767L;
     }
 
-    /* R[mOhm] * I[mA] / 1000 = mV。 */
-    r_i_alpha = observer_div_1000(observer_sat_s32(
-        (int64_t)conf_now->foc_motor_r * i_alpha));
-    r_i_beta = observer_div_1000(observer_sat_s32(
-        (int64_t)conf_now->foc_motor_r * i_beta));
-
     /*
-     * VESC MxLemming 的核心磁链方程：
-     *   x += (v - R*i) * dt - L * (i - i_last)
-     * mV*us 和 uH*mA 都是 nWb，除以 1000 后得到 uWb。
+     * alpha/beta 两轴分别使用以下离散电压模型：
+     *   eta += (v - R*i)*dt - L*(i_now - i_last)
+     * eta 是转子磁链矢量，x1/x2 的单位为 uWb。
+     * 配置中的 R、L 已按当前模型定义填写，除非修改配置含义，否则这里不要再乘 1.5。
      */
-    x1_step = observer_div_1000(observer_sat_s32(
-        (int64_t)(v_alpha - r_i_alpha) * dt -
-        (int64_t)conf_now->foc_motor_l * (i_alpha - state->i_alpha_last)));
-    x2_step = observer_div_1000(observer_sat_s32(
-        (int64_t)(v_beta - r_i_beta) * dt -
-        (int64_t)conf_now->foc_motor_l * (i_beta - state->i_beta_last)));
+    /* mOhm * mA / 1000 = mV，即定子电阻压降。 */
+    r_i_alpha = observer_div_1000(conf_now->foc_motor_r * i_alpha_avg);
+    r_i_beta = observer_div_1000(conf_now->foc_motor_r * i_beta_avg);
+    /* mV*us/1000 和 uH*mA/1000 的结果单位均为 uWb。 */
+    x1_step = observer_div_1000(
+        (v_alpha - r_i_alpha) * (s32)dt -
+        conf_now->foc_motor_l * (i_alpha_now - state->i_alpha_last));
+    x2_step = observer_div_1000(
+        (v_beta - r_i_beta) * (s32)dt -
+        conf_now->foc_motor_l * (i_beta_now - state->i_beta_last));
 
-    state->x1 = observer_truncate_abs(observer_sat_s32(
-        (int64_t)state->x1 + x1_step), lambda);
-    state->x2 = observer_truncate_abs(observer_sat_s32(
-        (int64_t)state->x2 + x2_step), lambda);
-    state->i_alpha_last = i_alpha;
-    state->i_beta_last = i_beta;
+    state->x1 = observer_truncate_abs(state->x1 + x1_step, lambda);
+    state->x2 = observer_truncate_abs(state->x2 + x2_step, lambda);
+    state->i_alpha_last = i_alpha_now;
+    state->i_beta_last = i_beta_now;
+}
 
-    /* 磁链过小时角度对噪声很敏感，按 VESC 的处理把幅值轻微向外推。 */
+void foc_observer_apply_correction(observer_state *state,
+                                   motor_all_state_t *motor)
+{
+    s32 lambda;
+    s32 lambda_sq_scaled;
+    s32 flux_error;
+    s32 flux_error_scaled;
+    s32 error_q13;
+    s32 correction_gain_q13;
+    s32 correction_x1;
+    s32 correction_x2;
+    u32 lambda_sq;
+    u32 mag_sq;
+
+    lambda = motor->m_conf->foc_motor_flux_linkage;
+    if(lambda <= 0L)
+    {
+        gObserverFluxErrorQ13 = 0;
+        gObserverCorrectionGainQ13 = 0;
+        return;
+    }
+    if(lambda > 32767L)
+    {
+        lambda = 32767L;
+    }
+    /* 配置的目标磁链幅值平方。 */
+    lambda_sq = (u32)(lambda * lambda);
+    /* 观测得到的 x1/x2 磁链矢量幅值平方。 */
     mag_sq = (u32)(state->x1 * state->x1) +
              (u32)(state->x2 * state->x2);
-    mag = utils_sqrt_u32(mag_sq);
+    flux_error = (s32)lambda_sq - (s32)mag_sq;
 
-    if(mag < (u32)(lambda / 2L))
+    /* 不使用 int64，将 (lambda^2 - |eta|^2) / lambda^2 归一化为 Q13。 */
+    lambda_sq_scaled = (s32)(lambda_sq >> OBSERVER_FLUX_ERROR_SHIFT);
+    flux_error_scaled = flux_error / (1L << OBSERVER_FLUX_ERROR_SHIFT);
+    if(lambda_sq_scaled <= 0L)
     {
-        state->x1 = observer_truncate_abs(
-            state->x1 + state->x1 / 10L, lambda);
-        state->x2 = observer_truncate_abs(
-            state->x2 + state->x2 / 10L, lambda);
+        return;
     }
 
+    error_q13 = (flux_error_scaled * OBSERVER_Q13_ONE) /
+                lambda_sq_scaled;
+    error_q13 = observer_truncate_abs(error_q13, OBSERVER_Q13_ONE);
+    correction_gain_q13 =
+        (error_q13 * OBSERVER_GAIN_TS_Q13) / OBSERVER_Q13_ONE;
+
+    /*
+     * 径向非线性矫正：只改变磁链矢量幅值，不直接旋转矢量。
+     * 正误差增大幅值，负误差减小幅值。
+     */
+    correction_x1 =
+        (state->x1 * correction_gain_q13) / OBSERVER_Q13_ONE;
+    correction_x2 =
+        (state->x2 * correction_gain_q13) / OBSERVER_Q13_ONE;
+    state->x1 = observer_truncate_abs(
+        state->x1 + correction_x1, lambda);
+    state->x2 = observer_truncate_abs(
+        state->x2 + correction_x2, lambda);
+
+    gObserverFluxErrorQ13 = (s16)error_q13;
+    gObserverCorrectionGainQ13 = (s16)correction_gain_q13;
+}
+
+void foc_observer_update_phase(const observer_state *state, s16 *phase)
+{
     if(phase != 0)
     {
+        /* 提取矫正后 alpha-beta 磁链矢量的原始电角度。 */
         *phase = (s16)observer_atan2(state->x2, state->x1);
     }
+}
+void foc_observer_pll_run(s16 phase, observer_state *state,
+                          motor_all_state_t *motor)
+{
+    s32 phase_error;
+    s32 phase_correction_q16;
+    s32 speed_correction_q16;
+    s32 speed_limit_q16;
+    s32 speed_erpm;
+
+    /*
+     * PLL 先根据速度状态预测角度，再通过 PI 将预测值校正到原始 CORDIC 角度。
+     * pll_phase 是平滑后的控制角，pll_speed_step_q16 会换算为电气 RPM 供监控。
+     */
+    if(!state->pll_initialized)
+    {
+        state->pll_phase_q16 = (u32)(u16)phase << 16;
+        state->pll_speed_step_q16 = 0L;
+        state->pll_initialized = true;
+    }
+    else
+    {
+        state->pll_phase_q16 += (u32)state->pll_speed_step_q16;
+        phase_error = (s16)((u16)phase -
+            (u16)(state->pll_phase_q16 >> 16));
+
+        phase_correction_q16 =
+            phase_error * (OBSERVER_PLL_KP_Q15 * 2L);
+        speed_correction_q16 =
+            phase_error * (OBSERVER_PLL_KI_Q15 * 2L);
+        state->pll_phase_q16 += (u32)phase_correction_q16;
+        state->pll_speed_step_q16 += speed_correction_q16;
+
+        speed_limit_q16 = OBSERVER_PLL_MAX_ERPM *
+                          OBSERVER_PLL_STEP_Q16_PER_ERPM;
+        state->pll_speed_step_q16 = observer_truncate_abs(
+            state->pll_speed_step_q16, speed_limit_q16);
+    }
+
+    phase_error = (s16)((u16)phase -
+        (u16)(state->pll_phase_q16 >> 16));
+    speed_erpm = state->pll_speed_step_q16 /
+                 OBSERVER_PLL_STEP_Q16_PER_ERPM;
+    motor->m_pll_phase = (s16)(state->pll_phase_q16 >> 16);
+    motor->m_pll_speed = (s16)speed_erpm;
+    gObserverPllPhaseError = (s16)phase_error;
+    gObserverPllSpeedStepQ16 = state->pll_speed_step_q16;
 }

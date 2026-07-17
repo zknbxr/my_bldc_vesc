@@ -1,37 +1,68 @@
 #include "main.h"
 
 /*
- * ADC results are left aligned by the LKS32 ADC. The coefficients below
- * convert one ADC count to the integer units used by the FOC state.
+ * FOC 快速环数据流（在 ADC 转换完成中断中执行）：
+ *
+ *   ADC 电流 -> 零偏/极性 -> Clarke (i_alpha/i_beta)
+ *       -> 磁链观测器 + PLL -> 选择电角度
+ *       -> Park/电流 PI/反 Park -> SVM -> 下一周期 PWM 比较值
+ *
+ * 中断内全部使用整数物理量：电流单位 mA，电压单位 mV，时间单位 us，
+ * 电角度一圈对应 0...65535。
+ */
+
+/*
+ * LKS32 ADC 结果为左对齐。下面的系数将 ADC 计数转换为 FOC 状态使用的整数单位。
  */
 #define MCS_CURRENT_ADC_TO_MA_Q15          (19802L)
 #define MCS_BUS_ADC_TO_MV_Q15              (75600L)
 #define MCS_BUS_FILTER_Q15                 (8192L)
-#define MCS_PHASE_CURRENT_OVER_ADC         (20295U)
-#define MCS_PHASE_CURRENT_RELEASE_ADC      (MCS_PHASE_CURRENT_OVER_ADC >> 1)
 #define FOC_TWO_BY_THREE_Q15               (21845L)
 #define FOC_CONTROL_DT_US                   ((u16)(1000000UL / PWM_FREQ))
 
+/*
+    * 无感观测器部分
+    * 观测器运行周期
+    * 相位SLOT
+    * 无感计算4阶段
+*/ 
+#define FOC_OBSERVER_FLUX_DIV               (4U)
+#define FOC_OBSERVER_MAGNITUDE_SLOT         (1U)
+#define FOC_OBSERVER_PHASE_SLOT             (2U)
+#define FOC_OBSERVER_STAGE_FLUX              (1U)
+#define FOC_OBSERVER_STAGE_MAGNITUDE         (2U)
+#define FOC_OBSERVER_STAGE_PHASE             (3U)
+#define FOC_OBSERVER_STAGE_CLOSED_LOOP       (4U)
+/* 按当前 ADC 电流换算系数，单个采样点允许约 2.5 A 的变化。 */
+#define MCS_CURRENT_MAX_STEP_MA             (2500L)
+
 volatile s16 gBUS_Vol_ADC;
 volatile u32 gBusVoltageMv;
-volatile s16 ADC_curr_raw[3];
 volatile s16 ADC_curr_norm_value[3];
-volatile s16 gPhaseCurrentAAdc;
-volatile s16 gPhaseCurrentBAdc;
-volatile u16 gPhaseCurrentPeakAbsAdc;
-volatile u32 gPhaseCurrentPeakAbsMa;
-volatile u32 gFocAdcNormalCount;
-volatile u32 gFocAdcBlockCount;
-volatile s16 gOverCurrentPhaseAAdc;
-volatile s16 gOverCurrentPhaseBAdc;
-volatile u16 gOverCurrentPeakAdc;
-volatile u16 gOverCurrentPwmA;
-volatile u16 gOverCurrentPwmB;
-volatile u16 gOverCurrentPwmC;
-volatile u8 gOverCurrentStartState;
+volatile u32 gAdcCurrentSpikeRejectCount;
+volatile u8 gObserverStage = FOC_OBSERVER_STAGE_CLOSED_LOOP;
+volatile s16 gObserverPhase;
+volatile s16 gObserverPhaseError;
 
 INT16 hal1;
 INT16 hal2;
+
+static s32 s_currentAcceptedMaU;
+static s32 s_currentAcceptedMaV;
+static u8 s_currentRejectStreakU;
+static u8 s_currentRejectStreakV;
+static bool s_currentFilterInitialized;
+static s32 s_observerVAlphaSum;
+static s32 s_observerVBetaSum;
+static s32 s_observerIAlphaSum;
+static s32 s_observerIBetaSum;
+static u8 s_observerFluxSamples;
+static u8 s_observerPostFluxSlot;
+
+static s16 FocHw_PhaseDifference(s16 phase, s16 reference)
+{
+    return (s16)((u16)phase - (u16)reference);
+}
 
 static s16 FocHw_SatS16(s32 value)
 {
@@ -48,33 +79,38 @@ static s16 FocHw_SatS16(s32 value)
     return (s16)value;
 }
 
-static u16 FocHw_AbsS32ToU16(s32 value)
+static u32 FocHw_AbsS32(s32 value)
 {
-    u32 abs_value;
-
-    if(value >= 0)
+    if(value >= 0L)
     {
-        abs_value = (u32)value;
-    }
-    else
-    {
-        abs_value = (u32)(-(value + 1L)) + 1UL;
+        return (u32)value;
     }
 
-    if(abs_value > 32767UL)
+    return (u32)(-(value + 1L)) + 1UL;
+}
+
+// 去除单次毛刺
+static s32 FocHw_RejectSingleCurrentSpikeMa(s32 sample, s32 *accepted,
+                                            u8 *reject_streak)
+{
+    if((FocHw_AbsS32(sample - *accepted) > MCS_CURRENT_MAX_STEP_MA) &&
+       (*reject_streak == 0U))
     {
-        abs_value = 32767UL;
+        *reject_streak = 1U;
+        gAdcCurrentSpikeRejectCount++;
+        return *accepted;
     }
 
-    return (u16)abs_value;
+    *reject_streak = 0U;
+    *accepted = sample;
+    return sample;
 }
 
 static s16 FocHw_AdcToCurrentMa(s32 adc_value)
 {
-    int64_t current_ma;
-
-    current_ma = ((int64_t)adc_value * MCS_CURRENT_ADC_TO_MA_Q15) >> 15;
-    return FocHw_SatS16((s32)current_ma);
+    /* 最坏情况下的乘积仍不会超出有符号 32 位范围。 */
+    return FocHw_SatS16(
+        (adc_value * MCS_CURRENT_ADC_TO_MA_Q15) >> 15);
 }
 
 static u32 FocHw_AdcToBusMv(s16 adc_value)
@@ -118,9 +154,9 @@ INT16 AcqAdcSampDatUdc(void)
 }
 
 /*
- * ADC fast path used by the basic fixed-point FOC implementation.
- * HFI, MTPA and field weakening remain outside this function. The fixed-point
- * sensorless observer consumes the previous PWM voltage and current sample.
+ * 基础定点 FOC 的 ADC 快速路径。
+ * 当前未包含 HFI、MTPA 和弱磁；定点无感观测器使用上一 PWM 周期的电压
+ * 与本次电流采样进行更新。
  */
 void AdcSampleCal(void)
 {
@@ -130,52 +166,55 @@ void AdcSampleCal(void)
     MCS_TRIG_Q15 trig;
     s32 raw0;
     s32 raw1;
-    s32 curr0_adc;
-    s32 curr1_adc;
-    s32 curr2_adc;
     s32 curr0;
     s32 curr1;
     s32 curr2;
     s32 id_set_tmp;
     s32 iq_set_tmp;
     s32 current_max_abs;
-    s32 iq_max_abs;
-    u32 iq_limit_square;
+    s32 observerVAlphaAvg;
+    s32 observerVBetaAvg;
+    s32 observerIAlphaAvg;
+    s32 observerIBetaAvg;
 
     Motor_FocInit();
     motor_now = &m_motor;
     state_now = &motor_now->m_motor_state;
     conf_now = motor_now->m_conf;
 
+    /* 第 1 步：读取 PWM 定时触发的两路下桥臂采样电阻 ADC 值。 */
     raw0 = (s32)AcqAdcSampDatPhaseU();
     raw1 = (s32)AcqAdcSampDatPhaseV();
-    iAdcRes1 = FocHw_SatS16(raw0);
-    iAdcRes2 = FocHw_SatS16(raw1);
 
-    /* VESC naming: raw ADC first, then offset-corrected ADC counts. */
-    // adc直接采样值
-    motor_now->m_currents_adc[0] = iAdcRes1;
-    motor_now->m_currents_adc[1] = iAdcRes2;
-    motor_now->m_currents_adc[2] = 0;
-    /* Convert shunt polarity to the FOC phase-current convention. */
-    curr0_adc = (s32)conf_now->foc_offsets_current[0] - raw0;
-    curr1_adc = (s32)conf_now->foc_offsets_current[1] - raw1;
-    curr2_adc = -(curr0_adc + curr1_adc);
+    /* 根据采样极性减去零偏，直接换算为单位 mA 的相电流。 */
+    curr0 = (s32)FocHw_AdcToCurrentMa(
+        (s32)conf_now->foc_offsets_current[0] - raw0);
+    curr1 = (s32)FocHw_AdcToCurrentMa(
+        (s32)conf_now->foc_offsets_current[1] - raw1);
 
-    ADC_curr_raw[0] = FocHw_SatS16(curr0_adc);
-    ADC_curr_raw[1] = FocHw_SatS16(curr1_adc);
-    ADC_curr_raw[2] = FocHw_SatS16(curr2_adc);
+    // 滤除电流突变毛刺
+    /* 拒绝单次孤立毛刺；若连续两个采样都发生变化，则认为是真实电流。 */
+    if(!s_currentFilterInitialized)
+    {
+        s_currentAcceptedMaU = curr0;
+        s_currentAcceptedMaV = curr1;
+        s_currentFilterInitialized = true;
+    }
+    else
+    {
+        curr0 = FocHw_RejectSingleCurrentSpikeMa(
+            curr0, &s_currentAcceptedMaU, &s_currentRejectStreakU);
+        curr1 = FocHw_RejectSingleCurrentSpikeMa(
+            curr1, &s_currentAcceptedMaV, &s_currentRejectStreakV);
+    }
 
-    // adc采样值减去零偏后转换为mA
-    curr0 = (s32)FocHw_AdcToCurrentMa(curr0_adc);
-    curr1 = (s32)FocHw_AdcToCurrentMa(curr1_adc);
+    /* 第三相没有独立 ADC 通道，根据 ia+ib+ic=0 重构。 */
     curr2 = -(curr0 + curr1);
-
     ADC_curr_norm_value[0] = FocHw_SatS16(curr0);
     ADC_curr_norm_value[1] = FocHw_SatS16(curr1);
     ADC_curr_norm_value[2] = FocHw_SatS16(curr2);
 
-    /* Clarke transform for two-shunt sampling with balanced phase currents. */
+    /* 对满足三相电流平衡的两电阻采样结果进行 Clarke 变换。 */
     // mA克拉克变换
     state_now->i_alpha = ADC_curr_norm_value[0];
     state_now->i_beta = FocHw_SatS16(
@@ -191,54 +230,120 @@ void AdcSampleCal(void)
     state_now->v_beta = FocHw_ModToVoltageMv(
         state_now->mod_beta_raw, state_now->v_bus);
 
-    if(motor_now->m_control_mode != CONTROL_MODE_NONE)
+    /*
+     * 第 3 步：PWM 工作时运行无感观测器。
+     * 磁链积分、幅值矫正和 CORDIC/PLL 分散到不同中断时隙中执行，避免单次
+     * 中断时间超过一个 PWM 周期；完整观测结果每四个采样更新一次。
+     * 计算分步，4个采样更新一次，更新时在4个采样周期分步计算完成
+     */
+    if((motor_now->m_control_mode != CONTROL_MODE_NONE) &&
+       (gObserverStage >= FOC_OBSERVER_STAGE_FLUX))
     {
-        foc_observer_update(state_now->v_alpha, state_now->v_beta,
-                            state_now->i_alpha, state_now->i_beta,
-                            FOC_CONTROL_DT_US,
-                            &motor_now->m_observer_state,
-                            &motor_now->m_phase_now_observer,
-                            motor_now);
+        /* 磁链更新前先对四个 PWM 周期的数据求平均，以降低计算频率。
+         * 区间末端的瞬时电流单独保留，用于计算 L*di 项。
+         */
+        s_observerVAlphaSum += state_now->v_alpha;
+        s_observerVBetaSum += state_now->v_beta;
+        s_observerIAlphaSum += state_now->i_alpha;
+        s_observerIBetaSum += state_now->i_beta;
+        s_observerFluxSamples++;
 
-        /* 开环启动或调试时由 m_phase_override 保留外部给定角度。 */
-        if(motor_now->m_phase_override == false)
+        if(s_observerFluxSamples >= FOC_OBSERVER_FLUX_DIV)
+        {
+            observerVAlphaAvg = s_observerVAlphaSum / (s32)FOC_OBSERVER_FLUX_DIV;
+            observerVBetaAvg = s_observerVBetaSum / (s32)FOC_OBSERVER_FLUX_DIV;
+            observerIAlphaAvg = s_observerIAlphaSum / (s32)FOC_OBSERVER_FLUX_DIV;
+            observerIBetaAvg = s_observerIBetaSum / (s32)FOC_OBSERVER_FLUX_DIV;
+
+            foc_observer_update(observerVAlphaAvg, observerVBetaAvg,
+                                observerIAlphaAvg, observerIBetaAvg,
+                                state_now->i_alpha, state_now->i_beta,
+                                (u16)(FOC_CONTROL_DT_US * FOC_OBSERVER_FLUX_DIV),
+                                &motor_now->m_observer_state, motor_now);
+
+            s_observerVAlphaSum = 0L;
+            s_observerVBetaSum = 0L;
+            s_observerIAlphaSum = 0L;
+            s_observerIBetaSum = 0L;
+            s_observerFluxSamples = 0U;
+            s_observerPostFluxSlot = FOC_OBSERVER_MAGNITUDE_SLOT;
+        }
+        else if((gObserverStage >= FOC_OBSERVER_STAGE_MAGNITUDE) &&
+                (s_observerPostFluxSlot == FOC_OBSERVER_MAGNITUDE_SLOT)) // 3
+        {
+            foc_observer_apply_correction(
+                &motor_now->m_observer_state, motor_now);
+            s_observerPostFluxSlot = FOC_OBSERVER_PHASE_SLOT;
+        }
+        else if((gObserverStage >= FOC_OBSERVER_STAGE_PHASE) &&
+                (s_observerPostFluxSlot == FOC_OBSERVER_PHASE_SLOT)) // 4
+        {
+            foc_observer_update_phase(
+                &motor_now->m_observer_state,
+                &motor_now->m_phase_now_observer);
+            foc_observer_pll_run(
+                motor_now->m_phase_now_observer,
+                &motor_now->m_observer_state, motor_now);
+            gObserverPhase = motor_now->m_phase_now_observer;
+            gObserverPhaseError = FocHw_PhaseDifference(
+                motor_now->m_phase_now_observer, state_now->phase);
+            s_observerPostFluxSlot = 0U;
+        }
+
+        /*
+         * 阶段 3 只观测并发布角度；阶段 4 中还需要等待 1 ms 任务清除
+         * phase_override，观测角才会真正成为 Park 变换角度。
+         */
+        if((gObserverStage >= FOC_OBSERVER_STAGE_CLOSED_LOOP) &&
+           (motor_now->m_phase_override == false))
         {
             state_now->phase = motor_now->m_phase_now_observer;
         }
     }
     else
     {
-        /* Stopped mode only synchronizes observer current history. */
+        s_observerVAlphaSum = 0L;
+        s_observerVBetaSum = 0L;
+        s_observerIAlphaSum = 0L;
+        s_observerIBetaSum = 0L;
+        s_observerFluxSamples = 0U;
+        s_observerPostFluxSlot = 0U;
         motor_now->m_observer_state.i_alpha_last = state_now->i_alpha;
         motor_now->m_observer_state.i_beta_last = state_now->i_beta;
     }
 
-    /* The selected angle source updates state_now->phase before this point. */
-    // 相位
+    /* 第 4 步：只计算一次 sin/cos，保证电流 PI 使用同一角度的一对值。 */
     trig = Motor_GetSinCosQ15((u16)state_now->phase);
     state_now->phase_sin = trig.sin;
     state_now->phase_cos = trig.cos;
 
-    id_set_tmp = (s32)motor_now->m_id_set;
-    iq_set_tmp = (s32)motor_now->m_iq_set;
-    current_max_abs = utils_max_abs((s32)conf_now->lo_current_max,
-                                    (s32)conf_now->lo_current_min);
-    if(current_max_abs < 0)
+    /* 第 5 步：将慢速任务给出的电流指令复制到快速环目标值。 */
+    if(motor_now->m_control_mode == CONTROL_MODE_OPENLOOP_DUTY_PHASE)
     {
-        current_max_abs = -current_max_abs;
+        /* 直接电压模式不使用电流目标，也不执行电流矢量限幅。 */
+        state_now->id_target = 0;
+        state_now->iq_target = 0;
     }
-
-    if(current_max_abs > 0)
+    else
     {
-        utils_truncate_number_abs(&id_set_tmp, current_max_abs);
-        iq_limit_square = (u32)((int64_t)current_max_abs * current_max_abs -
-                                (int64_t)id_set_tmp * id_set_tmp);
-        iq_max_abs = (s32)utils_sqrt_u32(iq_limit_square);
-        utils_truncate_number_abs(&iq_set_tmp, iq_max_abs);
-    }
+        id_set_tmp = (s32)motor_now->m_id_set;
+        iq_set_tmp = (s32)motor_now->m_iq_set;
+        current_max_abs = utils_max_abs((s32)conf_now->lo_current_max,
+                                        (s32)conf_now->lo_current_min);
+        if(current_max_abs < 0)
+        {
+            current_max_abs = -current_max_abs;
+        }
 
-    state_now->id_target = FocHw_SatS16(id_set_tmp);
-    state_now->iq_target = FocHw_SatS16(iq_set_tmp);
+        if(current_max_abs > 0)
+        {
+            utils_truncate_number_abs(&id_set_tmp, current_max_abs);
+            utils_truncate_number_abs(&iq_set_tmp, current_max_abs);
+        }
+
+        state_now->id_target = FocHw_SatS16(id_set_tmp);
+        state_now->iq_target = FocHw_SatS16(iq_set_tmp);
+    }
     state_now->max_duty = conf_now->l_max_duty;
 
     if(motor_now->m_control_mode == CONTROL_MODE_NONE)
@@ -250,46 +355,8 @@ void AdcSampleCal(void)
         motor_now->m_state = MC_STATE_RUNNING;
     }
 
+    /* 第 6 步：Park -> 电流 PI -> 反 Park -> SVM -> 更新 PWM 比较值。 */
     Motor_CurrentLoopRun(1U);
-}
-
-void PhaseCurrent_CheckFast(void)
-{
-    s32 phaseA;
-    s32 phaseB;
-    u16 absA;
-    u16 absB;
-    u16 peakAbs;
-    u16 absMaA;
-    u16 absMaB;
-    u32 peakAbsMa;
-
-    phaseA = (s32)hPhaseAOffset - (s32)GET_CURRENT_U_SAMPLE_RESULT();
-    phaseB = (s32)hPhaseBOffset - (s32)GET_CURRENT_V_SAMPLE_RESULT();
-    gPhaseCurrentAAdc = FocHw_SatS16(phaseA);
-    gPhaseCurrentBAdc = FocHw_SatS16(phaseB);
-
-    absA = FocHw_AbsS32ToU16(phaseA);
-    absB = FocHw_AbsS32ToU16(phaseB);
-    peakAbs = (absA > absB) ? absA : absB;
-
-    absMaA = FocHw_AbsS32ToU16((s32)ADC_curr_norm_value[0]);
-    absMaB = FocHw_AbsS32ToU16((s32)ADC_curr_norm_value[1]);
-    peakAbsMa = (absMaA > absMaB) ? (u32)absMaA : (u32)absMaB;
-
-    if(peakAbs > gPhaseCurrentPeakAbsAdc)
-    {
-        gPhaseCurrentPeakAbsAdc = peakAbs;
-    }
-
-    if(peakAbsMa > gPhaseCurrentPeakAbsMa)
-    {
-        gPhaseCurrentPeakAbsMa = peakAbsMa;
-    }
-
-    /* Keep the threshold values available for the next protection step. */
-    (void)MCS_PHASE_CURRENT_OVER_ADC;
-    (void)MCS_PHASE_CURRENT_RELEASE_ADC;
 }
 
 void AdcEocHandler(void)
@@ -297,9 +364,13 @@ void AdcEocHandler(void)
     s16 bus_adc;
     u32 bus_mv;
 
+    /* 电流控制对时序最敏感，因此放在 ADC 中断最前面执行。 */
     AdcSampleCal();
-    PhaseCurrent_CheckFast();
 
+    /*
+     * 母线电压和 Hall 诊断值在 PWM 计算之后更新，因此快速环有意使用上一周期
+     * 的滤波母线电压，该数据只滞后一个 PWM 周期。
+     */
     bus_adc = AcqAdcSampDatUdc();
     bus_mv = FocHw_AdcToBusMv(bus_adc);
     gBUS_Vol_ADC = FocHw_SatS16((s32)gBUS_Vol_ADC +

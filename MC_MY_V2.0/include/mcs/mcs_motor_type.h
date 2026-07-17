@@ -83,6 +83,8 @@ typedef struct
     s16 vq;              /* Q15 normalized modulation */
     s32 vd_int;          /* Q15 normalized modulation */
     s32 vq_int;          /* Q15 normalized modulation */
+    s32 vd_int_residual; /* fractional Q15 current-integrator remainder */
+    s32 vq_int_residual; /* fractional Q15 current-integrator remainder */
     s32 id_error;
     s32 iq_error;
     s16 mod_alpha;       /* Q15 normalized modulation */
@@ -122,6 +124,9 @@ typedef struct {
     s32 x2;
     s32 i_alpha_last;
     s32 i_beta_last;
+    u32 pll_phase_q16;
+    s32 pll_speed_step_q16;
+    bool pll_initialized;
 } observer_state;
 
 typedef enum {
@@ -200,7 +205,6 @@ typedef struct
     s16 m_i_beta_sample_next;
     u16 p_fs;
     u16 p_dt;            /* elapsed current-loop ticks */
-    s16 m_currents_adc[3]; /* raw ADC readings before offset removal */
     
     s16 m_i_alpha_sample_with_offset;
     s16 m_i_beta_sample_with_offset;

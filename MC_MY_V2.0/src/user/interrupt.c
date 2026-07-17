@@ -83,10 +83,10 @@ void MCPWM0_IRQHandler(void)
  -----------------------------------------------------------------------------
  2021/02/20     V1.0           BPS IOT TEAM         创建
  *******************************************************************************/
-extern INT16 iAdcRes1;
 extern u16 FOC_angle;
 s16 s16Timer1,s16Timer2;
-s16 errTimer;
+volatile u16 errTimer;
+volatile u16 errTimerMax;
 /*
  * 函数功能: ADC 采样完成中断服务函数。
  * 触发时机: 由 PWM/ADC 采样时序触发, 是电机快速控制回路的核心中断之一。
@@ -94,6 +94,7 @@ s16 errTimer;
  */
 void ADC_IRQHandler(void)
 {
+    s32 elapsedTicks;
     /* 清 ADC 中断标志, 避免重复进入同一次中断。 */
     ADC_IF |= BIT1|BIT0;
     /* 重新置位 ADC 配置位, 为下一次 PWM 触发采样做准备。 */
@@ -115,7 +116,16 @@ void ADC_IRQHandler(void)
     /* 统计本次 ADC 中断执行结束时的 PWM 计数值。 */
     s16Timer2 = MCPWM_CNT0;
     /* 计算中断执行时间差, 便于调试控制回路耗时裕量。 */
-    errTimer = s16Timer2 - s16Timer1;
+    elapsedTicks = (s32)s16Timer2 - (s32)s16Timer1;
+    if(elapsedTicks < 0L)
+    {
+        elapsedTicks += (s32)PWM_PERIOD * 2L;
+    }
+    errTimer = (u16)elapsedTicks;
+    if(errTimer > errTimerMax)
+    {
+        errTimerMax = errTimer;
+    }
     /* 调试脉冲结束: 拉低 GPIO1.4。 */
     GPIO_ResetBits(GPIO1, GPIO_Pin_4);
 	
@@ -131,8 +141,6 @@ void ADC_IRQHandler(void)
         /* 清对应 MCPWM 故障标志位。 */
         MCPWM_EIF = BIT4|BIT5;
         /* 上报短路故障到系统错误字。 */
-//        SetSysErrorFlag(E_FAULT_SHORT_ERROR);
-        /* 调试标记: 1 表示在 ADC 中断里捕获到该类故障。 */
     }
 
 }

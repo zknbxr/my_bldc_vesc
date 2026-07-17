@@ -71,17 +71,15 @@
 #define ADC_CURRETN_A_CHANNEL             (ADC_CHANNEL_OPA0)
 #define ADC_CURRETN_B_CHANNEL             (ADC_CHANNEL_OPA1)
 #define ADC0_BUS_CUR_CHANNEL              (ADC0_CHANNEL_OPA1)
-#define GET_UDC_SAMPLE_RESULT()           ((INT16)ADC_DAT1)                                         /* set udc result chn.. */
+#define GET_CURRENT_V_DUMMY_RESULT()      ((INT16)ADC_DAT0)                                         /* discarded OPA1 settling sample */
+#define GET_CURRENT_V_SAMPLE_RESULT()     ((INT16)ADC_DAT1)                                         /* valid phase V result */
+#define GET_CURRENT_U_SAMPLE_RESULT()     ((INT16)ADC_DAT2)                                         /* valid phase U result */
+#define GET_UDC_SAMPLE_RESULT()           ((INT16)ADC_DAT3)
+#define GET_TEMP_SAMPLE_RESULT()          ((INT16)ADC_DAT4)
+#define GET_HALLA_SAMPLE_RESULT()         ((INT16)ADC_DAT5)
+#define GET_HALLB_SAMPLE_RESULT()         ((INT16)ADC_DAT6)
 
-#define GET_HALLA_SAMPLE_RESULT()         ((INT16)ADC_DAT4)                                         /* set udc result chn.. */
-#define GET_HALLB_SAMPLE_RESULT()         ((INT16)ADC_DAT5)                                         /* set udc result chn.. */
-
-#define GET_TEMP_SAMPLE_RESULT()          ((INT16)ADC_DAT2)
-
-#define GET_NTCVOLAD_SAMPLE_RESULT()      ((INT16)ADC_DAT6) 
-
-#define GET_CURRENT_U_SAMPLE_RESULT()    ((INT16)ADC_DAT3)                                          /* set phase u result chn.. */
-#define GET_CURRENT_V_SAMPLE_RESULT()    ((INT16)ADC_DAT0)                                          /* set phase v result chn.. */
+#define GET_NTCVOLAD_SAMPLE_RESULT()      ((INT16)ADC_DAT6)
 
 
 /*----------------------------------------第一次采样顺序MSK-----------------------------------------------------------------------------------------------------*/ 
