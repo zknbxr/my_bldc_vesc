@@ -6,9 +6,15 @@ static void User_App_DispatchUartCommand(void);
 
 void User_App_Task_Run(const TASK_TICK *tick)
 {
-    uint16_t i;
+    if(tick == NULL)
+    {
+        return;
+    }
 
-
+    if(tick->ms1 != 0U)
+    {
+        
+    }
 }
 
 static void User_App_DispatchUartCommand(void)

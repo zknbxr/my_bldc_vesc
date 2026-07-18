@@ -44,7 +44,7 @@ void FeedDogcmd(void)
 {
     static UINT16 FeedDog_cnt=0;
 
-    if(++FeedDog_cnt>8000)
+    if(++FeedDog_cnt>100)
     {
         FeedDog_cnt=0;
         IWDG_Feed();
@@ -99,16 +99,16 @@ void ADC_IRQHandler(void)
     ADC_IF |= BIT1|BIT0;
     /* 重新置位 ADC 配置位, 为下一次 PWM 触发采样做准备。 */
     ADC_CFG |= BIT11;
-
-    /* 调试脉冲: 拉高 GPIO1.4, 便于示波器观察 ADC 中断执行时间。 */
-    GPIO_SetBits(GPIO1, GPIO_Pin_4);
+    
+    
+    // GPIO_SetBits(GPIO1, GPIO_Pin_4);
 
     /* 记录进入中断时的 PWM 计数值, 用于统计本次中断执行耗时。 */
     s16Timer1 = MCPWM_CNT0;
-    FeedDogcmd();
+
     /* ADC 采样后处理: 电流采样换算、FOC 控制步进、霍尔角度更新和母线电压更新。 */
     AdcEocHandler();
-    /* 在高速中断节拍里喂狗, 防止控制循环繁忙时看门狗复位。 */
+    
     
 //    /* 推进系统软件定时基准, 供 1ms/10ms/100ms 等任务调度使用。 */
     Task_vTickTimerEvent();
@@ -126,8 +126,8 @@ void ADC_IRQHandler(void)
     {
         errTimerMax = errTimer;
     }
-    /* 调试脉冲结束: 拉低 GPIO1.4。 */
-    GPIO_ResetBits(GPIO1, GPIO_Pin_4);
+
+    // GPIO_ResetBits(GPIO1, GPIO_Pin_4);
 	
     /* 检查 MCPWM 扩展故障标志 BIT4/BIT5, 一般用于桥臂短路/过流等硬件级保护。CMP直接输出到 */
     if((MCPWM_EIF & BIT4)||(MCPWM_EIF & BIT5))

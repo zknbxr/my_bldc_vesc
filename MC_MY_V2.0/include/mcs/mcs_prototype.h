@@ -18,6 +18,10 @@ void Motor_FocLoopRun(u16 angle);
 	mcs_error_handing.c
 **/
 
+/*
+	interrupt.c
+**/
+void FeedDogcmd(void);
 
 /*
     mcs_motor.c
@@ -32,13 +36,24 @@ void Motor_WriteDqVector(u16 angle, s16 dRef, s16 qRef);
 void Direction_Init(void);
 void Motor_DirectionTest_Task(void);
 void Motor_DirectionTest_Stop(void);
+
+/*
+    sensorless_ctrl.c
+**/
+void foc_sensorless_update(motor_all_state_t *motor);
+
 /*
 	mcs_foc_hw.c
 **/
 void AdcSampleCal(void);
 void AdcEocHandler(void);
+void Motor_FocSlowUpdate1ms(void);
 void PwmAOutputs(FuncState t_state);
 void Motor_WriteNeutralPwm(void);
+s32 FocHw_ModToVoltageMv(s16 modulation, s32 bus_voltage);
+s16 FocHw_SatS16(s32 value);
+s16 FocHw_PhaseDifference(s16 phase, s16 reference);
+
 //mcs_control.c
 void CurrentErrDetc(void);
 void StopMotorImmdly(void);

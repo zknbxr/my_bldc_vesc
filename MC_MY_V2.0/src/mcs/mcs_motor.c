@@ -182,11 +182,9 @@ static void Motor_WriteAlphaBetaVector(s16 alpha, s16 beta)
         phaseBOffset = -(alphaCmd / 2) + ((betaCmd * MCS_SQRT3_OVER_2_Q15) >> 15);
         phaseCOffset = -(alphaCmd / 2) - ((betaCmd * MCS_SQRT3_OVER_2_Q15) >> 15);
     }
-    /* Store the voltage command that will be active during the next ADC sample. */
-    m_motor.m_motor_state.mod_alpha = Motor_PwmOffsetToModQ15(alphaCmd);
-    m_motor.m_motor_state.mod_beta = Motor_PwmOffsetToModQ15(betaCmd);
-    m_motor.m_motor_state.mod_alpha_raw = m_motor.m_motor_state.mod_alpha;
-    m_motor.m_motor_state.mod_beta_raw = m_motor.m_motor_state.mod_beta;
+    /* 保存下一次 ADC 采样期间实际生效的调制度。 */
+    m_motor.m_motor_state.mod_alpha_raw = Motor_PwmOffsetToModQ15(alphaCmd);
+    m_motor.m_motor_state.mod_beta_raw = Motor_PwmOffsetToModQ15(betaCmd);
 
     Motor_WritePwmCompare(
         Motor_ClampPwmCompare(center + phaseAOffset),

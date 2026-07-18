@@ -4,7 +4,7 @@
  * 定点电流控制器各变量单位：
  *   i_alpha/i_beta、id/iq 及其目标值       ：mA
  *   phase、phase_sin/phase_cos              ：Q16 角度、Q15 正余弦
- *   vd/vq、mod_alpha/mod_beta               ：Q15 调制度，不是 mV
+ *   vd/vq、mod_alpha_raw/mod_beta_raw       ：Q15 调制度，不是 mV
  *   pwm_a/pwm_b/pwm_c                       ：定时器比较计数值
  *
  * 本模块是 FOC 最内层控制环，不负责决定转速和角度，只负责让测量的 id/iq
@@ -29,6 +29,7 @@ static mc_configuration m_motor_conf = {
     .foc_control_sample_mode = FOC_CONTROL_SAMPLE_MODE_V0,
     .foc_mtpa_mode = MTPA_MODE_OFF,
     .foc_speed_soure = FOC_SPEED_SRC_CORRECTED,
+    .foc_sensor_mode = FOC_SENSOR_MODE_SENSORLESS,
     .foc_temp_comp = 0,
     .foc_current_ki = MCS_CURRENT_KI_Q15_PER_MA_TICK,
     .foc_current_filter_const = MCS_CURRENT_FILTER_Q15,
@@ -109,12 +110,28 @@ static s32 Foc_IntegrateCurrentError(s32 integral,
 
 static void Foc_InitMotorStruct(motor_all_state_t *motor)
 {
+    s32 max_duty;
+    s32 overmod_factor;
+    s32 max_v_mag;
+
     if(motor->m_conf == 0)
     {
         motor->m_conf = &m_motor_conf;
         motor->m_state = MC_STATE_OFF;
         motor->m_control_mode = CONTROL_MODE_NONE;
-        motor->m_motor_state.max_duty = MCS_SVM_MAX_MOD_Q15;
+
+        /* 这些配置在运行中保持不变，预先计算以减少快速环中的限幅和乘法。 */
+        max_duty = Foc_LimitS32((s32)motor->m_conf->l_max_duty,
+                                0L,
+                                MCS_Q15_ONE);
+        overmod_factor = Foc_LimitS32((s32)motor->m_conf->foc_overmod_factor,
+                                      0L,
+                                      MCS_Q15_ONE);
+        max_v_mag = Foc_MulQ15(max_duty, overmod_factor);
+        max_v_mag = Foc_MulQ15(max_v_mag, MCS_SQRT3_BY_2_Q15);
+
+        motor->m_motor_state.max_duty = (s16)max_duty;
+        motor->p_max_v_mag = (s16)max_v_mag;
         motor->p_dt = 1U;
     }
 }
@@ -131,8 +148,6 @@ static void Foc_ResetCurrentPi(motor_all_state_t *motor)
     state_m->vq = 0;
     state_m->id_error = 0;
     state_m->iq_error = 0;
-    state_m->mod_alpha = 0;
-    state_m->mod_beta = 0;
     state_m->mod_alpha_raw = 0;
     state_m->mod_beta_raw = 0;
 }
@@ -196,13 +211,14 @@ static void control_current(motor_all_state_t *motor, u16 dt)
     s32 p_q;
     s32 max_duty;
     s32 max_v_mag;
-    s32 max_vq;
-    s32 overmod_factor;
     s32 integral_before_limit;
     s32 current_abs;
-
-    // 如果未初始化，就初始化
-    Foc_InitMotorStruct(motor);
+    s32 vd_abs;
+    s32 vq_abs;
+    s32 voltage_abs_max;
+    s32 voltage_abs_min;
+    s32 voltage_mag_approx;
+    s32 voltage_scale_q15;
 
     state_m = &motor->m_motor_state;
     conf_now = motor->m_conf;
@@ -217,7 +233,7 @@ static void control_current(motor_all_state_t *motor, u16 dt)
         Foc_WriteSvmPwm(PWM_PERIOD / 2U, PWM_PERIOD / 2U, PWM_PERIOD / 2U);
         return;
     }
-    
+
     /*
      * 在局部变量中保存一份 sin/cos 快照，确保二者属于同一个角度；若反复读取
      * volatile 状态字段，可能在更新边界处读到不同角度的数据。
@@ -225,16 +241,9 @@ static void control_current(motor_all_state_t *motor, u16 dt)
     trig.cos = state_m->phase_cos;
     trig.sin = state_m->phase_sin;
 
-    max_duty = Foc_AbsS32((s32)state_m->max_duty);
-    max_duty = Foc_LimitS32(max_duty, 0L, (s32)conf_now->l_max_duty);
-
-    overmod_factor = Foc_LimitS32((s32)conf_now->foc_overmod_factor,
-                                  0L,
-                                  MCS_Q15_ONE);
-    
-    /* 当前母线电压和最大占空比允许的 alpha-beta 电压矢量调制度上限。 */
-    max_v_mag = Foc_MulQ15(max_duty, overmod_factor);
-    max_v_mag = Foc_MulQ15(max_v_mag, MCS_SQRT3_BY_2_Q15);
+    /* 最大占空比和电压矢量上限已在初始化时完成限幅及计算。 */
+    max_duty = (s32)state_m->max_duty;
+    max_v_mag = (s32)motor->p_max_v_mag;
 
     /* Park 变换：静止坐标系采样电流 -> 转子坐标系 d/q 电流，单位 mA。 */
     id = (((s32)state_m->i_alpha * trig.cos) +
@@ -282,30 +291,52 @@ static void control_current(motor_all_state_t *motor, u16 dt)
                                        ki,
                                        &state_m->vq_int_residual);
     
-    vd = vd_int + p_d;
-    vq = vq_int + p_q;
-
-    
-    /* 优先分配 d 轴电压，并同步限制积分项，防止积分饱和。 */
-    vd = Foc_LimitS32(vd, -max_v_mag, max_v_mag);
+    /* 先将积分状态限制在 Q15 有效范围，保证后续 32 位乘法不溢出。 */
     integral_before_limit = vd_int;
-    vd_int = Foc_LimitS32(vd_int, -max_v_mag, max_v_mag);
+    vd_int = Foc_LimitS32(vd_int, -MCS_Q15_ONE, MCS_Q15_ONE);
     if(vd_int != integral_before_limit)
     {
         state_m->vd_int_residual = 0;
     }
-
-    /*
-     * 保守的菱形限幅：|vd| + |vq| <= max_v_mag。
-     * 这样可避免每次中断计算 sqrt，但电压利用率低于圆形限幅。
-     * 高速或大电流时会更早进入饱和，可能增大电流纹波、运行声音和相电流失真。
-     */
-    max_vq = max_v_mag - Foc_AbsS32(vd);
-    vq = Foc_LimitS32(vq, -max_vq, max_vq);
     integral_before_limit = vq_int;
-    vq_int = Foc_LimitS32(vq_int, -max_vq, max_vq);
+    vq_int = Foc_LimitS32(vq_int, -MCS_Q15_ONE, MCS_Q15_ONE);
     if(vq_int != integral_before_limit)
     {
+        state_m->vq_int_residual = 0;
+    }
+
+    vd = Foc_LimitS32(vd_int + p_d, -MCS_Q15_ONE, MCS_Q15_ONE);
+    vq = Foc_LimitS32(vq_int + p_q, -MCS_Q15_ONE, MCS_Q15_ONE);
+
+    /*
+     * 用 max(|vd|,|vq|) + 27/64*min(|vd|,|vq|) 保守近似圆形幅值。
+     * 27/64 略大于 sqrt(2)-1，可保证近似值不小于真实幅值。
+     * 只有超过上限时才执行一次除法并等比例缩放，保持电压矢量方向不变。
+     */
+    vd_abs = Foc_AbsS32(vd);
+    vq_abs = Foc_AbsS32(vq);
+    if(vd_abs >= vq_abs)
+    {
+        voltage_abs_max = vd_abs;
+        voltage_abs_min = vq_abs;
+    }
+    else
+    {
+        voltage_abs_max = vq_abs;
+        voltage_abs_min = vd_abs;
+    }
+    voltage_mag_approx = voltage_abs_max +
+                         ((voltage_abs_min * 27L) >> 6);
+
+    if((voltage_mag_approx > max_v_mag) && (voltage_mag_approx > 0L))
+    {
+        voltage_scale_q15 = (max_v_mag << MCS_Q15_SHIFT) /
+                            voltage_mag_approx;
+        vd = Foc_MulQ15(vd, voltage_scale_q15);
+        vq = Foc_MulQ15(vq, voltage_scale_q15);
+        vd_int = Foc_MulQ15(vd_int, voltage_scale_q15);
+        vq_int = Foc_MulQ15(vq_int, voltage_scale_q15);
+        state_m->vd_int_residual = 0;
         state_m->vq_int_residual = 0;
     }
 
@@ -329,15 +360,12 @@ static void control_current(motor_all_state_t *motor, u16 dt)
     alpha = ((vd * trig.cos) - (vq * trig.sin)) >> 15;
     beta = ((vd * trig.sin) + (vq * trig.cos)) >> 15;
 
-    state_m->mod_alpha = Foc_SatS16(alpha);
-    state_m->mod_beta = Foc_SatS16(beta);
-    
-    state_m->mod_alpha_raw = state_m->mod_alpha;
-    state_m->mod_beta_raw = state_m->mod_beta;
+    state_m->mod_alpha_raw = Foc_SatS16(alpha);
+    state_m->mod_beta_raw = Foc_SatS16(beta);
 
     /* SVM 将电压矢量转换为中心对齐的 U/V/W 三相占空比。 */
-    FOC_SVM_Q15(state_m->mod_alpha,
-                state_m->mod_beta,
+    FOC_SVM_Q15(state_m->mod_alpha_raw,
+                state_m->mod_beta_raw,
                 max_duty,
                 PWM_PERIOD,
                 &tA,

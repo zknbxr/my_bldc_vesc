@@ -91,7 +91,6 @@ void CurrentOffsetCalibration(void)
 	hPhaseAOffset = (s16)(t_offset1 >> 9);
 	hPhaseBOffset = (s16)(t_offset2 >> 9);
 
-    Motor_FocInit();
     m_motor.m_conf->foc_offsets_current[0] = hPhaseAOffset;
     m_motor.m_conf->foc_offsets_current[1] = hPhaseBOffset;
     m_motor.m_conf->foc_offsets_current[2] = 0;
@@ -104,6 +103,8 @@ void mc_sys_init(void)
 {
 	INT8 ax;
 
+	/* 快速环使用前一次性建立电机配置指针，运行中不再重复检查。 */
+	Motor_FocInit();
 
 	/* Give analog front-end and ADC references time to settle before offset
      * calibration. Removing this delay can make phase-current zero drift wrong.

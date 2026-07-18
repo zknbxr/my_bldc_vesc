@@ -47,7 +47,19 @@
 #define Motor_Lockedrotor 			8		//电机堵转
 
 
-
+// 传感器模式枚举
+typedef enum {
+    FOC_SENSOR_MODE_SENSORLESS = 0,
+    FOC_SENSOR_MODE_ENCODER,
+    FOC_SENSOR_MODE_HALL,
+    FOC_SENSOR_MODE_HFI,
+    FOC_SENSOR_MODE_HFI_START,
+    FOC_SENSOR_MODE_HFI_V2,
+    FOC_SENSOR_MODE_HFI_V3,
+    FOC_SENSOR_MODE_HFI_V4,
+    FOC_SENSOR_MODE_HFI_V5,
+    FOC_SENSOR_MODE_ENCODER_AB
+} mc_foc_sensor_mode;
 
 // FOC current controller decoupling mode.
 typedef enum {
@@ -87,8 +99,6 @@ typedef struct
     s32 vq_int_residual; /* fractional Q15 current-integrator remainder */
     s32 id_error;
     s32 iq_error;
-    s16 mod_alpha;       /* Q15 normalized modulation */
-    s16 mod_beta;        /* Q15 normalized modulation */
     u16 pwm_a;
     u16 pwm_b;
     u16 pwm_c;
@@ -99,8 +109,8 @@ typedef struct
     s32 v_beta;           /* beta-axis voltage in mV */
     s16 phase;
     
-    s16 mod_alpha_raw;
-    s16 mod_beta_raw;
+    s16 mod_alpha_raw;   /* 实际送入 SVM 的 alpha 轴 Q15 调制度 */
+    s16 mod_beta_raw;    /* 实际送入 SVM 的 beta 轴 Q15 调制度 */
     s16 mod_d;
     s16 mod_q;
     
@@ -160,6 +170,8 @@ typedef struct {
     mc_foc_control_sample_mode foc_control_sample_mode;
     MTPA_MODE foc_mtpa_mode;
     FOC_SPEED_SRC foc_speed_soure;
+    mc_foc_sensor_mode foc_sensor_mode;
+    
     
     s16 foc_temp_comp;
     s16 foc_current_ki;           /* Q15 modulation/current-unit/tick */
@@ -194,17 +206,25 @@ typedef struct
     mc_control_mode m_control_mode;
 	motor_state_t m_motor_state;
     
+    bool m_phase_control_initialized;    
+    bool m_i_alpha_beta_has_offset;
+    bool m_was_control_duty;
+    bool duty_was_pi;
+    bool m_phase_override;
+    bool m_cc_was_hfi;
+    bool m_duty_next_set;
+    bool m_observer_initial;
     s16 m_current_ki_temp_comp;
     s16 p_lq;
     s16 p_ld;
     s16 m_speed_est_fast;
-    bool m_cc_was_hfi;
-    bool m_duty_next_set;
+    
     u16 m_duty1_next, m_duty2_next, m_duty3_next;
     s16 m_i_alpha_sample_next;
     s16 m_i_beta_sample_next;
     u16 p_fs;
     u16 p_dt;            /* elapsed current-loop ticks */
+    s16 p_max_v_mag;     /* 初始化后缓存的最大电压矢量调制度，Q15 */
     
     s16 m_i_alpha_sample_with_offset;
     s16 m_i_beta_sample_with_offset;
@@ -229,11 +249,8 @@ typedef struct
     s16 m_i_fw_set;
     s16 p_duty_norm;
     s16 m_pll_phase;
-    
-    bool m_i_alpha_beta_has_offset;
-    bool m_was_control_duty;
-    bool duty_was_pi;
-    bool m_phase_override;
+    u32 m_phase_control_q16;       /* 每个 PWM 周期外推的 Q16 控制角 */
+
 } motor_all_state_t;
     
 

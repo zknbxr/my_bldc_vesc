@@ -11,4 +11,5 @@ extern s16 hPhaseAOffset;
 extern s16 hPhaseBOffset;
 extern motor_all_state_t m_motor;
 extern volatile s16 ADC_curr_norm_value[3];
+extern volatile s8 gMotorDirection;
 #endif

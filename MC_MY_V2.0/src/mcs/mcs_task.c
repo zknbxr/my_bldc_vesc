@@ -16,6 +16,10 @@ void Mcs_Task_Run(const TASK_TICK *tick)
 
     if(tick->ms1 != 0U)
     {
+        // 看门狗，原来在adc中断中
+        FeedDogcmd();
+        /* 母线电压等慢变量不占用 14 kHz ADC 中断时间。 */
+        Motor_FocSlowUpdate1ms();
         /* 为下一次 ADC/PWM 快速环准备控制指令。 */
         Motor_DirectionTest_Task();
     }

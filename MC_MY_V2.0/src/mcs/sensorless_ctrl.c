@@ -12,6 +12,10 @@
 /* 一圈 65536 个角度计数，PLL 更新频率 = 14000 / 4 = 3500 Hz。 */
 #define OBSERVER_PLL_STEP_Q16_PER_ERPM     (20452L)
 
+
+
+
+
 /*
  * 带非线性磁链矫正的定点电压模型。
  * 状态量保存 eta = x_hat - L*i，因此 phase = atan2(eta)。
@@ -38,6 +42,16 @@ volatile s16 gObserverFluxErrorQ13;
 volatile s16 gObserverCorrectionGainQ13;
 volatile s16 gObserverPllPhaseError;
 volatile s32 gObserverPllSpeedStepQ16;
+volatile s16 gObserverPhase;
+volatile s16 gObserverPhaseError;
+
+static s32 s_observerModAlphaSum;
+static s32 s_observerModBetaSum;
+static s32 s_observerIAlphaSum;
+static s32 s_observerIBetaSum;
+static u8 s_observerFluxSamples;
+static u8 s_observerPostFluxSlot;
+
 
 static const u16 observer_atan_table[OBSERVER_CORDIC_ITERATIONS] = {
     8192U, 4836U, 2555U, 1297U, 651U,
@@ -128,6 +142,59 @@ void foc_observer_reset(observer_state *state)
     gObserverCorrectionGainQ13 = 0;
     gObserverPllPhaseError = 0;
     gObserverPllSpeedStepQ16 = 0L;
+}
+
+/* 无感模式启停时在快速环内统一复位观测器及其分步流水线。 */
+static void foc_sensorless_reset(motor_all_state_t *motor,
+                                 motor_state_t *state)
+{
+    s16 phase_seed;
+
+    phase_seed = state->phase;
+    s_observerModAlphaSum = 0L;
+    s_observerModBetaSum = 0L;
+    s_observerIAlphaSum = 0L;
+    s_observerIBetaSum = 0L;
+    s_observerFluxSamples = 0U;
+    s_observerPostFluxSlot = 0U;
+
+    foc_observer_reset(&motor->m_observer_state);
+    motor->m_observer_state.i_alpha_last = state->i_alpha;
+    motor->m_observer_state.i_beta_last = state->i_beta;
+    motor->m_phase_control_initialized = false;
+    motor->m_phase_control_q16 = (u32)(u16)phase_seed << 16;
+    motor->m_phase_now_observer = phase_seed;
+    motor->m_pll_phase = phase_seed;
+    motor->m_pll_speed = 0;
+    gObserverPhase = phase_seed;
+    gObserverPhaseError = 0;
+}
+
+/* PLL 校正之间按速度状态逐 PWM 周期外推控制角。 */
+static void foc_observer_update_predicted_phase(motor_all_state_t *motor,
+                                                bool pll_updated)
+{
+    observer_state *observer;
+
+    observer = &motor->m_observer_state;
+    if(!observer->pll_initialized)
+    {
+        motor->m_phase_control_initialized = false;
+        return;
+    }
+
+    if(pll_updated || !motor->m_phase_control_initialized)
+    {
+        motor->m_phase_control_q16 = observer->pll_phase_q16;
+        motor->m_phase_control_initialized = true;
+    }
+    else
+    {
+        motor->m_phase_control_q16 += (u32)(
+            observer->pll_speed_step_q16 / (s32)FOC_OBSERVER_FLUX_DIV);
+    }
+
+    motor->m_pll_phase = (s16)(motor->m_phase_control_q16 >> 16);
 }
 
 /* 对静止坐标系电压模型积分，估算转子磁链。 */
@@ -299,3 +366,107 @@ void foc_observer_pll_run(s16 phase, observer_state *state,
     gObserverPllPhaseError = (s16)phase_error;
     gObserverPllSpeedStepQ16 = state->pll_speed_step_q16;
 }
+
+void foc_sensorless_update(motor_all_state_t *motor_now)
+{
+    motor_state_t *state_now;
+    s32 observerVAlphaAvg;
+    s32 observerVBetaAvg;
+    s32 observerModAlphaAvg;
+    s32 observerModBetaAvg;
+    s32 observerIAlphaAvg;
+    s32 observerIBetaAvg;
+    bool pllUpdated;
+    
+    if((motor_now == 0) || (motor_now->m_conf == 0))
+    {
+        return;
+    }
+
+    state_now = &motor_now->m_motor_state;
+
+    /* 退出运行或切换到其他传感器时，使下次进入无感必定重新初始化。 */
+    if((motor_now->m_state != MC_STATE_RUNNING) ||
+       (motor_now->m_conf->foc_sensor_mode != FOC_SENSOR_MODE_SENSORLESS))
+    {
+        motor_now->m_observer_initial = false;
+        return;
+    }
+
+    if(!motor_now->m_observer_initial)
+    {
+        foc_sensorless_reset(motor_now, state_now);
+        motor_now->m_observer_initial = true;
+    }
+
+    pllUpdated = false;
+    
+    /* 磁链更新前先对四个 PWM 周期的数据求平均，以降低计算频率。
+     * 区间末端的瞬时电流单独保留，用于计算 L*di 项。
+     */
+    /* 先累加上一 PWM 周期的调制度，第四次才统一换算为物理电压。 */
+    s_observerModAlphaSum += state_now->mod_alpha_raw;
+    s_observerModBetaSum += state_now->mod_beta_raw;
+    s_observerIAlphaSum += state_now->i_alpha;
+    s_observerIBetaSum += state_now->i_beta;
+    s_observerFluxSamples++;
+
+    if(s_observerFluxSamples >= FOC_OBSERVER_FLUX_DIV)
+    {
+        observerModAlphaAvg = s_observerModAlphaSum /
+                              (s32)FOC_OBSERVER_FLUX_DIV;
+        observerModBetaAvg = s_observerModBetaSum /
+                             (s32)FOC_OBSERVER_FLUX_DIV;
+        observerVAlphaAvg = FocHw_ModToVoltageMv(
+            FocHw_SatS16(observerModAlphaAvg), state_now->v_bus);
+        observerVBetaAvg = FocHw_ModToVoltageMv(
+            FocHw_SatS16(observerModBetaAvg), state_now->v_bus);
+        state_now->v_alpha = observerVAlphaAvg;
+        state_now->v_beta = observerVBetaAvg;
+        observerIAlphaAvg = s_observerIAlphaSum / (s32)FOC_OBSERVER_FLUX_DIV;
+        observerIBetaAvg = s_observerIBetaSum / (s32)FOC_OBSERVER_FLUX_DIV;
+
+        foc_observer_update(observerVAlphaAvg, observerVBetaAvg,
+                            observerIAlphaAvg, observerIBetaAvg,
+                            state_now->i_alpha, state_now->i_beta,
+                            (u16)(FOC_CONTROL_DT_US * FOC_OBSERVER_FLUX_DIV),
+                            &motor_now->m_observer_state, motor_now);
+
+        s_observerModAlphaSum = 0L;
+        s_observerModBetaSum = 0L;
+        s_observerIAlphaSum = 0L;
+        s_observerIBetaSum = 0L;
+        s_observerFluxSamples = 0U;
+        s_observerPostFluxSlot = FOC_OBSERVER_MAGNITUDE_SLOT;
+    }
+    else if(s_observerPostFluxSlot == FOC_OBSERVER_MAGNITUDE_SLOT)
+    {
+        foc_observer_apply_correction(
+            &motor_now->m_observer_state, motor_now);
+        s_observerPostFluxSlot = FOC_OBSERVER_PHASE_SLOT;
+    }
+    else if(s_observerPostFluxSlot == FOC_OBSERVER_PHASE_SLOT)
+    {
+        foc_observer_update_phase(
+            &motor_now->m_observer_state,
+            &motor_now->m_phase_now_observer);
+        foc_observer_pll_run(
+            motor_now->m_phase_now_observer,
+            &motor_now->m_observer_state, motor_now);
+        pllUpdated = true;
+        gObserverPhase = motor_now->m_phase_now_observer;
+        gObserverPhaseError = FocHw_PhaseDifference(
+            motor_now->m_phase_now_observer, state_now->phase);
+        s_observerPostFluxSlot = 0U;
+    }
+
+    foc_observer_update_predicted_phase(motor_now, pllUpdated);
+    if((motor_now->m_phase_override == false) &&
+       motor_now->m_phase_control_initialized)
+    {
+        /* 电流环使用逐 PWM 周期外推的 PLL 角度，而不是阶梯状原始观测角。 */
+        state_now->phase = motor_now->m_pll_phase;
+    }
+}
+
+
