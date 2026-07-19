@@ -254,13 +254,13 @@ static void control_current(motor_all_state_t *motor, u16 dt)
     state_m->id = Foc_SatS16(id);
     state_m->iq = Foc_SatS16(iq);
 
-    /* 快速环保留未滤波值，监控显示所需的滤波放到慢速任务中完成。 */
-    state_m->id_filter = state_m->id;
-    state_m->iq_filter = state_m->iq;
+    /* 快速环保留未滤波值，监控显示所需的滤波放到慢速任务中完成。暂时未使用，注释掉 */
+    // state_m->id_filter = state_m->id;
+    // state_m->iq_filter = state_m->iq;
 
     if(motor->m_control_mode == CONTROL_MODE_OPENLOOP_DUTY_PHASE)
     {
-        /* 直接电压模式仍测量 d/q 电流，但不覆盖外部直接写入的 PWM 矢量。 */
+        /* 直接电压模式仍测量 d/q 电流，但不覆盖外部直接写入的 PWM 矢量。有疑问，这个判断是否必要 */
         state_m->id_error = 0;
         state_m->iq_error = 0;
         return;

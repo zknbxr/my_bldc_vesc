@@ -405,6 +405,10 @@ void foc_sensorless_update(motor_all_state_t *motor_now)
      * 区间末端的瞬时电流单独保留，用于计算 L*di 项。
      */
     /* 先累加上一 PWM 周期的调制度，第四次才统一换算为物理电压。 */
+
+    /* 有个问题，这里没有到达计数值时角度也是在更新的，根据当前速度惯性更新，所以会出现我如果用手捏住转子不让它转动，角度还是会在变化的情况。 
+     * 不过暂时不考虑吧，因为我无感并不考虑转子绝对位置
+     */
     s_observerModAlphaSum += state_now->mod_alpha_raw;
     s_observerModBetaSum += state_now->mod_beta_raw;
     s_observerIAlphaSum += state_now->i_alpha;
