@@ -8,7 +8,12 @@ extern u8 textbu;
 
 extern UART0_Data UART0_Message;
 extern uint8_t uUart0_Counter;
-extern u8 TickRecevice;
+extern volatile u8 TickRecevice;
+extern volatile u32 gUartRxByteCount;
+extern volatile u32 gUartRxFrameCount;
+extern volatile u32 gUartRxErrorCount;
+extern volatile u8 gUartLastRxByte;
+extern volatile u8 gUartLastCommand;
 
 
 extern volatile u8 KeyState;											//¼üÖµ

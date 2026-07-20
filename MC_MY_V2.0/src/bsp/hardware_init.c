@@ -342,13 +342,12 @@ void UART_HardWare_Init(void)
         GPIO_StructInit(&GPIO_InitStruct);
 
 		/*uart gpio init*/
-        /* P1.9 UART1 RXD */
+
         GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
         GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4 ;
         GPIO_PinAFConfig(GPIO0, GPIO_PinSource_4, AF4_UART);
         GPIO_Init(GPIO0, &GPIO_InitStruct);
 
-        /* P1.8 UART1 TXD */
         GPIO_InitStruct.GPIO_Mode = GPIO_Mode_OUT;
         GPIO_InitStruct.GPIO_Pin =  GPIO_Pin_5 ;
         GPIO_PinAFConfig(GPIO0, GPIO_PinSource_5, AF4_UART);

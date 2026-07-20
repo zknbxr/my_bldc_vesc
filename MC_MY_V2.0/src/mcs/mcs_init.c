@@ -1,12 +1,8 @@
 #include "main.h"
 
 /*
- * MCS initialization and ADC zero-offset calibration.
- *
- * 该文件负责电机控制层上电初始化。当前重点是：
- * - 关闭中断后做相电流零漂采样；
- * - 恢复 ADC/MCPWM 到运行配置；
- * - 初始化 MCS_Motor facade，确保所有调试启动入口先处于停止态。
+ * 电机控制系统初始化和ADC零偏校准。
+ * 校准期间关闭中断和功率输出，初始化完成后再启动控制中断。
  */
 
 
@@ -27,9 +23,7 @@ s16 hPhaseBOffset;
 /****************************************************************************/
 
 
-/*
-	adc采样通道配置
-**/
+/* 配置电机控制使用的ADC转换序列。 */
 void ConfigAdcModeMotor0(void)
 {
     /*
@@ -65,20 +59,19 @@ void CurrentOffsetCalibration(void)
     ADC_STATE_RESET();
     ConfigAdcModeMotor0();
 
-    //本轮先读上一次已经完成的结果，再启动下一次转换，下轮再来读
+    /* 等待采样稳定，并累加当前转换结果。 */
     for (t_cnt = 0; t_cnt < ADC_GET_OFFSET_AVG_TIMES; t_cnt++)
     {
         for (t_dlay = 0; t_dlay < 0x800; t_dlay++);
-        //清上一次 ADC 完成标志
+        /* 清除ADC完成标志。 */
         ADC_IF |= BIT1|BIT0;
-        //复位ADC状态机，准备下一轮采样
+        /* 复位ADC状态机，准备下一轮采样。 */
         ADC_CFG |= BIT11;
         t_offset1 += GET_CURRENT_U_SAMPLE_RESULT();
         t_offset2 += GET_CURRENT_V_SAMPLE_RESULT();
 
 
-        /* Clear the ADC0 JEOC pending flag */
-        //开启一次软件采样，由硬件AD采样后将结果放到data中，延时一定时间等待完成后清标志，复位，等下一次软件触发。
+        /* 软件触发下一轮ADC转换。 */
         ADC_SWT = 0x00005AA5;
     }
 
@@ -87,7 +80,7 @@ void CurrentOffsetCalibration(void)
 
     __enable_irq();
 
-	//512次采样平均
+	/* 512次采样求平均，作为两相电流零偏。 */
 	hPhaseAOffset = (s16)(t_offset1 >> 9);
 	hPhaseBOffset = (s16)(t_offset2 >> 9);
 
@@ -103,26 +96,28 @@ void mc_sys_init(void)
 {
 	INT8 ax;
 
-	/* 快速环使用前一次性建立电机配置指针，运行中不再重复检查。 */
+	/* 初始化电机对象、配置指针和控制状态。 */
 	Motor_FocInit();
 
 	/* Give analog front-end and ADC references time to settle before offset
      * calibration. Removing this delay can make phase-current zero drift wrong.
      */
-	//延时稳定
+	/* 等待模拟前端和ADC参考电压稳定。 */
     for(ax=0; ax<10; ax++)
     {
         delay(60000);
     }
-	/*零飘校准*/
+	/* 电流采样零偏校准。 */
     CurrentOffsetCalibration();
 
-	/* 清零 VESC 风格的磁链观测器状态。 */
+	/* 复位无感观测器和PLL状态。 */
 	foc_observer_reset(&m_motor.m_observer_state);
+	/* 基础状态就绪后加载霍尔参数，或进入在线学习模式。 */
+	Hall_LearnInit();
 
 	/* Clear pending MCPWM fail events before exposing the MCS facade to APP. */
 	MCPWM_EIF = BIT4|BIT5;	
 
-__enable_irq();/* 开启中断 */
+__enable_irq(); /* 开启中断。 */
 }
 

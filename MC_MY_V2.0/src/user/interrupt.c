@@ -244,28 +244,44 @@ void UART_IRQHandler(void)
 			}
 		}
     if(UART0->IF & UART_IF_RcvOver){
-			UART0->IF = UART_IF_RcvOver;
-			hRec=UART_ReadData(UART0);
-			if(UART0_Message.RecStatus == UART_STY){		//是否空闲
-				TickRecevice = 0;
-				if(UART0_Message.R_Index == 0){			//帧头是否正确
-					if(hRec == Head_RxH){	
-					}
-					else{
-						UART0_Message.R_Index = 0;
-						return;
-					}
-				}
-				if(UART0_Message.R_Index < UartMaxLen){				//是否在最大范围内		
-					UART0_Message.RXBuffer[UART0_Message.R_Index++] = hRec;
-				}
-				else{
-					UART0_Message.R_Index = 0;
-				}
+		UART0->IF = UART_IF_RcvOver;
+		hRec = UART_ReadData(UART0);
+		gUartLastRxByte = hRec;
+		gUartRxByteCount++;
+
+		/* 空闲时只接受第一个帧头0xAA，收到后进入接收状态。 */
+		if(UART0_Message.RecStatus == UART_STY){
+			UART0_Message.R_Index = 0U;
+			if(hRec != Head_RxH){
+				gUartRxErrorCount++;
+				return;
 			}
-			else{
-				UART0_Message.R_Index = 0;
+			UART0_Message.RecStatus = UART_REC;
+		}
+
+		if(UART0_Message.RecStatus == UART_REC){
+			/* 第二字节必须也是0xAA；若再次收到0xAA，则可直接作为新帧头重同步。 */
+			if((UART0_Message.R_Index == 1U) && (hRec != Head_RxL)){
+				UART0_Message.R_Index = 0U;
+				UART0_Message.RecStatus = UART_STY;
+				TickRecevice = 0U;
+				gUartRxErrorCount++;
+				return;
 			}
+
+			TickRecevice = 0U;
+			if(UART0_Message.R_Index < UartMaxLen){
+				UART0_Message.RXBuffer[UART0_Message.R_Index++] = hRec;
+				/* 固定9字节帧收齐后立即交给主循环解析，不再等待帧间超时。 */
+				if(UART0_Message.R_Index == UART_RX_FRAME_LEN){
+					UART0_Message.RecStatus = UART_RECD;
+				}
+			}else{
+				UART0_Message.R_Index = 0U;
+				UART0_Message.RecStatus = UART_STY;
+				gUartRxErrorCount++;
+			}
+		}
     }
     if(UART0->IF & UART_IF_SendBufEmpty)
     {

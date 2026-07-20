@@ -24,8 +24,6 @@ volatile s16 gDirectionTestDcmd = 20;
 volatile s16 gDirectionTestQcmd = 20;
 volatile s16 gDirectionTestIdRefMa = 100;
 volatile s16 gDirectionTestIqRefMa = 600;
-/* 正转为 +1，反转为 -1；电流和电压测试值本身只表示幅值。 */
-volatile s8 gMotorDirection = MCS_MOTOR_DIRECTION_DEFAULT;
 
 volatile s32 gDirectionTestAlphaMa;
 volatile s32 gDirectionTestBetaMa;
@@ -63,7 +61,6 @@ volatile u16 gSensorlessAutoStartDelayMs = 500U;
 volatile u16 gSensorlessAutoStartElapsedMs;
 volatile u16 gSensorlessCurrentOverMs;
 volatile u8 gSensorlessCurrentControlActive;
-volatile s16 gSensorlessCurrentIqCommandMa;
 
 static u8 s_directionTestLastMode = 0xFFU;
 static u16 s_shortFaultCountAtArm;
@@ -71,7 +68,6 @@ static bool s_pwmArmAttempted;
 
 #define DIRECTION_TEST_SENSORLESS_MODE       (5U)
 #define SENSORLESS_CURRENT_TRIP_DEBOUNCE_MS  (3U)
-#define SENSORLESS_IQ_RAMP_MA_PER_MS         (2L)
 #define DIRECTION_TEST_MOE_MASK               (0x0040U)
 
 void Direction_Init(void)
@@ -82,7 +78,6 @@ void Direction_Init(void)
     gSensorlessCurrentTrip = 0U;
     gSensorlessCurrentOverMs = 0U;
     gSensorlessCurrentControlActive = 0U;
-    gSensorlessCurrentIqCommandMa = 0;
 
     gDirectionTestMode = 0U;
     gDirectionTestRunState = 1U;
@@ -155,7 +150,6 @@ static void DirectionTest_ResetSensorlessCommand(void)
     gSensorlessCurrentTrip = 0U;
     gSensorlessCurrentOverMs = 0U;
     gSensorlessCurrentControlActive = 0U;
-    gSensorlessCurrentIqCommandMa = 0;
     gDirectionTestIdFilteredMa = 0;
     gDirectionTestIqFilteredMa = 0;
     gDirectionTestIqErrFilteredMa = 0;
@@ -212,8 +206,7 @@ void Motor_DirectionTest_Stop(void)
     m_motor.m_control_mode = CONTROL_MODE_NONE;
     PwmAOutputs(DISABLE);
     __enable_irq();
-    m_motor.m_id_set = 0;
-    m_motor.m_iq_set = 0;
+    Motor_CurrentCommandReset(&m_motor);
 
     gDirectionTestVdCmd = 0;
     gDirectionTestVqCmd = 0;
@@ -229,8 +222,6 @@ void Motor_DirectionTest_Task(void)
 {
     bool modeChanged;
     mc_control_mode controlModeNext;
-    s32 iqCommand;
-    s32 iqTarget;
     s32 qCommand;
 
     gDirectionTestTaskCount++;
@@ -295,6 +286,7 @@ void Motor_DirectionTest_Task(void)
         __enable_irq();
 
         DirectionTest_ResetPi();
+        Motor_CurrentCommandReset(&m_motor);
         if(gDirectionTestMode == DIRECTION_TEST_SENSORLESS_MODE)
         {
             gDirectionTestFaultCode = 0U;
@@ -304,7 +296,6 @@ void Motor_DirectionTest_Task(void)
         else
         {
             gSensorlessCurrentControlActive = 0U;
-            gSensorlessCurrentIqCommandMa = 0;
         }
         s_directionTestLastMode = gDirectionTestMode;
     }
@@ -356,8 +347,7 @@ void Motor_DirectionTest_Task(void)
     {
         case 1U:
             controlModeNext = CONTROL_MODE_OPENLOOP_DUTY_PHASE;
-            m_motor.m_id_set = 0;
-            m_motor.m_iq_set = 0;
+            Motor_SetCurrentTarget(&m_motor, 0, 0);
             gDirectionTestVdCmd = gDirectionTestDcmd;
             gDirectionTestVqCmd = 0;
             gDirectionTestIqErrMa = 0;
@@ -367,8 +357,7 @@ void Motor_DirectionTest_Task(void)
 
         case 2U:
             controlModeNext = CONTROL_MODE_OPENLOOP_DUTY_PHASE;
-            m_motor.m_id_set = 0;
-            m_motor.m_iq_set = 0;
+            Motor_SetCurrentTarget(&m_motor, 0, 0);
             qCommand = DirectionTest_ApplyMotorDirection(gDirectionTestQcmd);
             gDirectionTestVdCmd = 0;
             gDirectionTestVqCmd = (s16)qCommand;
@@ -379,45 +368,22 @@ void Motor_DirectionTest_Task(void)
 
         case 3U:
             controlModeNext = CONTROL_MODE_CURRENT;
-            m_motor.m_id_set = gDirectionTestIdRefMa;
-            m_motor.m_iq_set = 0;
+            Motor_SetCurrentTarget(&m_motor, gDirectionTestIdRefMa, 0);
             DirectionTest_UpdateClosedLoopMonitor();
             break;
 
         case 4U:
             controlModeNext = CONTROL_MODE_CURRENT;
-            m_motor.m_id_set = 0;
-            m_motor.m_iq_set = (s16)DirectionTest_ApplyMotorDirection(
-                gDirectionTestIqRefMa);
+            Motor_SetCurrentTarget(&m_motor, 0,
+                (s16)DirectionTest_ApplyMotorDirection(gDirectionTestIqRefMa));
             DirectionTest_UpdateClosedLoopMonitor();
             break;
 
         case DIRECTION_TEST_SENSORLESS_MODE:
-            /* 转矩电流按 2 mA/ms 软启动，角度完全由 ADC 中断中的无感观测器给出。 */
-            iqCommand = gSensorlessCurrentIqCommandMa;
-            iqTarget = DirectionTest_ApplyMotorDirection(
-                gDirectionTestIqRefMa);
-            if(iqCommand < iqTarget)
-            {
-                iqCommand += SENSORLESS_IQ_RAMP_MA_PER_MS;
-                if(iqCommand > iqTarget)
-                {
-                    iqCommand = iqTarget;
-                }
-            }
-            else if(iqCommand > iqTarget)
-            {
-                iqCommand -= SENSORLESS_IQ_RAMP_MA_PER_MS;
-                if(iqCommand < iqTarget)
-                {
-                    iqCommand = iqTarget;
-                }
-            }
-
-            gSensorlessCurrentIqCommandMa = (s16)iqCommand;
+            /* 测试任务只发布目标，通用 1 ms 控制层负责电流斜坡。 */
             controlModeNext = CONTROL_MODE_CURRENT;
-            m_motor.m_id_set = 0;
-            m_motor.m_iq_set = gSensorlessCurrentIqCommandMa;
+            Motor_SetCurrentTarget(&m_motor, 0,
+                (s16)DirectionTest_ApplyMotorDirection(gDirectionTestIqRefMa));
             gSensorlessCurrentControlActive = 1U;
             gDirectionTestRunState = 3U;
             DirectionTest_UpdateClosedLoopMonitor();

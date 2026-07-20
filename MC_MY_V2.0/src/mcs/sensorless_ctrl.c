@@ -90,7 +90,7 @@ static s32 observer_truncate_abs(s32 value, s32 max_abs)
 }
 
 /* 定点 CORDIC atan2，返回 0~65535 的无符号电角度。 */
-static u16 observer_atan2(s32 y, s32 x)
+u16 Foc_Atan2Q16(s32 y, s32 x)
 {
     s32 x_before;
     s32 angle;
@@ -316,7 +316,7 @@ void foc_observer_update_phase(const observer_state *state, s16 *phase)
     if(phase != 0)
     {
         /* 提取矫正后 alpha-beta 磁链矢量的原始电角度。 */
-        *phase = (s16)observer_atan2(state->x2, state->x1);
+        *phase = (s16)Foc_Atan2Q16(state->x2, state->x1);
     }
 }
 void foc_observer_pll_run(s16 phase, observer_state *state,

@@ -75,4 +75,3 @@
 .\objects\mcs_hall.o: .\include\mcs\mcs_include.h
 .\objects\mcs_hall.o: .\include\app\app_control.h
 .\objects\mcs_hall.o: .\include\app\app_height.h
-.\objects\mcs_hall.o: .\include\mcs\mcs_motor_internal.h

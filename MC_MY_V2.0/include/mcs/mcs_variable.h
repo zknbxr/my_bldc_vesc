@@ -12,4 +12,10 @@ extern s16 hPhaseBOffset;
 extern motor_all_state_t m_motor;
 extern volatile s16 ADC_curr_norm_value[3];
 extern volatile s8 gMotorDirection;
+extern volatile u8 gMotorRunEnable;
+extern volatile s16 gMotorCurrentTargetMa;
+extern volatile u16 gMotorCurrentLimitMa;
+extern volatile u16 gMotorStartDelayMs;
+extern volatile u8 gMotorControlState;
+extern volatile u8 gMotorControlFaultCode;
 #endif

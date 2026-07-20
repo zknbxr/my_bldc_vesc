@@ -3,9 +3,18 @@
 
 #include <stdint.h>
 #include "mcs_motor_type.h"
+
+/*
+    Task
+ **/
 void mc_sys_init(void);
 void Mcs_Task_Run(const TASK_TICK *tick);
+void User_Task_Always(void);
 
+/*
+    User_App
+ **/
+void Uartrx_Error_Check(void);
 /*
 	mcs_control.c
 **/
@@ -41,6 +50,7 @@ void Motor_DirectionTest_Stop(void);
     sensorless_ctrl.c
 **/
 void foc_sensorless_update(motor_all_state_t *motor);
+u16 Foc_Atan2Q16(s32 y, s32 x);
 
 /*
 	mcs_foc_hw.c
@@ -57,6 +67,13 @@ s16 FocHw_PhaseDifference(s16 phase, s16 reference);
 //mcs_control.c
 void CurrentErrDetc(void);
 void StopMotorImmdly(void);
+void Motor_ControlInit(void);
+void Motor_ControlTask1ms(u16 elapsed_ms);
+void Motor_SetCurrentTarget(motor_all_state_t *motor,
+                            s16 id_target_ma,
+                            s16 iq_target_ma);
+void Motor_CurrentCommandUpdate(motor_all_state_t *motor, u16 elapsed_ms);
+void Motor_CurrentCommandReset(motor_all_state_t *motor);
 
 //mcs_math.c
 void utils_truncate_number(s32 *number, s32 min, s32 max);

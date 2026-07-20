@@ -15,6 +15,7 @@
 #define MCS_CURRENT_KI_Q15_PER_MA_TICK     (6933L)
 #define MCS_CURRENT_KI_FRAC_SHIFT          (15U)
 #define MCS_CURRENT_FILTER_Q15              (32767L)
+#define MCS_CURRENT_RAMP_MA_PER_MS          (2L)
 #define MCS_SVM_MAX_MOD_Q15                (30000L)
 #define MCS_MOTOR_CURRENT_MAX_MA            (4000L)
 #define MCS_OVERMOD_FACTOR_Q15              (32767L)
@@ -33,6 +34,7 @@ static mc_configuration m_motor_conf = {
     .foc_temp_comp = 0,
     .foc_current_ki = MCS_CURRENT_KI_Q15_PER_MA_TICK,
     .foc_current_filter_const = MCS_CURRENT_FILTER_Q15,
+    .current_ramp_ma_per_ms = MCS_CURRENT_RAMP_MA_PER_MS,
     .foc_current_kp = MCS_CURRENT_KP_Q15_PER_MA,
     .foc_cc_decoupling = FOC_CC_DECOUPLING_DISABLED,
     .foc_motor_r = FOC_MOTOR_R_MOHM,

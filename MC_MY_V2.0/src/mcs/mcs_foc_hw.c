@@ -1,14 +1,9 @@
 #include "main.h"
 
 /*
- * FOC 快速环数据流（在 ADC 转换完成中断中执行）：
- *
- *   ADC 电流 -> 零偏/极性 -> Clarke (i_alpha/i_beta)
- *       -> 磁链观测器 + PLL -> 选择电角度
- *       -> Park/电流 PI/反 Park -> SVM -> 下一周期 PWM 比较值
- *
- * 中断内全部使用整数物理量：电流单位 mA，电压单位 mV，时间单位 us，
- * 电角度一圈对应 0...65535。
+ * FOC快速环在ADC转换完成中断中执行：
+ * ADC电流 -> 零偏/极性 -> Clarke -> 角度更新 -> Park/电流PI/反Park -> SVM。
+ * 电流单位为mA，电压单位为mV，时间单位为us，电角度一圈对应0...65535。
  */
 
 
@@ -48,7 +43,7 @@ s16 FocHw_SatS16(s32 value)
 
 static s16 FocHw_AdcToCurrentMa(s32 adc_value)
 {
-    /* 最坏情况下的乘积仍不会超出有符号 32 位范围。 */
+    /* 最坏情况下的乘积仍不会超出有符号32位范围。 */
     return FocHw_SatS16(
         (adc_value * MCS_CURRENT_ADC_TO_MA_Q15) >> 15);
 }
@@ -63,7 +58,7 @@ static u32 FocHw_AdcToBusMv(s16 adc_value)
     return (u32)(((int64_t)adc_value * MCS_BUS_ADC_TO_MV_Q15) >> 15);
 }
 
-/* Q15 SVM 指令为 1.0 时，alpha-beta 电压等于母线电压的 2/3。 */
+/* Q15 SVM指令为1.0时，alpha-beta电压等于母线电压的2/3。 */
 s32 FocHw_ModToVoltageMv(s16 modulation, s32 bus_voltage)
 {
     s32 max_alpha_beta_voltage;
@@ -73,7 +68,7 @@ s32 FocHw_ModToVoltageMv(s16 modulation, s32 bus_voltage)
         return 0L;
     }
 
-    /* 本项目母线电压不超过 ADC 换算上限，两个乘积都在 s32 范围内。 */
+    /* 本项目母线电压不超过ADC换算上限，两个乘积都在s32范围内。 */
     max_alpha_beta_voltage =
         (bus_voltage * FOC_TWO_BY_THREE_Q15) >> 15;
     return ((s32)modulation * max_alpha_beta_voltage) >> 15;
@@ -95,9 +90,8 @@ INT16 AcqAdcSampDatUdc(void)
 }
 
 /*
- * 基础定点 FOC 的 ADC 快速路径。
- * 当前未包含 HFI、MTPA 和弱磁；定点无感观测器使用上一 PWM 周期的电压
- * 与本次电流采样进行更新。
+ * 基础定点FOC的ADC快速路径。
+ * 当前未包含HFI、MTPA和弱磁；无感观测器使用上一PWM周期电压和本次电流更新。
  */
 void AdcSampleCal(void)
 {
@@ -119,7 +113,7 @@ void AdcSampleCal(void)
     state_now = &motor_now->m_motor_state;
     conf_now = motor_now->m_conf;
 
-    /* 运行状态只由快速环维护，避免主循环和 ADC 中断同时写 m_state。 */
+    /* 运行状态只由快速环维护，避免主循环和ADC中断同时写m_state。 */
     if(motor_now->m_control_mode == CONTROL_MODE_NONE)
     {
         motor_now->m_state = MC_STATE_OFF;
@@ -130,44 +124,42 @@ void AdcSampleCal(void)
     }
 
 
-    /* 第 1 步：读取 PWM 定时触发的两路下桥臂采样电阻 ADC 值。 */
+    /* 第1步：读取PWM定时触发的两路下桥臂采样电阻ADC值。 */
     raw0 = (s32)AcqAdcSampDatPhaseU();
     raw1 = (s32)AcqAdcSampDatPhaseV();
 
-    /* 根据采样极性减去零偏，直接换算为单位 mA 的相电流。 */
+    /* 根据采样极性减去零偏，直接换算为单位mA的相电流。 */
     curr0 = (s32)FocHw_AdcToCurrentMa(
         (s32)conf_now->foc_offsets_current[0] - raw0);
     curr1 = (s32)FocHw_AdcToCurrentMa(
         (s32)conf_now->foc_offsets_current[1] - raw1);
 
-    /* 第三相没有独立 ADC 通道，根据 ia+ib+ic=0 重构。 */
+    /* 第三相没有独立ADC通道，根据ia+ib+ic=0重构。 */
     curr2 = -(curr0 + curr1);
     ADC_curr_norm_value[0] =curr0;//FocHw_SatS16(curr0)
     ADC_curr_norm_value[1] =curr1;//FocHw_SatS16(curr1)
-    // 只保留 curr2
+    // curr2需要经过一次s16饱和。
     ADC_curr_norm_value[2] = FocHw_SatS16(curr2);
 
-    /* 对满足三相电流平衡的两电阻采样结果进行 Clarke 变换。 */
-    // mA克拉克变换
+    /* 对满足三相电流平衡的两电阻采样结果进行Clarke变换。 */
     state_now->i_alpha = ADC_curr_norm_value[0];
     state_now->i_beta = FocHw_SatS16(
         ((s32)ONE_BY_SQRT3 * ADC_curr_norm_value[0] +
          (s32)TWO_BY_SQRT3 * ADC_curr_norm_value[1]) >> 15);
 
     /*
-     * 第 3 步：配置为无感且 PWM 工作时运行观测器。
-     * 磁链积分、幅值矫正和 CORDIC/PLL 分散到不同中断时隙中执行，避免单次
-     * 中断时间超过一个 PWM 周期；完整观测结果每四个采样更新一次。
+     * 第3步：仅在无感模式运行磁链观测器。
+     * 磁链积分、幅值校正和CORDIC/PLL分散执行，完整结果每四个采样更新一次。
      */
     foc_sensorless_update(motor_now);
 
 
-    /* 第 4 步：只计算一次 sin/cos，保证电流 PI 使用同一角度的一对值。 */
+    /* 第4步：只计算一次sin/cos，保证电流PI使用同一角度的一对值。 */
     trig = Motor_GetSinCosQ15((u16)state_now->phase);
     state_now->phase_sin = trig.sin;
     state_now->phase_cos = trig.cos;
 
-    /* 第 5 步：将慢速任务给出的电流指令复制到快速环目标值。 */
+    /* 第5步：将慢速任务给出的电流指令复制到快速环目标值。 */
     if(motor_now->m_control_mode == CONTROL_MODE_OPENLOOP_DUTY_PHASE)
     {
         /* 直接电压模式不使用电流目标，也不执行电流矢量限幅。 */
@@ -194,19 +186,29 @@ void AdcSampleCal(void)
         state_now->id_target = FocHw_SatS16(id_set_tmp);
         state_now->iq_target = FocHw_SatS16(iq_set_tmp);
     }
-    /* 第 6 步：Park -> 电流 PI -> 反 Park -> SVM -> 更新 PWM 比较值。 */
+    /* 第6步：Park -> 电流PI -> 反Park -> SVM -> 更新PWM比较值。 */
     Motor_CurrentLoopRun(1U);
 }
 
 void AdcEocHandler(void)
 {
-    /* 电流控制对时序最敏感，因此放在 ADC 中断最前面执行。 */
-    AdcSampleCal();
-
-    /* 中断内只保存最新慢速 ADC 数据，换算和滤波放到 1 ms 任务。 */
-    s_busAdcLatest = AcqAdcSampDatUdc();
+    /*
+     * 正常霍尔模式先更新控制角，使本次电流环立即使用最新预测角。
+     * 学习模式下该函数只做条件判断，不执行CORDIC。
+     */
     hal1 = GET_HALLA_SAMPLE_RESULT();
     hal2 = GET_HALLB_SAMPLE_RESULT();
+    Hall_FastUpdate(&m_motor, hal1, hal2);
+
+    /* 角度准备完成后立即执行电流控制。 */
+    AdcSampleCal();
+
+    /* 中断内只保存最新慢速ADC数据，换算和滤波放到1ms任务。 */
+    s_busAdcLatest = AcqAdcSampDatUdc();
+    if(gHallWorkMode == HALL_WORK_MODE_LEARN)
+    {
+        Hall_CaptureSample(hal1, hal2, m_motor.m_motor_state.phase);
+    }
 }
 
 void Motor_FocSlowUpdate1ms(void)

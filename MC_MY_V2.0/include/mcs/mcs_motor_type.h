@@ -20,6 +20,7 @@
 #define UART_TRND				4		 // 发送完成
 #define UART_ERR				5		 // 串口异常
 #define UartMaxLen 				11 		//串口缓存数组长度
+#define UART_RX_FRAME_LEN		9U		 // 当前控制协议固定为9字节
 /*UART帧头常量*/
 #define Head_RxH 				0xAA
 #define Head_RxL 				0xAA
@@ -176,6 +177,7 @@ typedef struct {
     s16 foc_temp_comp;
     s16 foc_current_ki;           /* Q15 modulation/current-unit/tick */
     s16 foc_current_filter_const; /* Q15 */
+    s16 current_ramp_ma_per_ms;   /* 慢速控制层的电流目标变化率 */
     
     s16 foc_current_kp;           /* Q15 modulation/current-unit */
     mc_foc_cc_decoupling_mode foc_cc_decoupling;
@@ -230,6 +232,8 @@ typedef struct
     s16 m_i_beta_sample_with_offset;
     
     s16 m_pll_speed;
+    s16 m_id_set_target;
+    s16 m_iq_set_target;
     s16 m_id_set;
     s16 m_iq_set;
     s16 m_duty_abs_filtered;

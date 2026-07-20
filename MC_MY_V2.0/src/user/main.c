@@ -19,7 +19,9 @@ int main(void)
 
     /* 客户应用初始化，未涉及硬件初始化。 */
     User_app_init();
-    Direction_Init();
+    /* 测试任务不再参与正式启动。 */
+    // Direction_Init();
+    Motor_ControlInit();
     while(1)
     {
         Task_Scheduler();
@@ -74,7 +76,8 @@ void Task_Scheduler(void)
             }
         }
     }
-
+    
+    User_Task_Always();
     if((tick.ms1 != 0U) || (tick.ms10 != 0U) ||
        (tick.ms100 != 0U) || (tick.ms1000 != 0U))
     {
