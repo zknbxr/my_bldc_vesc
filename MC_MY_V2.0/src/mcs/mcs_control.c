@@ -24,6 +24,8 @@ volatile s16 gMotorCurrentTargetMa = 600;
 volatile u16 gMotorCurrentLimitMa = 2000U;
 /* 上电或重新启动时，PWM 使能前的等待时间，单位 ms。 */
 volatile u16 gMotorStartDelayMs = 500U;
+/* 操作模式角度源：默认霍尔；改为FOC_SENSOR_MODE_SENSORLESS可使用无感。 */
+volatile u8 gMotorOperationSensorMode = FOC_SENSOR_MODE_HALL;
 /* 控制状态：0 关闭，1 启动延时，2 运行，3 斜坡停止中，4 故障停机。 */
 volatile u8 gMotorControlState;
 /* 故障码：0 无故障，1 软件过流，2 MCPWM 硬件故障，3 MOE 意外关闭。 */
@@ -195,8 +197,9 @@ static void Motor_ControlFaultStop(u8 fault_code)
     m_motor.m_control_mode = CONTROL_MODE_NONE;
     PwmAOutputs(DISABLE);
     __enable_irq();
-
+    
     Motor_CurrentCommandReset(&m_motor);
+    
     gMotorRunEnable = 0U;
     gMotorControlFaultCode = fault_code;
     gMotorControlState = MCS_CONTROL_STATE_FAULT;
@@ -210,9 +213,9 @@ void Motor_ControlInit(void)
     m_motor.m_control_mode = CONTROL_MODE_NONE;
     PwmAOutputs(DISABLE);
     __enable_irq();
-
+    // 电流环参数初始化
     Motor_CurrentCommandReset(&m_motor);
-    /* 上电默认保持关闭，只有串口运行命令才能进入启动流程。 */
+    /* 操作模式默认关闭；学习模式由霍尔学习状态机自动申请运行。 */
     gMotorRunEnable = 0U;
     gMotorControlState = MCS_CONTROL_STATE_OFF;
     gMotorControlFaultCode = 0U;
@@ -236,11 +239,27 @@ void Motor_ControlInit(void)
  */
 void Motor_ControlTask1ms(u16 elapsed_ms)
 {
+    hall_learn_drive_mode_t learn_drive_mode;
+    bool learning_control;
+    bool run_requested;
+    s32 id_target;
     s32 iq_target;
 
     if(elapsed_ms == 0U)
     {
         return;
+    }
+
+    learning_control = gHallWorkMode == HALL_WORK_MODE_LEARN;
+    learn_drive_mode = Hall_LearnGetDriveMode();
+    if(learning_control)
+    {
+        run_requested = (learn_drive_mode != HALL_LEARN_DRIVE_STOP) &&
+                        (gMotorControlFaultCode == 0U);
+    }
+    else
+    {
+        run_requested = gMotorRunEnable != 0U;
     }
 
     /* PWM 运行后，新增硬件短路事件或 MOE 意外关闭都必须立即停机。 */
@@ -269,7 +288,7 @@ void Motor_ControlTask1ms(u16 elapsed_ms)
     }
 
     /* 正常停止先把目标设为 0，让独立电流斜坡平滑卸载，再关闭 PWM。 */
-    if(gMotorRunEnable == 0U)
+    if(!run_requested)
     {
         Motor_SetCurrentTarget(&m_motor, 0, 0);
         gMotorControlState = MCS_CONTROL_STATE_STOPPING;
@@ -297,7 +316,29 @@ void Motor_ControlTask1ms(u16 elapsed_ms)
             return;
         }
 
-        m_motor.m_phase_override = false;
+        if(learning_control)
+        {
+            m_motor.m_conf->foc_sensor_mode = FOC_SENSOR_MODE_SENSORLESS;
+            m_motor.m_phase_override =
+                learn_drive_mode == HALL_LEARN_DRIVE_ALIGN;
+            if(m_motor.m_phase_override)
+            {
+                m_motor.m_motor_state.phase = gHallLearnAlignPhase;
+            }
+        }
+        else
+        {
+            m_motor.m_phase_override = false;
+            if((gMotorOperationSensorMode == FOC_SENSOR_MODE_HALL) &&
+               Hall_CalibrationIsValid())
+            {
+                m_motor.m_conf->foc_sensor_mode = FOC_SENSOR_MODE_HALL;
+            }
+            else
+            {
+                m_motor.m_conf->foc_sensor_mode = FOC_SENSOR_MODE_SENSORLESS;
+            }
+        }
         s_shortFaultCountAtArm = gShortFaultCount;
         __disable_irq();
         m_motor.m_control_mode = CONTROL_MODE_CURRENT;
@@ -306,14 +347,37 @@ void Motor_ControlTask1ms(u16 elapsed_ms)
         s_motorPwmArmed = true;
     }
 
-    /* 应用层只给电流幅值，这里根据机械方向生成最终带符号的 iq 目标。 */
-    iq_target = Motor_ControlAbsS32((s32)gMotorCurrentTargetMa);
-    if(gMotorDirection == MCS_MOTOR_DIRECTION_REVERSE)
+    if(learning_control &&
+       (learn_drive_mode == HALL_LEARN_DRIVE_ALIGN))
     {
-        iq_target = -iq_target;
+        /* 固定电角度只施加d轴电流，使转子吸附到已知磁场方向。 */
+        m_motor.m_phase_override = true;
+        m_motor.m_motor_state.phase = gHallLearnAlignPhase;
+        id_target = Motor_ControlAbsS32((s32)gHallLearnAlignCurrentMa);
+        iq_target = 0L;
     }
+    else
+    {
+        m_motor.m_phase_override = false;
+        id_target = 0L;
+        if(learning_control)
+        {
+            /* 学习模式固定正向无感旋转，不接受串口方向和停止命令。 */
+            iq_target = Motor_ControlAbsS32((s32)gHallLearnSpinCurrentMa);
+        }
+        else
+        {
+            /* 操作模式由串口给出机械方向和运行电流。 */
+            iq_target = Motor_ControlAbsS32((s32)gMotorCurrentTargetMa);
+            if(gMotorDirection == MCS_MOTOR_DIRECTION_REVERSE)
+            {
+                iq_target = -iq_target;
+            }
+        }
+    }
+    id_target = Motor_ControlLimitS32(id_target, -32768L, 32767L);
     iq_target = Motor_ControlLimitS32(iq_target, -32768L, 32767L);
-    Motor_SetCurrentTarget(&m_motor, 0, (s16)iq_target);
+    Motor_SetCurrentTarget(&m_motor, (s16)id_target, (s16)iq_target);
     gMotorControlState = MCS_CONTROL_STATE_RUNNING;
 }
 

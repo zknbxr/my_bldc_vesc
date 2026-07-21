@@ -30,6 +30,11 @@ void User_App_Task_Run(const TASK_TICK *tick)
 
 static void User_App_DispatchUartCommand(void)
 {
+	/* 学习模式由霍尔状态机独占电机控制权，串口命令只接收但不执行。 */
+	if(gHallWorkMode != HALL_WORK_MODE_NORMAL){
+		return;
+	}
+
 	/* BYTE3命令字：0x01正转，0x02反转，0x03停止。 */
 	switch(KeyState){
 	case Motor_Up:

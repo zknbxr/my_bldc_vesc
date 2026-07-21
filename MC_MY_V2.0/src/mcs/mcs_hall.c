@@ -7,22 +7,33 @@
 #define HALL_LEARN_GAIN_ONE                 (1L << HALL_LEARN_GAIN_SHIFT)
 #define HALL_LEARN_GAIN_MAX                 (65535L)
 
-/* 学习工况和有效性门限。 */
+/* 每阶段至少观察5秒且连续多圈收敛；这里只设最短时间，不设学习超时。 */
 #define HALL_LEARN_STABLE_TIME_MS            (500U)
-#define HALL_LEARN_MIN_STAGE_TIME_MS          (2000U)
+#define HALL_LEARN_MIN_STAGE_TIME_MS         (5000U)
 #define HALL_LEARN_MIN_ERPM                  (300L)
-#define HALL_LEARN_MECHANICAL_TURNS          (4U)
+#define HALL_LEARN_MIN_MECHANICAL_TURNS      (12U)
+#define HALL_LEARN_STABLE_TURNS              (6U)
+#define HALL_LEARN_RAW_EDGE_TOLERANCE        (24L)
+#define HALL_LEARN_ORTHO_EDGE_TOLERANCE      (48L)
+#define HALL_LEARN_OFFSET_TOLERANCE          (256L)
 #define HALL_LEARN_MIN_RAW_AMPLITUDE         (512L)
 #define HALL_LEARN_MIN_ORTHO_AMPLITUDE       (512L)
 #define HALL_LEARN_MAX_PHASE_STEP            (8192L)
-#define HALL_LEARN_MIN_QUALITY_Q15           (20000U)
+#define HALL_LEARN_MIN_QUALITY_Q15           (28000U)
+
+/* 固定电角度吸附后，以连续稳定的霍尔角圆周平均计算最终零偏。 */
+#define HALL_ALIGN_STABLE_SAMPLES            (500U)
+#define HALL_ALIGN_MAX_PHASE_STEP            (128L)
+#define HALL_ALIGN_MAX_PHASE_DEVIATION       (256L)
+#define HALL_ALIGN_CURRENT_TOLERANCE_MA       (50L)
+#define HALL_ALIGN_MEASURED_TOLERANCE_MA      (150L)
 
 /* 正常模式每4个PWM周期提取一次霍尔原始角，其余周期由PLL速度外推。 */
 #define HALL_RUNTIME_ANGLE_DIV                (4U)
 
 /* 霍尔参数独占主Flash最后一个512字节扇区。 */
 #define HALL_FLASH_MAGIC                      (0x48414C4CUL)
-#define HALL_FLASH_VERSION                    (2U)
+#define HALL_FLASH_VERSION                    (3U)
 #define HALL_FLASH_ERASE_KEY                  (0x9A0D361FUL)
 #define HALL_FLASH_PROGRAM_KEY                (0x9AFDA40CUL)
 
@@ -62,8 +73,14 @@ volatile u8 gHallLearnRequest;
 volatile u16 gHallLearnStableMs;
 volatile u16 gHallLearnStageElapsedMs;
 volatile u16 gHallLearnMechanicalTurns;
+volatile u16 gHallLearnStableTurns;
 volatile u32 gHallLearnSampleCount;
 volatile u16 gHallLearnQualityQ15;
+volatile u16 gHallAlignStableSamples;
+volatile s16 gHallAlignElectricalRaw;
+volatile s16 gHallLearnSpinCurrentMa = 600;
+volatile s16 gHallLearnAlignCurrentMa = 600;
+volatile s16 gHallLearnAlignPhase = 0;
 volatile s16 gHallRawA;
 volatile s16 gHallRawB;
 volatile s32 gHallNormX;
@@ -79,10 +96,13 @@ static volatile s16 s_hallSampleB;
 static volatile s16 s_hallReferencePhase;
 
 static hall_min_max_t s_hallMinMax;
+static hall_min_max_t s_hallMinMaxCheckpoint;
 static u32 s_hallElectricalTravel;
 static u16 s_hallReferencePhaseLast;
 static bool s_hallReferencePhaseValid;
 static s8 s_hallLearnDirection;
+static u16 s_hallConvergenceTurnLast;
+static bool s_hallMinMaxCheckpointValid;
 
 /* 正反两个机械角方向候选的圆周平均累加量。 */
 static s32 s_hallOffsetSinPositive;
@@ -90,6 +110,16 @@ static s32 s_hallOffsetCosPositive;
 static s32 s_hallOffsetSinNegative;
 static s32 s_hallOffsetCosNegative;
 static u32 s_hallOffsetSamples;
+static s16 s_hallOffsetCandidateLast;
+static u8 s_hallOffsetInvertedLast;
+static bool s_hallOffsetCandidateValid;
+
+/* 固定角吸附阶段的零偏圆周平均状态。 */
+static s32 s_hallAlignOffsetSin;
+static s32 s_hallAlignOffsetCos;
+static s16 s_hallAlignPhaseLast;
+static s16 s_hallAlignPhaseAnchor;
+static bool s_hallAlignPhaseValid;
 
 /* 正常模式霍尔PLL及逐PWM角度预测状态。 */
 static u8 s_hallRuntimeCounter;
@@ -152,8 +182,7 @@ static void Hall_CopyCalibrationToRecord(hall_flash_record_t *record)
     record->calibration.center_y = gHallCalibration.center_y;
     record->calibration.gain_x_q14 = gHallCalibration.gain_x_q14;
     record->calibration.gain_y_q14 = gHallCalibration.gain_y_q14;
-    record->calibration.electrical_offset =
-        gHallCalibration.electrical_offset;
+    record->calibration.electrical_offset =gHallCalibration.electrical_offset;
     record->calibration.pole_pairs = gHallCalibration.pole_pairs;
     record->calibration.inverted = gHallCalibration.inverted;
     record->calibration.valid = gHallCalibration.valid;
@@ -304,17 +333,27 @@ static void Hall_ClearCalibration(void)
 static void Hall_ResetStage(hall_learn_state_t state)
 {
     Hall_ResetMinMax();
+    s_hallMinMaxCheckpoint.min_a = 0L;
+    s_hallMinMaxCheckpoint.max_a = 0L;
+    s_hallMinMaxCheckpoint.min_b = 0L;
+    s_hallMinMaxCheckpoint.max_b = 0L;
     s_hallElectricalTravel = 0UL;
     s_hallReferencePhaseLast = 0U;
     s_hallReferencePhaseValid = false;
+    s_hallConvergenceTurnLast = 0U;
+    s_hallMinMaxCheckpointValid = false;
     s_hallOffsetSinPositive = 0L;
     s_hallOffsetCosPositive = 0L;
     s_hallOffsetSinNegative = 0L;
     s_hallOffsetCosNegative = 0L;
     s_hallOffsetSamples = 0UL;
+    s_hallOffsetCandidateLast = 0;
+    s_hallOffsetInvertedLast = 0U;
+    s_hallOffsetCandidateValid = false;
     gHallLearnSampleCount = 0UL;
     gHallLearnStageElapsedMs = 0U;
     gHallLearnMechanicalTurns = 0U;
+    gHallLearnStableTurns = 0U;
     gHallLearnState = (u8)state;
 }
 
@@ -332,6 +371,13 @@ static void Hall_ResetLearning(void)
     gHallElectricalPhase = 0;
     gHallControlPhase = 0;
     gHallPhaseError = 0;
+    gHallAlignStableSamples = 0U;
+    gHallAlignElectricalRaw = 0;
+    s_hallAlignOffsetSin = 0L;
+    s_hallAlignOffsetCos = 0L;
+    s_hallAlignPhaseLast = 0;
+    s_hallAlignPhaseAnchor = 0;
+    s_hallAlignPhaseValid = false;
     gHallStorageState = HALL_STORAGE_STATE_IDLE;
     s_hallLearnDirection = 0;
     s_hallRuntimeCounter = 0U;
@@ -443,14 +489,60 @@ static void Hall_UpdateTravel(u16 reference_phase)
     }
 }
 
-static bool Hall_StageComplete(void)
+static bool Hall_MinMaxChangedWithin(s32 tolerance)
 {
-    u32 target;
+    return (Hall_AbsS32(s_hallMinMax.min_a -
+                        s_hallMinMaxCheckpoint.min_a) <= tolerance) &&
+           (Hall_AbsS32(s_hallMinMax.max_a -
+                        s_hallMinMaxCheckpoint.max_a) <= tolerance) &&
+           (Hall_AbsS32(s_hallMinMax.min_b -
+                        s_hallMinMaxCheckpoint.min_b) <= tolerance) &&
+           (Hall_AbsS32(s_hallMinMax.max_b -
+                        s_hallMinMaxCheckpoint.max_b) <= tolerance);
+}
 
-    target = ((u32)HALL_LEARN_MECHANICAL_TURNS *
-              (u32)Pole_Pairs) << 16;
-    return (s_hallElectricalTravel >= target) &&
-           (gHallLearnStageElapsedMs >= HALL_LEARN_MIN_STAGE_TIME_MS);
+static void Hall_SaveMinMaxCheckpoint(void)
+{
+    s_hallMinMaxCheckpoint = s_hallMinMax;
+    s_hallMinMaxCheckpointValid = true;
+}
+
+/*
+ * 每转完一个机械圈才比较一次极值包络。只有中心和幅值连续多圈不再扩展，
+ * 并且已经覆盖足够机械圈数，才认为这一阶段真正收敛。
+ */
+static bool Hall_MinMaxConverged(s32 tolerance)
+{
+    if((gHallLearnMechanicalTurns == 0U) ||
+       (gHallLearnMechanicalTurns == s_hallConvergenceTurnLast))
+    {
+        return false;
+    }
+
+    s_hallConvergenceTurnLast = gHallLearnMechanicalTurns;
+    if(!s_hallMinMaxCheckpointValid)
+    {
+        Hall_SaveMinMaxCheckpoint();
+        gHallLearnStableTurns = 0U;
+        return false;
+    }
+
+    if(Hall_MinMaxChangedWithin(tolerance))
+    {
+        if(gHallLearnStableTurns < 65535U)
+        {
+            gHallLearnStableTurns++;
+        }
+    }
+    else
+    {
+        gHallLearnStableTurns = 0U;
+    }
+    Hall_SaveMinMaxCheckpoint();
+
+    return (gHallLearnStageElapsedMs >= HALL_LEARN_MIN_STAGE_TIME_MS) &&
+           (gHallLearnMechanicalTurns >= HALL_LEARN_MIN_MECHANICAL_TURNS) &&
+           (gHallLearnStableTurns >= HALL_LEARN_STABLE_TURNS);
 }
 
 static void Hall_CompleteRawStage(void)
@@ -539,7 +631,17 @@ static s32 Hall_ApproxVectorMagnitude(s32 x, s32 y)
     return max_value + ((min_value * 3L) >> 3);
 }
 
-static void Hall_CompleteOffsetStage(void)
+static void Hall_ResetOffsetWindow(void)
+{
+    s_hallOffsetSinPositive = 0L;
+    s_hallOffsetCosPositive = 0L;
+    s_hallOffsetSinNegative = 0L;
+    s_hallOffsetCosNegative = 0L;
+    s_hallOffsetSamples = 0UL;
+}
+
+static bool Hall_GetOffsetCandidate(u8 *inverted, s16 *offset,
+                                    u16 *quality_q15)
 {
     s32 magnitude_positive;
     s32 magnitude_negative;
@@ -547,10 +649,10 @@ static void Hall_CompleteOffsetStage(void)
     s32 selected_cos;
     s32 quality;
 
-    if(s_hallOffsetSamples == 0UL)
+    if((inverted == 0) || (offset == 0) || (quality_q15 == 0) ||
+       (s_hallOffsetSamples == 0UL))
     {
-        Hall_Fail(HALL_LEARN_ERROR_PHASE_QUALITY);
-        return;
+        return false;
     }
 
     magnitude_positive = Hall_ApproxVectorMagnitude(
@@ -560,14 +662,14 @@ static void Hall_CompleteOffsetStage(void)
 
     if(magnitude_positive >= magnitude_negative)
     {
-        gHallCalibration.inverted = 0U;
+        *inverted = 0U;
         selected_sin = s_hallOffsetSinPositive;
         selected_cos = s_hallOffsetCosPositive;
         quality = magnitude_positive / (s32)s_hallOffsetSamples;
     }
     else
     {
-        gHallCalibration.inverted = 1U;
+        *inverted = 1U;
         selected_sin = s_hallOffsetSinNegative;
         selected_cos = s_hallOffsetCosNegative;
         quality = magnitude_negative / (s32)s_hallOffsetSamples;
@@ -577,23 +679,97 @@ static void Hall_CompleteOffsetStage(void)
     {
         quality = 32767L;
     }
-    gHallLearnQualityQ15 = (u16)quality;
-    if(quality < HALL_LEARN_MIN_QUALITY_Q15)
+    *quality_q15 = (u16)quality;
+    *offset = (s16)Foc_Atan2Q16(selected_sin, selected_cos);
+    return true;
+}
+
+/* 方向和旋转中相位关系连续多圈一致后，进入固定角吸附校零。 */
+static bool Hall_OffsetConverged(void)
+{
+    u8 inverted;
+    s16 offset;
+    u16 quality;
+    bool stable;
+
+    if((gHallLearnMechanicalTurns == 0U) ||
+       (gHallLearnMechanicalTurns == s_hallConvergenceTurnLast))
     {
-        Hall_Fail(HALL_LEARN_ERROR_PHASE_QUALITY);
+        return false;
+    }
+    s_hallConvergenceTurnLast = gHallLearnMechanicalTurns;
+
+    if(!Hall_GetOffsetCandidate(&inverted, &offset, &quality))
+    {
+        Hall_ResetOffsetWindow();
+        return false;
+    }
+    Hall_ResetOffsetWindow();
+    gHallLearnQualityQ15 = quality;
+
+    stable = s_hallOffsetCandidateValid &&
+             (inverted == s_hallOffsetInvertedLast) &&
+             (Hall_AbsS32((s32)(s16)((u16)offset -
+                 (u16)s_hallOffsetCandidateLast)) <=
+                 HALL_LEARN_OFFSET_TOLERANCE) &&
+             (quality >= HALL_LEARN_MIN_QUALITY_Q15);
+    if(stable)
+    {
+        if(gHallLearnStableTurns < 65535U)
+        {
+            gHallLearnStableTurns++;
+        }
+    }
+    else
+    {
+        gHallLearnStableTurns = 0U;
+    }
+
+    s_hallOffsetCandidateLast = offset;
+    s_hallOffsetInvertedLast = inverted;
+    s_hallOffsetCandidateValid = quality >= HALL_LEARN_MIN_QUALITY_Q15;
+
+    if((gHallLearnStageElapsedMs < HALL_LEARN_MIN_STAGE_TIME_MS) ||
+       (gHallLearnMechanicalTurns < HALL_LEARN_MIN_MECHANICAL_TURNS) ||
+       (gHallLearnStableTurns < HALL_LEARN_STABLE_TURNS))
+    {
+        return false;
+    }
+
+    gHallCalibration.inverted = inverted;
+    gHallCalibration.electrical_offset = offset;
+    return true;
+}
+
+static void Hall_PrepareAlignment(void)
+{
+    gHallCalibration.valid = 0U;
+    gHallAlignStableSamples = 0U;
+    gHallAlignElectricalRaw = 0;
+    s_hallAlignOffsetSin = 0L;
+    s_hallAlignOffsetCos = 0L;
+    s_hallAlignPhaseLast = 0;
+    s_hallAlignPhaseAnchor = 0;
+    s_hallAlignPhaseValid = false;
+    gHallLearnState = HALL_LEARN_STATE_ALIGN_STOP;
+}
+
+static void Hall_CompleteAlignment(void)
+{
+    if(gHallAlignStableSamples == 0U)
+    {
         return;
     }
 
     gHallCalibration.electrical_offset = (s16)Foc_Atan2Q16(
-        selected_sin, selected_cos);
+        s_hallAlignOffsetSin, s_hallAlignOffsetCos);
     gHallCalibration.pole_pairs = (u8)Pole_Pairs;
     gHallCalibration.valid = 1U;
     gHallLearnState = HALL_LEARN_STATE_COMPLETE;
     gHallLearnRequest = 0U;
     gHallStorageState = HALL_STORAGE_STATE_WAIT_STOP;
 
-    /* 先通过现有电流斜坡平滑停机，PWM关闭后才能安全擦写Flash。 */
-    gMotorRunEnable = 0U;
+    /* 学习控制层会先将吸附电流斜坡降为0，PWM关闭后再写Flash。 */
 }
 
 static void Hall_AccumulateOffset(s16 raw_a, s16 raw_b,
@@ -635,6 +811,115 @@ static void Hall_AccumulateOffset(s16 raw_a, s16 raw_b,
     gHallPhaseError = error_positive;
 }
 
+static void Hall_ResetAlignmentAverage(void)
+{
+    gHallAlignStableSamples = 0U;
+    s_hallAlignOffsetSin = 0L;
+    s_hallAlignOffsetCos = 0L;
+}
+static uint8_t text_check;
+static void Hall_ProcessAlignment(s16 raw_a, s16 raw_b)
+{
+    MCS_TRIG_Q15 offset_trig;
+    s32 hall_x;
+    s32 hall_y;
+    s32 current_error;
+    u16 mechanical_phase;
+    u16 electrical_phase;
+    s16 offset;
+    s16 phase_step;
+
+    current_error = Hall_AbsS32((s32)m_motor.m_id_set -
+        Hall_AbsS32((s32)gHallLearnAlignCurrentMa));
+    if((m_motor.m_state != MC_STATE_RUNNING) ||
+       (m_motor.m_control_mode != CONTROL_MODE_CURRENT) ||
+       !m_motor.m_phase_override ||
+       (current_error > HALL_ALIGN_CURRENT_TOLERANCE_MA) ||
+       (Hall_AbsS32((s32)m_motor.m_motor_state.id -
+           Hall_AbsS32((s32)gHallLearnAlignCurrentMa)) >
+           HALL_ALIGN_MEASURED_TOLERANCE_MA) ||
+       (Hall_AbsS32((s32)m_motor.m_motor_state.iq) >
+           HALL_ALIGN_MEASURED_TOLERANCE_MA))
+    {
+        s_hallAlignPhaseValid = false;
+        text_check = 1;
+        ///Hall_ResetAlignmentAverage();
+        return;
+    }
+
+    Hall_CalculateOrthogonal(raw_a, raw_b, &hall_x, &hall_y);
+    mechanical_phase = Foc_Atan2Q16(hall_y, hall_x);
+    electrical_phase = Hall_MechanicalToElectrical(
+        mechanical_phase, gHallCalibration.inverted != 0U);
+
+    gHallNormX = hall_x;
+    gHallNormY = hall_y;
+    gHallMechanicalPhase = (s16)mechanical_phase;
+    gHallAlignElectricalRaw = (s16)electrical_phase;
+
+    if(!s_hallAlignPhaseValid)
+    {
+        s_hallAlignPhaseLast = (s16)electrical_phase;
+        s_hallAlignPhaseAnchor = (s16)electrical_phase;
+        s_hallAlignPhaseValid = true;
+        text_check = 2;
+       // Hall_ResetAlignmentAverage();
+        return;
+    }
+
+    phase_step = (s16)(electrical_phase - (u16)s_hallAlignPhaseLast);
+    s_hallAlignPhaseLast = (s16)electrical_phase;
+    if((Hall_AbsS32((s32)phase_step) > HALL_ALIGN_MAX_PHASE_STEP) ||
+       (Hall_AbsS32((s32)(s16)(electrical_phase -
+           (u16)s_hallAlignPhaseAnchor)) >
+           HALL_ALIGN_MAX_PHASE_DEVIATION))
+    {
+        s_hallAlignPhaseAnchor = (s16)electrical_phase;
+        //Hall_ResetAlignmentAverage();
+        
+        return;
+    }
+    text_check = 3;
+    offset = (s16)((u16)gHallLearnAlignPhase - electrical_phase);
+    offset_trig = Motor_GetSinCosQ15((u16)offset);
+    s_hallAlignOffsetSin += offset_trig.sin;
+    s_hallAlignOffsetCos += offset_trig.cos;
+    if(gHallAlignStableSamples < HALL_ALIGN_STABLE_SAMPLES)
+    {
+        gHallAlignStableSamples++;
+    }
+
+    gHallElectricalPhase = (s16)(electrical_phase + (u16)offset);
+    gHallPhaseError = offset;
+    if(gHallAlignStableSamples >= HALL_ALIGN_STABLE_SAMPLES)
+    {
+        Hall_CompleteAlignment();
+    }
+}
+
+hall_learn_drive_mode_t Hall_LearnGetDriveMode(void)
+{
+    if(gHallWorkMode != HALL_WORK_MODE_LEARN)
+    {
+        return HALL_LEARN_DRIVE_STOP;
+    }
+
+    switch((hall_learn_state_t)gHallLearnState)
+    {
+    case HALL_LEARN_STATE_WAIT_STABLE:
+    case HALL_LEARN_STATE_RAW:
+    case HALL_LEARN_STATE_ORTHOGONAL:
+    case HALL_LEARN_STATE_OFFSET:
+        return HALL_LEARN_DRIVE_SENSORLESS;
+
+    case HALL_LEARN_STATE_ALIGN:
+        return HALL_LEARN_DRIVE_ALIGN;
+
+    default:
+        return HALL_LEARN_DRIVE_STOP;
+    }
+}
+
 static void Hall_ResetRuntime(motor_all_state_t *motor)
 {
     motor_state_t *state;
@@ -663,7 +948,7 @@ void Hall_FastUpdate(motor_all_state_t *motor, s16 hall_a, s16 hall_b)
     {
         return;
     }
-
+    // 学习模式
     if((gHallWorkMode != HALL_WORK_MODE_NORMAL) ||
        (gHallCalibration.valid == 0U) ||
        (motor->m_conf->foc_sensor_mode != FOC_SENSOR_MODE_HALL))
@@ -675,6 +960,7 @@ void Hall_FastUpdate(motor_all_state_t *motor, s16 hall_a, s16 hall_b)
 
     if(!s_hallRuntimeActive)
     {
+        // 为什么要四个周期提取一次霍尔原始角，有疑问
         Hall_ResetRuntime(motor);
     }
 
@@ -743,6 +1029,7 @@ void Hall_LearnInit(void)
         {
             m_motor.m_conf->foc_sensor_mode = FOC_SENSOR_MODE_HALL;
         }
+        gMotorOperationSensorMode = FOC_SENSOR_MODE_HALL;
         return;
     }
 
@@ -836,6 +1123,7 @@ void Hall_LearnTask1ms(u16 elapsed_ms)
                 {
                     gHallStorageState = HALL_STORAGE_STATE_SAVED;
                     gHallWorkMode = HALL_WORK_MODE_NORMAL;
+                    gMotorOperationSensorMode = FOC_SENSOR_MODE_HALL;
                     m_motor.m_conf->foc_sensor_mode = FOC_SENSOR_MODE_HALL;
                     s_hallRuntimeActive = false;
                     s_hallRuntimeCounter = 0U;
@@ -856,6 +1144,24 @@ void Hall_LearnTask1ms(u16 elapsed_ms)
 
     if(gHallLearnRequest == 0U)
     {
+        return;
+    }
+
+    if(gHallLearnState == HALL_LEARN_STATE_ALIGN_STOP)
+    {
+        if((m_motor.m_control_mode == CONTROL_MODE_NONE) &&
+           (m_motor.m_state == MC_STATE_OFF))
+        {
+            Hall_ResetAlignmentAverage();
+            s_hallAlignPhaseValid = false;
+            gHallLearnState = HALL_LEARN_STATE_ALIGN;
+        }
+        return;
+    }
+
+    if(gHallLearnState == HALL_LEARN_STATE_ALIGN)
+    {
+        Hall_ProcessAlignment(hall_a, hall_b);
         return;
     }
 
@@ -909,7 +1215,7 @@ void Hall_LearnTask1ms(u16 elapsed_ms)
     {
     case HALL_LEARN_STATE_RAW:
         Hall_UpdateMinMax(hall_a, hall_b);
-        if(Hall_StageComplete())
+        if(Hall_MinMaxConverged(HALL_LEARN_RAW_EDGE_TOLERANCE))
         {
             Hall_CompleteRawStage();
         }
@@ -923,7 +1229,7 @@ void Hall_LearnTask1ms(u16 elapsed_ms)
         hall_x_raw = hall_a_normalized - hall_b_normalized;
         hall_y_raw = hall_a_normalized + hall_b_normalized;
         Hall_UpdateMinMax(hall_x_raw, hall_y_raw);
-        if(Hall_StageComplete())
+        if(Hall_MinMaxConverged(HALL_LEARN_ORTHO_EDGE_TOLERANCE))
         {
             Hall_CompleteOrthogonalStage();
         }
@@ -931,9 +1237,9 @@ void Hall_LearnTask1ms(u16 elapsed_ms)
 
     case HALL_LEARN_STATE_OFFSET:
         Hall_AccumulateOffset(hall_a, hall_b, reference_phase);
-        if(Hall_StageComplete())
+        if(Hall_OffsetConverged())
         {
-            Hall_CompleteOffsetStage();
+            Hall_PrepareAlignment();
         }
         break;
 

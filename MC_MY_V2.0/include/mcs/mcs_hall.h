@@ -4,8 +4,8 @@
 #include "mcs_motor_type.h"
 
 /*
- * ä¸¤è·¯çº¿æ€§éœå°”åœ¨çº¿å­¦ä¹ çŠ¶æ€ã€‚
- * å­¦ä¹ å§‹ç»ˆä»¥æ— æ„Ÿæœ€ç»ˆæ§åˆ¶è§’ä¸ºå‚è€ƒï¼Œå®Œæˆååœæœºä¿å­˜å‚æ•°ã€‚
+ * Á½Â·ÏßĞÔ»ô¶ûÔÚÏßÑ§Ï°×´Ì¬¡£
+ * Ğı×ª½×¶ÎÅĞ¶Ï·ùÖµ¡¢Õı½»¹ØÏµºÍ·½ÏòÊÇ·ñÖğÈ¦ÊÕÁ²£¬Ëæºó¹Ì¶¨½ÇÎü¸½Ğ£Áã¡£
  */
 typedef enum {
     HALL_LEARN_STATE_IDLE = 0,
@@ -13,19 +13,28 @@ typedef enum {
     HALL_LEARN_STATE_RAW,
     HALL_LEARN_STATE_ORTHOGONAL,
     HALL_LEARN_STATE_OFFSET,
+    HALL_LEARN_STATE_ALIGN_STOP,
+    HALL_LEARN_STATE_ALIGN,
     HALL_LEARN_STATE_COMPLETE,
     HALL_LEARN_STATE_FAILED
 } hall_learn_state_t;
 
 /*
- * éœå°”å·¥ä½œæ¨¡å¼ï¼š
- * LEARNä½¿ç”¨æ— æ„Ÿè§’åº¦å®Œæˆä¸‰çº§å­¦ä¹ ï¼›
- * NORMALä»Flashè¯»å–å‚æ•°å¹¶ç”±éœå°”è§’åº¦ç›´æ¥é©±åŠ¨FOCã€‚
+ * »ô¶û¹¤×÷Ä£Ê½£º
+ * LEARNÊ¹ÓÃÎŞ¸Ğ½Ç¶ÈÍê³ÉÈı¼¶Ñ§Ï°£»
+ * NORMAL´ÓFlash¶ÁÈ¡²ÎÊı²¢ÓÉ»ô¶û½Ç¶ÈÖ±½ÓÇı¶¯FOC¡£
  */
 typedef enum {
     HALL_WORK_MODE_LEARN = 0,
     HALL_WORK_MODE_NORMAL = 1
 } hall_work_mode_t;
+
+/* Ñ§Ï°Ä£Ê½ÏòÕıÊ½¿ØÖÆ²ã·¢²¼µÄµç»ú¶¯×÷£¬²»Ö±½Ó²Ù×÷PWM¡£ */
+typedef enum {
+    HALL_LEARN_DRIVE_STOP = 0,
+    HALL_LEARN_DRIVE_SENSORLESS,
+    HALL_LEARN_DRIVE_ALIGN
+} hall_learn_drive_mode_t;
 
 typedef enum {
     HALL_STORAGE_STATE_IDLE = 0,
@@ -36,8 +45,8 @@ typedef enum {
 } hall_storage_state_t;
 
 /*
- * ä¸‰çº§å­¦ä¹ å¾—åˆ°çš„å…¨éƒ¨å‚æ•°ã€‚
- * gain_xxx_q14ä¸ºQ14å¢ç›Šï¼Œè§’åº¦ä¸€åœˆå¯¹åº”0...65535ã€‚
+ * Èı¼¶Ñ§Ï°µÃµ½µÄÈ«²¿²ÎÊı¡£
+ * gain_xxx_q14ÎªQ14ÔöÒæ£¬½Ç¶ÈÒ»È¦¶ÔÓ¦0...65535¡£
  */
 typedef struct {
     s16 center_a;
@@ -56,7 +65,7 @@ typedef struct {
     u8 valid;
 } hall_calibration_t;
 
-/* å­¦ä¹ ç»“æœå’Œå…³é”®ä¸­é—´é‡ï¼Œä¿ç•™ä¸ºå…¨å±€å˜é‡æ–¹ä¾¿Keil Watchè§‚å¯Ÿã€‚ */
+/* Ñ§Ï°½á¹ûºÍ¹Ø¼üÖĞ¼äÁ¿£¬±£ÁôÎªÈ«¾Ö±äÁ¿·½±ãKeil Watch¹Û²ì¡£ */
 extern volatile hall_calibration_t gHallCalibration;
 extern volatile u8 gHallWorkMode;
 extern volatile u8 gHallStorageState;
@@ -66,8 +75,14 @@ extern volatile u8 gHallLearnRequest;
 extern volatile u16 gHallLearnStableMs;
 extern volatile u16 gHallLearnStageElapsedMs;
 extern volatile u16 gHallLearnMechanicalTurns;
+extern volatile u16 gHallLearnStableTurns;
 extern volatile u32 gHallLearnSampleCount;
 extern volatile u16 gHallLearnQualityQ15;
+extern volatile u16 gHallAlignStableSamples;
+extern volatile s16 gHallAlignElectricalRaw;
+extern volatile s16 gHallLearnSpinCurrentMa;
+extern volatile s16 gHallLearnAlignCurrentMa;
+extern volatile s16 gHallLearnAlignPhase;
 extern volatile s16 gHallRawA;
 extern volatile s16 gHallRawB;
 extern volatile s32 gHallNormX;
@@ -77,18 +92,19 @@ extern volatile s16 gHallElectricalPhase;
 extern volatile s16 gHallControlPhase;
 extern volatile s16 gHallPhaseError;
 
-/* ä¸Šç”µä¼˜å…ˆåŠ è½½Flashï¼›æ²¡æœ‰æœ‰æ•ˆå‚æ•°æ—¶è‡ªåŠ¨è¿›å…¥æ— æ„Ÿå­¦ä¹ æ¨¡å¼ã€‚ */
+/* ÉÏµçÓÅÏÈ¼ÓÔØFlash£»Ã»ÓĞÓĞĞ§²ÎÊıÊ±×Ô¶¯½øÈëÎŞ¸ĞÑ§Ï°Ä£Ê½¡£ */
 void Hall_LearnInit(void);
 void Hall_LearnRequest(void);
 void Hall_LearnCancel(void);
+hall_learn_drive_mode_t Hall_LearnGetDriveMode(void);
 
-/* å­¦ä¹ æ¨¡å¼ç”±ADCä¸­æ–­è°ƒç”¨ï¼šä¿å­˜åŒä¸€æ—¶åˆ»çš„ä¸¤è·¯éœå°”å€¼å’Œæ— æ„Ÿå‚è€ƒè§’ã€‚ */
+/* Ñ§Ï°Ä£Ê½ÓÉADCÖĞ¶Ïµ÷ÓÃ£º±£´æÍ¬Ò»Ê±¿ÌµÄÁ½Â·»ô¶ûÖµºÍÎŞ¸Ğ²Î¿¼½Ç¡£ */
 void Hall_CaptureSample(s16 hall_a, s16 hall_b, s16 reference_phase);
 
-/* æ­£å¸¸æ¨¡å¼ç”±ADCä¸­æ–­è°ƒç”¨ï¼šåˆ†é¢‘æå–éœå°”è§’å¹¶é€PWMå‘¨æœŸé¢„æµ‹æ§åˆ¶è§’ã€‚ */
+/* Õı³£Ä£Ê½ÓÉADCÖĞ¶Ïµ÷ÓÃ£º·ÖÆµÌáÈ¡»ô¶û½Ç²¢ÖğPWMÖÜÆÚÔ¤²â¿ØÖÆ½Ç¡£ */
 void Hall_FastUpdate(motor_all_state_t *motor, s16 hall_a, s16 hall_b);
 
-/* 1msæ…¢é€Ÿä»»åŠ¡è°ƒç”¨ï¼šå®Œæˆä¸‰çº§å­¦ä¹ ã€å‚æ•°æ ¡éªŒå’Œä¿å­˜ã€‚ */
+/* 1msÂıËÙÈÎÎñµ÷ÓÃ£ºÍê³ÉÊÕÁ²ÅĞ¶Ï¡¢¹Ì¶¨½ÇĞ£ÁãºÍFlash±£´æ¡£ */
 void Hall_LearnTask1ms(u16 elapsed_ms);
 
 bool Hall_CalibrationIsValid(void);

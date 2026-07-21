@@ -16,6 +16,7 @@ extern volatile u8 gMotorRunEnable;
 extern volatile s16 gMotorCurrentTargetMa;
 extern volatile u16 gMotorCurrentLimitMa;
 extern volatile u16 gMotorStartDelayMs;
+extern volatile u8 gMotorOperationSensorMode;
 extern volatile u8 gMotorControlState;
 extern volatile u8 gMotorControlFaultCode;
 #endif
