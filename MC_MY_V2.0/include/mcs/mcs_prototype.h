@@ -69,6 +69,7 @@ void CurrentErrDetc(void);
 void StopMotorImmdly(void);
 void Motor_ControlInit(void);
 void Motor_ControlTask1ms(u16 elapsed_ms);
+void Motor_SpeedControlUpdate1ms(motor_all_state_t *motor, u16 elapsed_ms);
 void Motor_SetCurrentTarget(motor_all_state_t *motor,
                             s16 id_target_ma,
                             s16 iq_target_ma);

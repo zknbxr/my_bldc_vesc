@@ -63,10 +63,12 @@ Section Cross References
     mcs_control.o(i.Motor_ControlCurrentExceeded) refers to mcs_foc_hw.o(.data) for ADC_curr_norm_value
     mcs_control.o(i.Motor_ControlFaultStop) refers to mcs_foc_hw.o(i.PwmAOutputs) for PwmAOutputs
     mcs_control.o(i.Motor_ControlFaultStop) refers to mcs_control.o(i.Motor_CurrentCommandReset) for Motor_CurrentCommandReset
+    mcs_control.o(i.Motor_ControlFaultStop) refers to mcs_control.o(i.Motor_SpeedControlReset) for Motor_SpeedControlReset
     mcs_control.o(i.Motor_ControlFaultStop) refers to mcs_pwm_foc.o(.bss) for m_motor
     mcs_control.o(i.Motor_ControlFaultStop) refers to mcs_control.o(.data) for .data
     mcs_control.o(i.Motor_ControlInit) refers to mcs_foc_hw.o(i.PwmAOutputs) for PwmAOutputs
     mcs_control.o(i.Motor_ControlInit) refers to mcs_control.o(i.Motor_CurrentCommandReset) for Motor_CurrentCommandReset
+    mcs_control.o(i.Motor_ControlInit) refers to mcs_control.o(i.Motor_SpeedControlReset) for Motor_SpeedControlReset
     mcs_control.o(i.Motor_ControlInit) refers to mcs_pwm_foc.o(.bss) for m_motor
     mcs_control.o(i.Motor_ControlInit) refers to mcs_control.o(.data) for .data
     mcs_control.o(i.Motor_ControlInit) refers to interrupt.o(.data) for gShortFaultCount
@@ -74,6 +76,7 @@ Section Cross References
     mcs_control.o(i.Motor_ControlTask1ms) refers to mcs_control.o(i.Motor_ControlFaultStop) for Motor_ControlFaultStop
     mcs_control.o(i.Motor_ControlTask1ms) refers to mcs_control.o(i.Motor_ControlCurrentExceeded) for Motor_ControlCurrentExceeded
     mcs_control.o(i.Motor_ControlTask1ms) refers to mcs_control.o(i.Motor_SetCurrentTarget) for Motor_SetCurrentTarget
+    mcs_control.o(i.Motor_ControlTask1ms) refers to mcs_control.o(i.Motor_SpeedControlReset) for Motor_SpeedControlReset
     mcs_control.o(i.Motor_ControlTask1ms) refers to mcs_foc_hw.o(i.PwmAOutputs) for PwmAOutputs
     mcs_control.o(i.Motor_ControlTask1ms) refers to mcs_hall.o(i.Hall_CalibrationIsValid) for Hall_CalibrationIsValid
     mcs_control.o(i.Motor_ControlTask1ms) refers to mcs_control.o(i.Motor_ControlAbsS32) for Motor_ControlAbsS32
@@ -83,10 +86,30 @@ Section Cross References
     mcs_control.o(i.Motor_ControlTask1ms) refers to interrupt.o(.data) for gShortFaultCount
     mcs_control.o(i.Motor_ControlTask1ms) refers to mcs_pwm_foc.o(.bss) for m_motor
     mcs_control.o(i.Motor_ControlTask1ms) refers to mcs_hall.o(.data) for gHallLearnSpinCurrentMa
+    mcs_control.o(i.Motor_CurrentCommandUpdate) refers to mcs_control.o(i.Motor_SpeedGetIqLimit) for Motor_SpeedGetIqLimit
     mcs_control.o(i.Motor_CurrentCommandUpdate) refers to mcs_control.o(i.Motor_ControlLimitS32) for Motor_ControlLimitS32
     mcs_control.o(i.Motor_CurrentCommandUpdate) refers to mcs_control.o(i.Motor_ControlStepTowards) for Motor_ControlStepTowards
+    mcs_control.o(i.Motor_CurrentCommandUpdate) refers to mcs_control.o(.data) for .data
     mcs_control.o(i.Motor_SetCurrentTarget) refers to mcs_control.o(i.Motor_ControlAbsS32) for Motor_ControlAbsS32
     mcs_control.o(i.Motor_SetCurrentTarget) refers to mcs_control.o(i.Motor_ControlLimitS32) for Motor_ControlLimitS32
+    mcs_control.o(i.Motor_SpeedControlReset) refers to mcs_control.o(.data) for .data
+    mcs_control.o(i.Motor_SpeedControlUpdate1ms) refers to mcs_control.o(i.Motor_SpeedControlReset) for Motor_SpeedControlReset
+    mcs_control.o(i.Motor_SpeedControlUpdate1ms) refers to mcs_control.o(i.Motor_ControlAbsS32) for Motor_ControlAbsS32
+    mcs_control.o(i.Motor_SpeedControlUpdate1ms) refers to mcs_control.o(i.Motor_ControlLimitS32) for Motor_ControlLimitS32
+    mcs_control.o(i.Motor_SpeedControlUpdate1ms) refers to mcs_control.o(i.Motor_SpeedRampUpdate) for Motor_SpeedRampUpdate
+    mcs_control.o(i.Motor_SpeedControlUpdate1ms) refers to mcs_control.o(i.Motor_SpeedGetIqLimit) for Motor_SpeedGetIqLimit
+    mcs_control.o(i.Motor_SpeedControlUpdate1ms) refers to mcs_control.o(i.Motor_SetCurrentTarget) for Motor_SetCurrentTarget
+    mcs_control.o(i.Motor_SpeedControlUpdate1ms) refers to mcs_control.o(i.__ARM_common_ll_mulss) for __ARM_common_ll_mulss
+    mcs_control.o(i.Motor_SpeedControlUpdate1ms) refers to llmul.o(.text) for __aeabi_lmul
+    mcs_control.o(i.Motor_SpeedControlUpdate1ms) refers to ldiv.o(.text) for __aeabi_ldivmod
+    mcs_control.o(i.Motor_SpeedControlUpdate1ms) refers to mcs_hall.o(.data) for gHallWorkMode
+    mcs_control.o(i.Motor_SpeedControlUpdate1ms) refers to mcs_control.o(.data) for .data
+    mcs_control.o(i.Motor_SpeedGetIqLimit) refers to mcs_control.o(i.Motor_ControlAbsS32) for Motor_ControlAbsS32
+    mcs_control.o(i.Motor_SpeedGetIqLimit) refers to mcs_control.o(i.Motor_ControlLimitS32) for Motor_ControlLimitS32
+    mcs_control.o(i.Motor_SpeedGetIqLimit) refers to mcs_control.o(.data) for .data
+    mcs_control.o(i.Motor_SpeedRampUpdate) refers to uidiv.o(.text) for __aeabi_uidivmod
+    mcs_control.o(i.Motor_SpeedRampUpdate) refers to mcs_control.o(i.Motor_ControlStepTowards) for Motor_ControlStepTowards
+    mcs_control.o(i.Motor_SpeedRampUpdate) refers to mcs_control.o(.data) for .data
     mcs_control.o(i.StopMotorImmdly) refers to mcs_control.o(i.Motor_ControlFaultStop) for Motor_ControlFaultStop
     mcs_foc_hw.o(i.AdcEocHandler) refers to mcs_hall.o(i.Hall_FastUpdate) for Hall_FastUpdate
     mcs_foc_hw.o(i.AdcEocHandler) refers to mcs_foc_hw.o(i.AdcSampleCal) for AdcSampleCal
@@ -104,12 +127,13 @@ Section Cross References
     mcs_foc_hw.o(i.AdcSampleCal) refers to mcs_pwm_foc.o(.bss) for m_motor
     mcs_foc_hw.o(i.AdcSampleCal) refers to mcs_foc_hw.o(.data) for .data
     mcs_foc_hw.o(i.FocHw_AdcToCurrentMa) refers to mcs_foc_hw.o(i.FocHw_SatS16) for FocHw_SatS16
-    mcs_foc_hw.o(i.Motor_FocSlowUpdate1ms) refers to mcs_foc_hw.o(i.__ARM_common_ll_mulss) for __ARM_common_ll_mulss
+    mcs_foc_hw.o(i.Motor_FocSlowUpdate1ms) refers to mcs_control.o(i.__ARM_common_ll_mulss) for __ARM_common_ll_mulss
     mcs_foc_hw.o(i.Motor_FocSlowUpdate1ms) refers to mcs_foc_hw.o(i.FocHw_SatS16) for FocHw_SatS16
     mcs_foc_hw.o(i.Motor_FocSlowUpdate1ms) refers to mcs_foc_hw.o(.data) for .data
     mcs_foc_hw.o(i.Motor_FocSlowUpdate1ms) refers to mcs_pwm_foc.o(.bss) for m_motor
     mcs_task.o(i.Mcs_Task_Run) refers to mcs_foc_hw.o(i.Motor_FocSlowUpdate1ms) for Motor_FocSlowUpdate1ms
     mcs_task.o(i.Mcs_Task_Run) refers to mcs_control.o(i.Motor_ControlTask1ms) for Motor_ControlTask1ms
+    mcs_task.o(i.Mcs_Task_Run) refers to mcs_control.o(i.Motor_SpeedControlUpdate1ms) for Motor_SpeedControlUpdate1ms
     mcs_task.o(i.Mcs_Task_Run) refers to mcs_control.o(i.Motor_CurrentCommandUpdate) for Motor_CurrentCommandUpdate
     mcs_task.o(i.Mcs_Task_Run) refers to mcs_hall.o(i.Hall_LearnTask1ms) for Hall_LearnTask1ms
     mcs_task.o(i.Mcs_Task_Run) refers to mcs_pwm_foc.o(.bss) for m_motor
@@ -152,7 +176,7 @@ Section Cross References
     mcs_direction_test.o(i.Motor_DirectionTest_Task) refers to mcs_pwm_foc.o(.bss) for m_motor
     mcs_motor.o(i.MCS_Motor_Stop) refers to mcs_foc_hw.o(i.PwmAOutputs) for PwmAOutputs
     mcs_motor.o(i.Motor_GetSinCosQ15) refers to mcs_motor.o(.constdata) for .constdata
-    mcs_motor.o(i.Motor_PwmOffsetToModQ15) refers to mcs_foc_hw.o(i.__ARM_common_ll_mulss) for __ARM_common_ll_mulss
+    mcs_motor.o(i.Motor_PwmOffsetToModQ15) refers to mcs_control.o(i.__ARM_common_ll_mulss) for __ARM_common_ll_mulss
     mcs_motor.o(i.Motor_PwmOffsetToModQ15) refers to ldiv.o(.text) for __aeabi_ldivmod
     mcs_motor.o(i.Motor_WriteAlphaBetaVector) refers to mcs_motor.o(i.Motor_AbsS32) for Motor_AbsS32
     mcs_motor.o(i.Motor_WriteAlphaBetaVector) refers to idiv.o(.text) for __aeabi_idivmod
@@ -415,6 +439,7 @@ Section Cross References
     entry.o(.ARM.Collect$$$$00000000) refers (Special) to entry2.o(.ARM.Collect$$$$00000001) for _main_stk
     idiv.o(.text) refers to uidiv.o(.text) for __aeabi_uidivmod
     ldiv.o(.text) refers to uldiv.o(.text) for __aeabi_uldivmod
+    llmul.o(.text) refers to llshl.o(.text) for __aeabi_llsl
     entry2.o(.ARM.Collect$$$$00000001) refers to entry2.o(.ARM.Collect$$$$00002712) for __lit__00000000
     entry2.o(.ARM.Collect$$$$00002712) refers to startup_lks32mc03x.o(STACK) for __initial_sp
     entry2.o(__vectab_stack_and_reset_area) refers to startup_lks32mc03x.o(STACK) for __initial_sp
@@ -614,27 +639,28 @@ Image Symbol Table
 
     RESET                                    0x00000000   Section      192  startup_lks32mc03x.o(RESET)
     ../clib/../cmprslib/zerorunl.c           0x00000000   Number         0  __dczerorl.o ABSOLUTE
-    ../clib/microlib/division.c              0x00000000   Number         0  ldiv.o ABSOLUTE
-    ../clib/microlib/division.c              0x00000000   Number         0  uldiv.o ABSOLUTE
-    ../clib/microlib/division.c              0x00000000   Number         0  uidiv.o ABSOLUTE
     ../clib/microlib/division.c              0x00000000   Number         0  idiv.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10a.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9b.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9a.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8b.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10b.o ABSOLUTE
+    ../clib/microlib/division.c              0x00000000   Number         0  uldiv.o ABSOLUTE
+    ../clib/microlib/division.c              0x00000000   Number         0  ldiv.o ABSOLUTE
+    ../clib/microlib/division.c              0x00000000   Number         0  uidiv.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry12b.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9a.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry7b.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry7a.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11a.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry5.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11b.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry12a.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry12b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10a.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry2.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry12a.o ABSOLUTE
     ../clib/microlib/longlong.c              0x00000000   Number         0  llshl.o ABSOLUTE
     ../clib/microlib/longlong.c              0x00000000   Number         0  llushr.o ABSOLUTE
+    ../clib/microlib/longlong.c              0x00000000   Number         0  llmul.o ABSOLUTE
     ../clib/microlib/string/memset.c         0x00000000   Number         0  memseta.o ABSOLUTE
     dc.s                                     0x00000000   Number         0  dc.o ABSOLUTE
     handlers.s                               0x00000000   Number         0  handlers.o ABSOLUTE
@@ -724,208 +750,216 @@ Image Symbol Table
     .text                                    0x00000100   Section        0  uidiv.o(.text)
     .text                                    0x0000012c   Section        0  idiv.o(.text)
     .text                                    0x00000154   Section        0  ldiv.o(.text)
-    .text                                    0x000001a0   Section        0  memseta.o(.text)
-    .text                                    0x000001c4   Section        0  uldiv.o(.text)
-    .text                                    0x00000224   Section       36  init.o(.text)
-    .text                                    0x00000248   Section        0  llshl.o(.text)
-    .text                                    0x00000268   Section        0  llushr.o(.text)
-    .text                                    0x0000028a   Section        0  __dczerorl.o(.text)
-    i.ADC_IRQHandler                         0x000002c4   Section        0  interrupt.o(i.ADC_IRQHandler)
-    i.AdcEocHandler                          0x0000034c   Section        0  mcs_foc_hw.o(i.AdcEocHandler)
-    i.AdcSampleCal                           0x0000039c   Section        0  mcs_foc_hw.o(i.AdcSampleCal)
-    i.AnalyseUART0                           0x00000494   Section        0  user_app.o(i.AnalyseUART0)
-    AnalyseUART0                             0x00000495   Thumb Code   172  user_app.o(i.AnalyseUART0)
-    i.CMP_IRQHandler                         0x0000056c   Section        0  interrupt.o(i.CMP_IRQHandler)
-    i.CMP_Init                               0x000005ac   Section        0  lks32mc03x_cmp.o(i.CMP_Init)
-    i.CMP_StructInit                         0x00000680   Section        0  lks32mc03x_cmp.o(i.CMP_StructInit)
-    i.Clock_Init                             0x000006c0   Section        0  hardware_init.o(i.Clock_Init)
-    i.ConfigAdcModeMotor0                    0x00000710   Section        0  mcs_init.o(i.ConfigAdcModeMotor0)
-    i.CurrentOffsetCalibration               0x00000728   Section        0  mcs_init.o(i.CurrentOffsetCalibration)
-    i.DAC_Init                               0x000007d0   Section        0  lks32mc03x_dac.o(i.DAC_Init)
-    i.DAC_OutputVoltage                      0x00000854   Section        0  lks32mc03x_dac.o(i.DAC_OutputVoltage)
-    i.DAC_StructInit                         0x000008ac   Section        0  lks32mc03x_dac.o(i.DAC_StructInit)
-    i.EraseSector                            0x000008b8   Section        0  lks32mc03x_flash.o(i.EraseSector)
-    i.FOC_SVM_Q15                            0x00000944   Section        0  mcs_math.o(i.FOC_SVM_Q15)
-    i.FeedDogcmd                             0x00000aac   Section        0  interrupt.o(i.FeedDogcmd)
-    i.FocHw_AdcToCurrentMa                   0x00000acc   Section        0  mcs_foc_hw.o(i.FocHw_AdcToCurrentMa)
-    FocHw_AdcToCurrentMa                     0x00000acd   Thumb Code    14  mcs_foc_hw.o(i.FocHw_AdcToCurrentMa)
-    i.FocHw_ModToVoltageMv                   0x00000ae0   Section        0  mcs_foc_hw.o(i.FocHw_ModToVoltageMv)
-    i.FocHw_PhaseDifference                  0x00000af8   Section        0  mcs_foc_hw.o(i.FocHw_PhaseDifference)
-    i.FocHw_SatS16                           0x00000b00   Section        0  mcs_foc_hw.o(i.FocHw_SatS16)
-    i.Foc_AbsS32                             0x00000b18   Section        0  mcs_pwm_foc.o(i.Foc_AbsS32)
-    Foc_AbsS32                               0x00000b19   Thumb Code    20  mcs_pwm_foc.o(i.Foc_AbsS32)
-    i.Foc_Atan2Q16                           0x00000b2c   Section        0  sensorless_ctrl.o(i.Foc_Atan2Q16)
-    i.Foc_InitMotorStruct                    0x00000b80   Section        0  mcs_pwm_foc.o(i.Foc_InitMotorStruct)
-    Foc_InitMotorStruct                      0x00000b81   Thumb Code    80  mcs_pwm_foc.o(i.Foc_InitMotorStruct)
-    i.Foc_IntegrateCurrentError              0x00000bdc   Section        0  mcs_pwm_foc.o(i.Foc_IntegrateCurrentError)
-    Foc_IntegrateCurrentError                0x00000bdd   Thumb Code    20  mcs_pwm_foc.o(i.Foc_IntegrateCurrentError)
-    i.Foc_LimitS32                           0x00000bf0   Section        0  mcs_pwm_foc.o(i.Foc_LimitS32)
-    Foc_LimitS32                             0x00000bf1   Thumb Code    16  mcs_pwm_foc.o(i.Foc_LimitS32)
-    i.Foc_SatS16                             0x00000c00   Section        0  mcs_pwm_foc.o(i.Foc_SatS16)
-    Foc_SatS16                               0x00000c01   Thumb Code    20  mcs_pwm_foc.o(i.Foc_SatS16)
-    i.Foc_WriteSvmPwm                        0x00000c18   Section        0  mcs_pwm_foc.o(i.Foc_WriteSvmPwm)
-    Foc_WriteSvmPwm                          0x00000c19   Thumb Code    44  mcs_pwm_foc.o(i.Foc_WriteSvmPwm)
-    i.GPIO_Init                              0x00000c4c   Section        0  lks32mc03x_gpio.o(i.GPIO_Init)
-    i.GPIO_PinAFConfig                       0x00000cc0   Section        0  lks32mc03x_gpio.o(i.GPIO_PinAFConfig)
-    i.GPIO_StructInit                        0x00000d94   Section        0  lks32mc03x_gpio.o(i.GPIO_StructInit)
-    i.GetRchTrimVal                          0x00000da0   Section        0  lks32mc03x_flash.o(i.GetRchTrimVal)
-    i.Hall_AbsS32                            0x00000ddc   Section        0  mcs_hall.o(i.Hall_AbsS32)
-    Hall_AbsS32                              0x00000ddd   Thumb Code     8  mcs_hall.o(i.Hall_AbsS32)
-    i.Hall_AccumulateOffset                  0x00000de4   Section        0  mcs_hall.o(i.Hall_AccumulateOffset)
-    Hall_AccumulateOffset                    0x00000de5   Thumb Code   130  mcs_hall.o(i.Hall_AccumulateOffset)
-    i.Hall_ApproxVectorMagnitude             0x00000e6c   Section        0  mcs_hall.o(i.Hall_ApproxVectorMagnitude)
-    Hall_ApproxVectorMagnitude               0x00000e6d   Thumb Code    38  mcs_hall.o(i.Hall_ApproxVectorMagnitude)
-    i.Hall_CalculateGain                     0x00000e94   Section        0  mcs_hall.o(i.Hall_CalculateGain)
-    Hall_CalculateGain                       0x00000e95   Thumb Code    30  mcs_hall.o(i.Hall_CalculateGain)
-    i.Hall_CalculateOrthogonal               0x00000eb8   Section        0  mcs_hall.o(i.Hall_CalculateOrthogonal)
-    Hall_CalculateOrthogonal                 0x00000eb9   Thumb Code    66  mcs_hall.o(i.Hall_CalculateOrthogonal)
-    i.Hall_CalibrationIsValid                0x00000f00   Section        0  mcs_hall.o(i.Hall_CalibrationIsValid)
-    i.Hall_CaptureSample                     0x00000f10   Section        0  mcs_hall.o(i.Hall_CaptureSample)
-    i.Hall_ClearBytes                        0x00000f20   Section        0  mcs_hall.o(i.Hall_ClearBytes)
-    Hall_ClearBytes                          0x00000f21   Thumb Code    16  mcs_hall.o(i.Hall_ClearBytes)
-    i.Hall_ClearCalibration                  0x00000f30   Section        0  mcs_hall.o(i.Hall_ClearCalibration)
-    Hall_ClearCalibration                    0x00000f31   Thumb Code    34  mcs_hall.o(i.Hall_ClearCalibration)
-    i.Hall_CompleteOrthogonalStage           0x00000f58   Section        0  mcs_hall.o(i.Hall_CompleteOrthogonalStage)
-    Hall_CompleteOrthogonalStage             0x00000f59   Thumb Code   114  mcs_hall.o(i.Hall_CompleteOrthogonalStage)
-    i.Hall_CompleteRawStage                  0x00000fd0   Section        0  mcs_hall.o(i.Hall_CompleteRawStage)
-    Hall_CompleteRawStage                    0x00000fd1   Thumb Code   114  mcs_hall.o(i.Hall_CompleteRawStage)
-    i.Hall_CopyCalibrationToRecord           0x00001048   Section        0  mcs_hall.o(i.Hall_CopyCalibrationToRecord)
-    Hall_CopyCalibrationToRecord             0x00001049   Thumb Code    98  mcs_hall.o(i.Hall_CopyCalibrationToRecord)
-    i.Hall_CopyRecordToCalibration           0x000010b8   Section        0  mcs_hall.o(i.Hall_CopyRecordToCalibration)
-    Hall_CopyRecordToCalibration             0x000010b9   Thumb Code    64  mcs_hall.o(i.Hall_CopyRecordToCalibration)
-    i.Hall_Crc32                             0x00001100   Section        0  mcs_hall.o(i.Hall_Crc32)
-    Hall_Crc32                               0x00001101   Thumb Code    48  mcs_hall.o(i.Hall_Crc32)
-    i.Hall_Fail                              0x00001134   Section        0  mcs_hall.o(i.Hall_Fail)
-    Hall_Fail                                0x00001135   Thumb Code    18  mcs_hall.o(i.Hall_Fail)
-    i.Hall_FastUpdate                        0x00001150   Section        0  mcs_hall.o(i.Hall_FastUpdate)
-    i.Hall_GetOffsetCandidate                0x0000126c   Section        0  mcs_hall.o(i.Hall_GetOffsetCandidate)
-    Hall_GetOffsetCandidate                  0x0000126d   Thumb Code   110  mcs_hall.o(i.Hall_GetOffsetCandidate)
-    i.Hall_LearnGetDriveMode                 0x000012e4   Section        0  mcs_hall.o(i.Hall_LearnGetDriveMode)
-    i.Hall_LearnInit                         0x00001310   Section        0  mcs_hall.o(i.Hall_LearnInit)
-    i.Hall_LearnTask1ms                      0x00001394   Section        0  mcs_hall.o(i.Hall_LearnTask1ms)
-    i.Hall_MechanicalToElectrical            0x000015f0   Section        0  mcs_hall.o(i.Hall_MechanicalToElectrical)
-    Hall_MechanicalToElectrical              0x000015f1   Thumb Code    14  mcs_hall.o(i.Hall_MechanicalToElectrical)
-    i.Hall_MinMaxChangedWithin               0x00001600   Section        0  mcs_hall.o(i.Hall_MinMaxChangedWithin)
-    Hall_MinMaxChangedWithin                 0x00001601   Thumb Code    74  mcs_hall.o(i.Hall_MinMaxChangedWithin)
-    i.Hall_MinMaxConverged                   0x00001650   Section        0  mcs_hall.o(i.Hall_MinMaxConverged)
-    Hall_MinMaxConverged                     0x00001651   Thumb Code    96  mcs_hall.o(i.Hall_MinMaxConverged)
-    i.Hall_Normalize                         0x000016bc   Section        0  mcs_hall.o(i.Hall_Normalize)
-    Hall_Normalize                           0x000016bd   Thumb Code     8  mcs_hall.o(i.Hall_Normalize)
-    i.Hall_OffsetConverged                   0x000016c4   Section        0  mcs_hall.o(i.Hall_OffsetConverged)
-    Hall_OffsetConverged                     0x000016c5   Thumb Code   184  mcs_hall.o(i.Hall_OffsetConverged)
-    i.Hall_ProcessAlignment                  0x00001790   Section        0  mcs_hall.o(i.Hall_ProcessAlignment)
-    Hall_ProcessAlignment                    0x00001791   Thumb Code   322  mcs_hall.o(i.Hall_ProcessAlignment)
-    i.Hall_RecordIsValid                     0x000018e0   Section        0  mcs_hall.o(i.Hall_RecordIsValid)
-    Hall_RecordIsValid                       0x000018e1   Thumb Code   112  mcs_hall.o(i.Hall_RecordIsValid)
-    i.Hall_ResetLearning                     0x0000195c   Section        0  mcs_hall.o(i.Hall_ResetLearning)
-    Hall_ResetLearning                       0x0000195d   Thumb Code    62  mcs_hall.o(i.Hall_ResetLearning)
-    i.Hall_ResetOffsetWindow                 0x000019a0   Section        0  mcs_hall.o(i.Hall_ResetOffsetWindow)
-    Hall_ResetOffsetWindow                   0x000019a1   Thumb Code    16  mcs_hall.o(i.Hall_ResetOffsetWindow)
-    i.Hall_ResetStage                        0x000019b4   Section        0  mcs_hall.o(i.Hall_ResetStage)
-    Hall_ResetStage                          0x000019b5   Thumb Code    64  mcs_hall.o(i.Hall_ResetStage)
-    i.Hall_SaveMinMaxCheckpoint              0x00001a00   Section        0  mcs_hall.o(i.Hall_SaveMinMaxCheckpoint)
-    Hall_SaveMinMaxCheckpoint                0x00001a01   Thumb Code    22  mcs_hall.o(i.Hall_SaveMinMaxCheckpoint)
-    i.Hall_UpdateMinMax                      0x00001a20   Section        0  mcs_hall.o(i.Hall_UpdateMinMax)
-    Hall_UpdateMinMax                        0x00001a21   Thumb Code    36  mcs_hall.o(i.Hall_UpdateMinMax)
-    i.Hall_UpdateTravel                      0x00001a48   Section        0  mcs_hall.o(i.Hall_UpdateTravel)
-    Hall_UpdateTravel                        0x00001a49   Thumb Code    82  mcs_hall.o(i.Hall_UpdateTravel)
-    i.HardFault_Handler                      0x00001aa0   Section        0  interrupt.o(i.HardFault_Handler)
-    i.Hardware_init                          0x00001acc   Section        0  hardware_init.o(i.Hardware_init)
-    i.IWDG_Feed                              0x00001b38   Section        0  lks32mc03x_iwdg.o(i.IWDG_Feed)
-    i.IWDG_Init                              0x00001b50   Section        0  lks32mc03x_iwdg.o(i.IWDG_Init)
-    i.InitAdcMotor0                          0x00001b8c   Section        0  hardware_init.o(i.InitAdcMotor0)
-    i.InitBroadGPIO                          0x00001bd0   Section        0  hardware_init.o(i.InitBroadGPIO)
-    i.InitCmpMotor0                          0x00001cbc   Section        0  hardware_init.o(i.InitCmpMotor0)
-    i.InitDacMotor0                          0x00001d08   Section        0  hardware_init.o(i.InitDacMotor0)
-    i.InitEpwmMotor0                         0x00001d28   Section        0  hardware_init.o(i.InitEpwmMotor0)
-    i.InitPgaMotor0                          0x00001dd4   Section        0  hardware_init.o(i.InitPgaMotor0)
-    i.InitWatchDog                           0x00001e04   Section        0  hardware_init.o(i.InitWatchDog)
-    i.MCPWM0_IRQHandler                      0x00001e20   Section        0  interrupt.o(i.MCPWM0_IRQHandler)
-    i.MCPWM_Init                             0x00001e3c   Section        0  lks32mc03x_mcpwm.o(i.MCPWM_Init)
-    i.MCPWM_StructInit                       0x00002060   Section        0  lks32mc03x_mcpwm.o(i.MCPWM_StructInit)
-    i.Mcs_Task_Run                           0x0000206c   Section        0  mcs_task.o(i.Mcs_Task_Run)
-    i.Motor_ControlAbsS32                    0x00002098   Section        0  mcs_control.o(i.Motor_ControlAbsS32)
-    Motor_ControlAbsS32                      0x00002099   Thumb Code     8  mcs_control.o(i.Motor_ControlAbsS32)
-    i.Motor_ControlCurrentExceeded           0x000020a0   Section        0  mcs_control.o(i.Motor_ControlCurrentExceeded)
-    Motor_ControlCurrentExceeded             0x000020a1   Thumb Code    80  mcs_control.o(i.Motor_ControlCurrentExceeded)
-    i.Motor_ControlFaultStop                 0x000020f8   Section        0  mcs_control.o(i.Motor_ControlFaultStop)
-    Motor_ControlFaultStop                   0x000020f9   Thumb Code    42  mcs_control.o(i.Motor_ControlFaultStop)
-    i.Motor_ControlInit                      0x0000212c   Section        0  mcs_control.o(i.Motor_ControlInit)
-    i.Motor_ControlLimitS32                  0x00002170   Section        0  mcs_control.o(i.Motor_ControlLimitS32)
-    Motor_ControlLimitS32                    0x00002171   Thumb Code    16  mcs_control.o(i.Motor_ControlLimitS32)
-    i.Motor_ControlStepTowards               0x00002180   Section        0  mcs_control.o(i.Motor_ControlStepTowards)
-    Motor_ControlStepTowards                 0x00002181   Thumb Code    28  mcs_control.o(i.Motor_ControlStepTowards)
-    i.Motor_ControlTask1ms                   0x0000219c   Section        0  mcs_control.o(i.Motor_ControlTask1ms)
-    i.Motor_CurrentCommandReset              0x0000238c   Section        0  mcs_control.o(i.Motor_CurrentCommandReset)
-    i.Motor_CurrentCommandUpdate             0x000023a4   Section        0  mcs_control.o(i.Motor_CurrentCommandUpdate)
-    i.Motor_CurrentLoopRun                   0x00002404   Section        0  mcs_pwm_foc.o(i.Motor_CurrentLoopRun)
-    i.Motor_FocInit                          0x00002414   Section        0  mcs_pwm_foc.o(i.Motor_FocInit)
-    i.Motor_FocSlowUpdate1ms                 0x00002424   Section        0  mcs_foc_hw.o(i.Motor_FocSlowUpdate1ms)
-    i.Motor_GetSinCosQ15                     0x0000247c   Section        0  mcs_motor.o(i.Motor_GetSinCosQ15)
-    i.Motor_SetCurrentTarget                 0x000024d0   Section        0  mcs_control.o(i.Motor_SetCurrentTarget)
-    i.NVIC_SetPriority                       0x00002534   Section        0  hardware_init.o(i.NVIC_SetPriority)
-    NVIC_SetPriority                         0x00002535   Thumb Code    60  hardware_init.o(i.NVIC_SetPriority)
-    i.ProgramPage                            0x00002578   Section        0  lks32mc03x_flash.o(i.ProgramPage)
-    i.PwmAOutputs                            0x00002670   Section        0  mcs_foc_hw.o(i.PwmAOutputs)
-    i.Read_Flash                             0x000026a0   Section        0  lks32mc03x_flash.o(i.Read_Flash)
-    i.Read_Trim                              0x000026e0   Section        0  lks32mc03x_nvr.o(i.Read_Trim)
-    i.Run_Status_Check                       0x0000273c   Section        0  user_app.o(i.Run_Status_Check)
-    Run_Status_Check                         0x0000273d   Thumb Code    78  user_app.o(i.Run_Status_Check)
-    i.SVM_LimitInt32                         0x0000279c   Section        0  mcs_math.o(i.SVM_LimitInt32)
-    SVM_LimitInt32                           0x0000279d   Thumb Code    18  mcs_math.o(i.SVM_LimitInt32)
-    i.SYS_AnalogModuleClockCmd               0x000027b0   Section        0  lks32mc03x_sys.o(i.SYS_AnalogModuleClockCmd)
-    i.SYS_EnableWatchDog                     0x000027f4   Section        0  lks32mc03x_sys.o(i.SYS_EnableWatchDog)
-    i.SYS_ModuleClockCmd                     0x00002810   Section        0  lks32mc03x_sys.o(i.SYS_ModuleClockCmd)
-    i.SYS_VolSelModule                       0x00002834   Section        0  lks32mc03x_flash.o(i.SYS_VolSelModule)
-    i.StopMotorImmdly                        0x00002882   Section        0  mcs_control.o(i.StopMotorImmdly)
-    i.SystemInit                             0x0000288c   Section        0  hardware_init.o(i.SystemInit)
-    i.Task_Scheduler                         0x00002894   Section        0  main.o(i.Task_Scheduler)
-    i.Task_vTickTimerEvent                   0x00002950   Section        0  manage.o(i.Task_vTickTimerEvent)
-    i.TempSensor_Init                        0x0000296c   Section        0  lks32mc03x_tmp.o(i.TempSensor_Init)
-    i.UARTADD                                0x000029a4   Section        0  user_app.o(i.UARTADD)
-    i.UART_HardWare_Init                     0x000029d4   Section        0  hardware_init.o(i.UART_HardWare_Init)
-    i.UART_IRQHandler                        0x00002a54   Section        0  interrupt.o(i.UART_IRQHandler)
-    i.UART_Init                              0x00002b2c   Section        0  lks32mc03x_uart.o(i.UART_Init)
-    i.UART_ReadData                          0x00002bd0   Section        0  lks32mc03x_uart.o(i.UART_ReadData)
-    i.UART_SendData                          0x00002bd4   Section        0  lks32mc03x_uart.o(i.UART_SendData)
-    i.UART_StructInit                        0x00002bd8   Section        0  lks32mc03x_uart.o(i.UART_StructInit)
-    i.Uartrx_Error_Check                     0x00002bf8   Section        0  user_app.o(i.Uartrx_Error_Check)
-    i.User_App_Task_Run                      0x00002c0c   Section        0  user_app.o(i.User_App_Task_Run)
-    i.User_Task_Always                       0x00002c2c   Section        0  user_app.o(i.User_Task_Always)
-    i.User_Uart_Receive_Check                0x00002c34   Section        0  user_app.o(i.User_Uart_Receive_Check)
-    User_Uart_Receive_Check                  0x00002c35   Thumb Code    58  user_app.o(i.User_Uart_Receive_Check)
-    i.User_app_init                          0x00002c7c   Section        0  manage.o(i.User_app_init)
-    i.__ARM_common_ll_mulss                  0x00002ca8   Section        0  mcs_foc_hw.o(i.__ARM_common_ll_mulss)
-    i.__ARM_common_switch8                   0x00002cd8   Section        0  mcs_direction_test.o(i.__ARM_common_switch8)
-    i.__scatterload_copy                     0x00002cf2   Section       14  handlers.o(i.__scatterload_copy)
-    i.__scatterload_null                     0x00002d00   Section        2  handlers.o(i.__scatterload_null)
-    i.__scatterload_zeroinit                 0x00002d02   Section       14  handlers.o(i.__scatterload_zeroinit)
-    i.control_current                        0x00002d10   Section        0  mcs_pwm_foc.o(i.control_current)
-    control_current                          0x00002d11   Thumb Code   552  mcs_pwm_foc.o(i.control_current)
-    i.delay                                  0x00002f44   Section        0  hardware_init.o(i.delay)
-    i.foc_observer_apply_correction          0x00002f54   Section        0  sensorless_ctrl.o(i.foc_observer_apply_correction)
-    i.foc_observer_pll_run                   0x00002ff0   Section        0  sensorless_ctrl.o(i.foc_observer_pll_run)
-    i.foc_observer_reset                     0x0000305c   Section        0  sensorless_ctrl.o(i.foc_observer_reset)
-    i.foc_observer_update                    0x0000307c   Section        0  sensorless_ctrl.o(i.foc_observer_update)
-    i.foc_observer_update_phase              0x00003110   Section        0  sensorless_ctrl.o(i.foc_observer_update_phase)
-    i.foc_sensorless_reset                   0x00003124   Section        0  sensorless_ctrl.o(i.foc_sensorless_reset)
-    foc_sensorless_reset                     0x00003125   Thumb Code    70  sensorless_ctrl.o(i.foc_sensorless_reset)
-    i.foc_sensorless_update                  0x00003170   Section        0  sensorless_ctrl.o(i.foc_sensorless_update)
-    i.main                                   0x00003324   Section        0  main.o(i.main)
-    i.mc_sys_init                            0x0000333c   Section        0  mcs_init.o(i.mc_sys_init)
-    i.observer_div_1000                      0x00003378   Section        0  sensorless_ctrl.o(i.observer_div_1000)
-    observer_div_1000                        0x00003379   Thumb Code    26  sensorless_ctrl.o(i.observer_div_1000)
-    i.observer_truncate_abs                  0x00003392   Section        0  sensorless_ctrl.o(i.observer_truncate_abs)
-    observer_truncate_abs                    0x00003393   Thumb Code    14  sensorless_ctrl.o(i.observer_truncate_abs)
-    i.utils_abs_s32                          0x000033a0   Section        0  mcs_math.o(i.utils_abs_s32)
-    utils_abs_s32                            0x000033a1   Thumb Code     8  mcs_math.o(i.utils_abs_s32)
-    i.utils_max_abs                          0x000033a8   Section        0  mcs_math.o(i.utils_max_abs)
-    i.utils_truncate_number                  0x000033c6   Section        0  mcs_math.o(i.utils_truncate_number)
-    i.utils_truncate_number_abs              0x000033dc   Section        0  mcs_math.o(i.utils_truncate_number_abs)
-    .constdata                               0x000033fe   Section      512  mcs_motor.o(.constdata)
-    s_sinCosTable                            0x000033fe   Data         512  mcs_motor.o(.constdata)
-    .constdata                               0x000035fe   Section       30  sensorless_ctrl.o(.constdata)
-    observer_atan_table                      0x000035fe   Data          30  sensorless_ctrl.o(.constdata)
+    .text                                    0x000001a0   Section        0  llmul.o(.text)
+    .text                                    0x0000021a   Section        0  memseta.o(.text)
+    .text                                    0x0000023e   Section        0  uldiv.o(.text)
+    .text                                    0x0000029e   Section        0  llshl.o(.text)
+    .text                                    0x000002c0   Section       36  init.o(.text)
+    .text                                    0x000002e4   Section        0  llushr.o(.text)
+    .text                                    0x00000306   Section        0  __dczerorl.o(.text)
+    i.ADC_IRQHandler                         0x00000340   Section        0  interrupt.o(i.ADC_IRQHandler)
+    i.AdcEocHandler                          0x000003c8   Section        0  mcs_foc_hw.o(i.AdcEocHandler)
+    i.AdcSampleCal                           0x00000418   Section        0  mcs_foc_hw.o(i.AdcSampleCal)
+    i.AnalyseUART0                           0x00000510   Section        0  user_app.o(i.AnalyseUART0)
+    AnalyseUART0                             0x00000511   Thumb Code   172  user_app.o(i.AnalyseUART0)
+    i.CMP_IRQHandler                         0x000005e8   Section        0  interrupt.o(i.CMP_IRQHandler)
+    i.CMP_Init                               0x00000628   Section        0  lks32mc03x_cmp.o(i.CMP_Init)
+    i.CMP_StructInit                         0x000006fc   Section        0  lks32mc03x_cmp.o(i.CMP_StructInit)
+    i.Clock_Init                             0x0000073c   Section        0  hardware_init.o(i.Clock_Init)
+    i.ConfigAdcModeMotor0                    0x0000078c   Section        0  mcs_init.o(i.ConfigAdcModeMotor0)
+    i.CurrentOffsetCalibration               0x000007a4   Section        0  mcs_init.o(i.CurrentOffsetCalibration)
+    i.DAC_Init                               0x0000084c   Section        0  lks32mc03x_dac.o(i.DAC_Init)
+    i.DAC_OutputVoltage                      0x000008d0   Section        0  lks32mc03x_dac.o(i.DAC_OutputVoltage)
+    i.DAC_StructInit                         0x00000928   Section        0  lks32mc03x_dac.o(i.DAC_StructInit)
+    i.EraseSector                            0x00000934   Section        0  lks32mc03x_flash.o(i.EraseSector)
+    i.FOC_SVM_Q15                            0x000009c0   Section        0  mcs_math.o(i.FOC_SVM_Q15)
+    i.FeedDogcmd                             0x00000b28   Section        0  interrupt.o(i.FeedDogcmd)
+    i.FocHw_AdcToCurrentMa                   0x00000b48   Section        0  mcs_foc_hw.o(i.FocHw_AdcToCurrentMa)
+    FocHw_AdcToCurrentMa                     0x00000b49   Thumb Code    14  mcs_foc_hw.o(i.FocHw_AdcToCurrentMa)
+    i.FocHw_ModToVoltageMv                   0x00000b5c   Section        0  mcs_foc_hw.o(i.FocHw_ModToVoltageMv)
+    i.FocHw_PhaseDifference                  0x00000b74   Section        0  mcs_foc_hw.o(i.FocHw_PhaseDifference)
+    i.FocHw_SatS16                           0x00000b7c   Section        0  mcs_foc_hw.o(i.FocHw_SatS16)
+    i.Foc_AbsS32                             0x00000b94   Section        0  mcs_pwm_foc.o(i.Foc_AbsS32)
+    Foc_AbsS32                               0x00000b95   Thumb Code    20  mcs_pwm_foc.o(i.Foc_AbsS32)
+    i.Foc_Atan2Q16                           0x00000ba8   Section        0  sensorless_ctrl.o(i.Foc_Atan2Q16)
+    i.Foc_InitMotorStruct                    0x00000bfc   Section        0  mcs_pwm_foc.o(i.Foc_InitMotorStruct)
+    Foc_InitMotorStruct                      0x00000bfd   Thumb Code    80  mcs_pwm_foc.o(i.Foc_InitMotorStruct)
+    i.Foc_IntegrateCurrentError              0x00000c58   Section        0  mcs_pwm_foc.o(i.Foc_IntegrateCurrentError)
+    Foc_IntegrateCurrentError                0x00000c59   Thumb Code    20  mcs_pwm_foc.o(i.Foc_IntegrateCurrentError)
+    i.Foc_LimitS32                           0x00000c6c   Section        0  mcs_pwm_foc.o(i.Foc_LimitS32)
+    Foc_LimitS32                             0x00000c6d   Thumb Code    16  mcs_pwm_foc.o(i.Foc_LimitS32)
+    i.Foc_SatS16                             0x00000c7c   Section        0  mcs_pwm_foc.o(i.Foc_SatS16)
+    Foc_SatS16                               0x00000c7d   Thumb Code    20  mcs_pwm_foc.o(i.Foc_SatS16)
+    i.Foc_WriteSvmPwm                        0x00000c94   Section        0  mcs_pwm_foc.o(i.Foc_WriteSvmPwm)
+    Foc_WriteSvmPwm                          0x00000c95   Thumb Code    44  mcs_pwm_foc.o(i.Foc_WriteSvmPwm)
+    i.GPIO_Init                              0x00000cc8   Section        0  lks32mc03x_gpio.o(i.GPIO_Init)
+    i.GPIO_PinAFConfig                       0x00000d3c   Section        0  lks32mc03x_gpio.o(i.GPIO_PinAFConfig)
+    i.GPIO_StructInit                        0x00000e10   Section        0  lks32mc03x_gpio.o(i.GPIO_StructInit)
+    i.GetRchTrimVal                          0x00000e1c   Section        0  lks32mc03x_flash.o(i.GetRchTrimVal)
+    i.Hall_AbsS32                            0x00000e58   Section        0  mcs_hall.o(i.Hall_AbsS32)
+    Hall_AbsS32                              0x00000e59   Thumb Code     8  mcs_hall.o(i.Hall_AbsS32)
+    i.Hall_AccumulateOffset                  0x00000e60   Section        0  mcs_hall.o(i.Hall_AccumulateOffset)
+    Hall_AccumulateOffset                    0x00000e61   Thumb Code   130  mcs_hall.o(i.Hall_AccumulateOffset)
+    i.Hall_ApproxVectorMagnitude             0x00000ee8   Section        0  mcs_hall.o(i.Hall_ApproxVectorMagnitude)
+    Hall_ApproxVectorMagnitude               0x00000ee9   Thumb Code    38  mcs_hall.o(i.Hall_ApproxVectorMagnitude)
+    i.Hall_CalculateGain                     0x00000f10   Section        0  mcs_hall.o(i.Hall_CalculateGain)
+    Hall_CalculateGain                       0x00000f11   Thumb Code    30  mcs_hall.o(i.Hall_CalculateGain)
+    i.Hall_CalculateOrthogonal               0x00000f34   Section        0  mcs_hall.o(i.Hall_CalculateOrthogonal)
+    Hall_CalculateOrthogonal                 0x00000f35   Thumb Code    66  mcs_hall.o(i.Hall_CalculateOrthogonal)
+    i.Hall_CalibrationIsValid                0x00000f7c   Section        0  mcs_hall.o(i.Hall_CalibrationIsValid)
+    i.Hall_CaptureSample                     0x00000f8c   Section        0  mcs_hall.o(i.Hall_CaptureSample)
+    i.Hall_ClearBytes                        0x00000f9c   Section        0  mcs_hall.o(i.Hall_ClearBytes)
+    Hall_ClearBytes                          0x00000f9d   Thumb Code    16  mcs_hall.o(i.Hall_ClearBytes)
+    i.Hall_ClearCalibration                  0x00000fac   Section        0  mcs_hall.o(i.Hall_ClearCalibration)
+    Hall_ClearCalibration                    0x00000fad   Thumb Code    34  mcs_hall.o(i.Hall_ClearCalibration)
+    i.Hall_CompleteOrthogonalStage           0x00000fd4   Section        0  mcs_hall.o(i.Hall_CompleteOrthogonalStage)
+    Hall_CompleteOrthogonalStage             0x00000fd5   Thumb Code   114  mcs_hall.o(i.Hall_CompleteOrthogonalStage)
+    i.Hall_CompleteRawStage                  0x0000104c   Section        0  mcs_hall.o(i.Hall_CompleteRawStage)
+    Hall_CompleteRawStage                    0x0000104d   Thumb Code   114  mcs_hall.o(i.Hall_CompleteRawStage)
+    i.Hall_CopyCalibrationToRecord           0x000010c4   Section        0  mcs_hall.o(i.Hall_CopyCalibrationToRecord)
+    Hall_CopyCalibrationToRecord             0x000010c5   Thumb Code    98  mcs_hall.o(i.Hall_CopyCalibrationToRecord)
+    i.Hall_CopyRecordToCalibration           0x00001134   Section        0  mcs_hall.o(i.Hall_CopyRecordToCalibration)
+    Hall_CopyRecordToCalibration             0x00001135   Thumb Code    64  mcs_hall.o(i.Hall_CopyRecordToCalibration)
+    i.Hall_Crc32                             0x0000117c   Section        0  mcs_hall.o(i.Hall_Crc32)
+    Hall_Crc32                               0x0000117d   Thumb Code    48  mcs_hall.o(i.Hall_Crc32)
+    i.Hall_Fail                              0x000011b0   Section        0  mcs_hall.o(i.Hall_Fail)
+    Hall_Fail                                0x000011b1   Thumb Code    18  mcs_hall.o(i.Hall_Fail)
+    i.Hall_FastUpdate                        0x000011cc   Section        0  mcs_hall.o(i.Hall_FastUpdate)
+    i.Hall_GetOffsetCandidate                0x000012e8   Section        0  mcs_hall.o(i.Hall_GetOffsetCandidate)
+    Hall_GetOffsetCandidate                  0x000012e9   Thumb Code   110  mcs_hall.o(i.Hall_GetOffsetCandidate)
+    i.Hall_LearnGetDriveMode                 0x00001360   Section        0  mcs_hall.o(i.Hall_LearnGetDriveMode)
+    i.Hall_LearnInit                         0x0000138c   Section        0  mcs_hall.o(i.Hall_LearnInit)
+    i.Hall_LearnTask1ms                      0x00001410   Section        0  mcs_hall.o(i.Hall_LearnTask1ms)
+    i.Hall_MechanicalToElectrical            0x0000166c   Section        0  mcs_hall.o(i.Hall_MechanicalToElectrical)
+    Hall_MechanicalToElectrical              0x0000166d   Thumb Code    14  mcs_hall.o(i.Hall_MechanicalToElectrical)
+    i.Hall_MinMaxChangedWithin               0x0000167c   Section        0  mcs_hall.o(i.Hall_MinMaxChangedWithin)
+    Hall_MinMaxChangedWithin                 0x0000167d   Thumb Code    74  mcs_hall.o(i.Hall_MinMaxChangedWithin)
+    i.Hall_MinMaxConverged                   0x000016cc   Section        0  mcs_hall.o(i.Hall_MinMaxConverged)
+    Hall_MinMaxConverged                     0x000016cd   Thumb Code    96  mcs_hall.o(i.Hall_MinMaxConverged)
+    i.Hall_Normalize                         0x00001738   Section        0  mcs_hall.o(i.Hall_Normalize)
+    Hall_Normalize                           0x00001739   Thumb Code     8  mcs_hall.o(i.Hall_Normalize)
+    i.Hall_OffsetConverged                   0x00001740   Section        0  mcs_hall.o(i.Hall_OffsetConverged)
+    Hall_OffsetConverged                     0x00001741   Thumb Code   184  mcs_hall.o(i.Hall_OffsetConverged)
+    i.Hall_ProcessAlignment                  0x0000180c   Section        0  mcs_hall.o(i.Hall_ProcessAlignment)
+    Hall_ProcessAlignment                    0x0000180d   Thumb Code   322  mcs_hall.o(i.Hall_ProcessAlignment)
+    i.Hall_RecordIsValid                     0x0000195c   Section        0  mcs_hall.o(i.Hall_RecordIsValid)
+    Hall_RecordIsValid                       0x0000195d   Thumb Code   112  mcs_hall.o(i.Hall_RecordIsValid)
+    i.Hall_ResetLearning                     0x000019d8   Section        0  mcs_hall.o(i.Hall_ResetLearning)
+    Hall_ResetLearning                       0x000019d9   Thumb Code    62  mcs_hall.o(i.Hall_ResetLearning)
+    i.Hall_ResetOffsetWindow                 0x00001a1c   Section        0  mcs_hall.o(i.Hall_ResetOffsetWindow)
+    Hall_ResetOffsetWindow                   0x00001a1d   Thumb Code    16  mcs_hall.o(i.Hall_ResetOffsetWindow)
+    i.Hall_ResetStage                        0x00001a30   Section        0  mcs_hall.o(i.Hall_ResetStage)
+    Hall_ResetStage                          0x00001a31   Thumb Code    64  mcs_hall.o(i.Hall_ResetStage)
+    i.Hall_SaveMinMaxCheckpoint              0x00001a7c   Section        0  mcs_hall.o(i.Hall_SaveMinMaxCheckpoint)
+    Hall_SaveMinMaxCheckpoint                0x00001a7d   Thumb Code    22  mcs_hall.o(i.Hall_SaveMinMaxCheckpoint)
+    i.Hall_UpdateMinMax                      0x00001a9c   Section        0  mcs_hall.o(i.Hall_UpdateMinMax)
+    Hall_UpdateMinMax                        0x00001a9d   Thumb Code    36  mcs_hall.o(i.Hall_UpdateMinMax)
+    i.Hall_UpdateTravel                      0x00001ac4   Section        0  mcs_hall.o(i.Hall_UpdateTravel)
+    Hall_UpdateTravel                        0x00001ac5   Thumb Code    82  mcs_hall.o(i.Hall_UpdateTravel)
+    i.HardFault_Handler                      0x00001b1c   Section        0  interrupt.o(i.HardFault_Handler)
+    i.Hardware_init                          0x00001b48   Section        0  hardware_init.o(i.Hardware_init)
+    i.IWDG_Feed                              0x00001bb4   Section        0  lks32mc03x_iwdg.o(i.IWDG_Feed)
+    i.IWDG_Init                              0x00001bcc   Section        0  lks32mc03x_iwdg.o(i.IWDG_Init)
+    i.InitAdcMotor0                          0x00001c08   Section        0  hardware_init.o(i.InitAdcMotor0)
+    i.InitBroadGPIO                          0x00001c4c   Section        0  hardware_init.o(i.InitBroadGPIO)
+    i.InitCmpMotor0                          0x00001d38   Section        0  hardware_init.o(i.InitCmpMotor0)
+    i.InitDacMotor0                          0x00001d84   Section        0  hardware_init.o(i.InitDacMotor0)
+    i.InitEpwmMotor0                         0x00001da4   Section        0  hardware_init.o(i.InitEpwmMotor0)
+    i.InitPgaMotor0                          0x00001e50   Section        0  hardware_init.o(i.InitPgaMotor0)
+    i.InitWatchDog                           0x00001e80   Section        0  hardware_init.o(i.InitWatchDog)
+    i.MCPWM0_IRQHandler                      0x00001e9c   Section        0  interrupt.o(i.MCPWM0_IRQHandler)
+    i.MCPWM_Init                             0x00001eb8   Section        0  lks32mc03x_mcpwm.o(i.MCPWM_Init)
+    i.MCPWM_StructInit                       0x000020dc   Section        0  lks32mc03x_mcpwm.o(i.MCPWM_StructInit)
+    i.Mcs_Task_Run                           0x000020e8   Section        0  mcs_task.o(i.Mcs_Task_Run)
+    i.Motor_ControlAbsS32                    0x0000211c   Section        0  mcs_control.o(i.Motor_ControlAbsS32)
+    Motor_ControlAbsS32                      0x0000211d   Thumb Code     8  mcs_control.o(i.Motor_ControlAbsS32)
+    i.Motor_ControlCurrentExceeded           0x00002124   Section        0  mcs_control.o(i.Motor_ControlCurrentExceeded)
+    Motor_ControlCurrentExceeded             0x00002125   Thumb Code    80  mcs_control.o(i.Motor_ControlCurrentExceeded)
+    i.Motor_ControlFaultStop                 0x0000217c   Section        0  mcs_control.o(i.Motor_ControlFaultStop)
+    Motor_ControlFaultStop                   0x0000217d   Thumb Code    48  mcs_control.o(i.Motor_ControlFaultStop)
+    i.Motor_ControlInit                      0x000021b4   Section        0  mcs_control.o(i.Motor_ControlInit)
+    i.Motor_ControlLimitS32                  0x00002200   Section        0  mcs_control.o(i.Motor_ControlLimitS32)
+    Motor_ControlLimitS32                    0x00002201   Thumb Code    16  mcs_control.o(i.Motor_ControlLimitS32)
+    i.Motor_ControlStepTowards               0x00002210   Section        0  mcs_control.o(i.Motor_ControlStepTowards)
+    Motor_ControlStepTowards                 0x00002211   Thumb Code    28  mcs_control.o(i.Motor_ControlStepTowards)
+    i.Motor_ControlTask1ms                   0x0000222c   Section        0  mcs_control.o(i.Motor_ControlTask1ms)
+    i.Motor_CurrentCommandReset              0x00002444   Section        0  mcs_control.o(i.Motor_CurrentCommandReset)
+    i.Motor_CurrentCommandUpdate             0x0000245c   Section        0  mcs_control.o(i.Motor_CurrentCommandUpdate)
+    i.Motor_CurrentLoopRun                   0x000024fc   Section        0  mcs_pwm_foc.o(i.Motor_CurrentLoopRun)
+    i.Motor_FocInit                          0x0000250c   Section        0  mcs_pwm_foc.o(i.Motor_FocInit)
+    i.Motor_FocSlowUpdate1ms                 0x0000251c   Section        0  mcs_foc_hw.o(i.Motor_FocSlowUpdate1ms)
+    i.Motor_GetSinCosQ15                     0x00002574   Section        0  mcs_motor.o(i.Motor_GetSinCosQ15)
+    i.Motor_SetCurrentTarget                 0x000025c8   Section        0  mcs_control.o(i.Motor_SetCurrentTarget)
+    i.Motor_SpeedControlReset                0x0000262c   Section        0  mcs_control.o(i.Motor_SpeedControlReset)
+    Motor_SpeedControlReset                  0x0000262d   Thumb Code    28  mcs_control.o(i.Motor_SpeedControlReset)
+    i.Motor_SpeedControlUpdate1ms            0x0000264c   Section        0  mcs_control.o(i.Motor_SpeedControlUpdate1ms)
+    i.Motor_SpeedGetIqLimit                  0x0000288c   Section        0  mcs_control.o(i.Motor_SpeedGetIqLimit)
+    Motor_SpeedGetIqLimit                    0x0000288d   Thumb Code    80  mcs_control.o(i.Motor_SpeedGetIqLimit)
+    i.Motor_SpeedRampUpdate                  0x000028e4   Section        0  mcs_control.o(i.Motor_SpeedRampUpdate)
+    Motor_SpeedRampUpdate                    0x000028e5   Thumb Code    74  mcs_control.o(i.Motor_SpeedRampUpdate)
+    i.NVIC_SetPriority                       0x00002938   Section        0  hardware_init.o(i.NVIC_SetPriority)
+    NVIC_SetPriority                         0x00002939   Thumb Code    60  hardware_init.o(i.NVIC_SetPriority)
+    i.ProgramPage                            0x0000297c   Section        0  lks32mc03x_flash.o(i.ProgramPage)
+    i.PwmAOutputs                            0x00002a74   Section        0  mcs_foc_hw.o(i.PwmAOutputs)
+    i.Read_Flash                             0x00002aa4   Section        0  lks32mc03x_flash.o(i.Read_Flash)
+    i.Read_Trim                              0x00002ae4   Section        0  lks32mc03x_nvr.o(i.Read_Trim)
+    i.Run_Status_Check                       0x00002b40   Section        0  user_app.o(i.Run_Status_Check)
+    Run_Status_Check                         0x00002b41   Thumb Code    78  user_app.o(i.Run_Status_Check)
+    i.SVM_LimitInt32                         0x00002ba0   Section        0  mcs_math.o(i.SVM_LimitInt32)
+    SVM_LimitInt32                           0x00002ba1   Thumb Code    18  mcs_math.o(i.SVM_LimitInt32)
+    i.SYS_AnalogModuleClockCmd               0x00002bb4   Section        0  lks32mc03x_sys.o(i.SYS_AnalogModuleClockCmd)
+    i.SYS_EnableWatchDog                     0x00002bf8   Section        0  lks32mc03x_sys.o(i.SYS_EnableWatchDog)
+    i.SYS_ModuleClockCmd                     0x00002c14   Section        0  lks32mc03x_sys.o(i.SYS_ModuleClockCmd)
+    i.SYS_VolSelModule                       0x00002c38   Section        0  lks32mc03x_flash.o(i.SYS_VolSelModule)
+    i.StopMotorImmdly                        0x00002c86   Section        0  mcs_control.o(i.StopMotorImmdly)
+    i.SystemInit                             0x00002c90   Section        0  hardware_init.o(i.SystemInit)
+    i.Task_Scheduler                         0x00002c98   Section        0  main.o(i.Task_Scheduler)
+    i.Task_vTickTimerEvent                   0x00002d54   Section        0  manage.o(i.Task_vTickTimerEvent)
+    i.TempSensor_Init                        0x00002d70   Section        0  lks32mc03x_tmp.o(i.TempSensor_Init)
+    i.UARTADD                                0x00002da8   Section        0  user_app.o(i.UARTADD)
+    i.UART_HardWare_Init                     0x00002dd8   Section        0  hardware_init.o(i.UART_HardWare_Init)
+    i.UART_IRQHandler                        0x00002e58   Section        0  interrupt.o(i.UART_IRQHandler)
+    i.UART_Init                              0x00002f30   Section        0  lks32mc03x_uart.o(i.UART_Init)
+    i.UART_ReadData                          0x00002fd4   Section        0  lks32mc03x_uart.o(i.UART_ReadData)
+    i.UART_SendData                          0x00002fd8   Section        0  lks32mc03x_uart.o(i.UART_SendData)
+    i.UART_StructInit                        0x00002fdc   Section        0  lks32mc03x_uart.o(i.UART_StructInit)
+    i.Uartrx_Error_Check                     0x00002ffc   Section        0  user_app.o(i.Uartrx_Error_Check)
+    i.User_App_Task_Run                      0x00003010   Section        0  user_app.o(i.User_App_Task_Run)
+    i.User_Task_Always                       0x00003030   Section        0  user_app.o(i.User_Task_Always)
+    i.User_Uart_Receive_Check                0x00003038   Section        0  user_app.o(i.User_Uart_Receive_Check)
+    User_Uart_Receive_Check                  0x00003039   Thumb Code    58  user_app.o(i.User_Uart_Receive_Check)
+    i.User_app_init                          0x00003080   Section        0  manage.o(i.User_app_init)
+    i.__ARM_common_ll_mulss                  0x000030ac   Section        0  mcs_control.o(i.__ARM_common_ll_mulss)
+    i.__ARM_common_switch8                   0x000030dc   Section        0  mcs_direction_test.o(i.__ARM_common_switch8)
+    i.__scatterload_copy                     0x000030f6   Section       14  handlers.o(i.__scatterload_copy)
+    i.__scatterload_null                     0x00003104   Section        2  handlers.o(i.__scatterload_null)
+    i.__scatterload_zeroinit                 0x00003106   Section       14  handlers.o(i.__scatterload_zeroinit)
+    i.control_current                        0x00003114   Section        0  mcs_pwm_foc.o(i.control_current)
+    control_current                          0x00003115   Thumb Code   552  mcs_pwm_foc.o(i.control_current)
+    i.delay                                  0x00003348   Section        0  hardware_init.o(i.delay)
+    i.foc_observer_apply_correction          0x00003358   Section        0  sensorless_ctrl.o(i.foc_observer_apply_correction)
+    i.foc_observer_pll_run                   0x000033f4   Section        0  sensorless_ctrl.o(i.foc_observer_pll_run)
+    i.foc_observer_reset                     0x00003460   Section        0  sensorless_ctrl.o(i.foc_observer_reset)
+    i.foc_observer_update                    0x00003480   Section        0  sensorless_ctrl.o(i.foc_observer_update)
+    i.foc_observer_update_phase              0x00003514   Section        0  sensorless_ctrl.o(i.foc_observer_update_phase)
+    i.foc_sensorless_reset                   0x00003528   Section        0  sensorless_ctrl.o(i.foc_sensorless_reset)
+    foc_sensorless_reset                     0x00003529   Thumb Code    70  sensorless_ctrl.o(i.foc_sensorless_reset)
+    i.foc_sensorless_update                  0x00003574   Section        0  sensorless_ctrl.o(i.foc_sensorless_update)
+    i.main                                   0x00003728   Section        0  main.o(i.main)
+    i.mc_sys_init                            0x00003740   Section        0  mcs_init.o(i.mc_sys_init)
+    i.observer_div_1000                      0x0000377c   Section        0  sensorless_ctrl.o(i.observer_div_1000)
+    observer_div_1000                        0x0000377d   Thumb Code    26  sensorless_ctrl.o(i.observer_div_1000)
+    i.observer_truncate_abs                  0x00003796   Section        0  sensorless_ctrl.o(i.observer_truncate_abs)
+    observer_truncate_abs                    0x00003797   Thumb Code    14  sensorless_ctrl.o(i.observer_truncate_abs)
+    i.utils_abs_s32                          0x000037a4   Section        0  mcs_math.o(i.utils_abs_s32)
+    utils_abs_s32                            0x000037a5   Thumb Code     8  mcs_math.o(i.utils_abs_s32)
+    i.utils_max_abs                          0x000037ac   Section        0  mcs_math.o(i.utils_max_abs)
+    i.utils_truncate_number                  0x000037ca   Section        0  mcs_math.o(i.utils_truncate_number)
+    i.utils_truncate_number_abs              0x000037e0   Section        0  mcs_math.o(i.utils_truncate_number_abs)
+    .constdata                               0x00003802   Section      512  mcs_motor.o(.constdata)
+    s_sinCosTable                            0x00003802   Data         512  mcs_motor.o(.constdata)
+    .constdata                               0x00003a02   Section       30  sensorless_ctrl.o(.constdata)
+    observer_atan_table                      0x00003a02   Data          30  sensorless_ctrl.o(.constdata)
     .data                                    0x20000000   Section        8  main.o(.data)
     s_pwmTicksTo1ms                          0x20000000   Data           2  main.o(.data)
     s_msTo10ms                               0x20000002   Data           2  main.o(.data)
@@ -936,57 +970,60 @@ Image Symbol Table
     .data                                    0x2000001c   Section       20  manage.o(.data)
     .data                                    0x20000030   Section        4  user_app.o(.data)
     .data                                    0x20000034   Section        4  mcs_init.o(.data)
-    .data                                    0x20000038   Section       18  mcs_control.o(.data)
-    s_motorPwmArmed                          0x2000003d   Data           1  mcs_control.o(.data)
-    s_motorStartElapsedMs                    0x20000044   Data           2  mcs_control.o(.data)
-    s_motorCurrentOverMs                     0x20000046   Data           2  mcs_control.o(.data)
-    s_shortFaultCountAtArm                   0x20000048   Data           2  mcs_control.o(.data)
-    .data                                    0x2000004c   Section       18  mcs_foc_hw.o(.data)
-    s_busAdcLatest                           0x20000052   Data           2  mcs_foc_hw.o(.data)
-    .data                                    0x20000060   Section      104  mcs_hall.o(.data)
-    s_hallReferencePhaseValid                0x20000065   Data           1  mcs_hall.o(.data)
-    s_hallLearnDirection                     0x20000066   Data           1  mcs_hall.o(.data)
-    s_hallMinMaxCheckpointValid              0x20000067   Data           1  mcs_hall.o(.data)
-    s_hallOffsetInvertedLast                 0x20000068   Data           1  mcs_hall.o(.data)
-    s_hallOffsetCandidateValid               0x20000069   Data           1  mcs_hall.o(.data)
-    s_hallAlignPhaseValid                    0x2000006a   Data           1  mcs_hall.o(.data)
-    s_hallRuntimeCounter                     0x2000006b   Data           1  mcs_hall.o(.data)
-    s_hallRuntimeActive                      0x2000006c   Data           1  mcs_hall.o(.data)
-    text_check                               0x2000006d   Data           1  mcs_hall.o(.data)
-    s_hallSampleA                            0x2000008c   Data           2  mcs_hall.o(.data)
-    s_hallSampleB                            0x2000008e   Data           2  mcs_hall.o(.data)
-    s_hallReferencePhase                     0x20000090   Data           2  mcs_hall.o(.data)
-    s_hallReferencePhaseLast                 0x20000092   Data           2  mcs_hall.o(.data)
-    s_hallConvergenceTurnLast                0x20000094   Data           2  mcs_hall.o(.data)
-    s_hallOffsetCandidateLast                0x20000096   Data           2  mcs_hall.o(.data)
-    s_hallAlignPhaseLast                     0x20000098   Data           2  mcs_hall.o(.data)
-    s_hallAlignPhaseAnchor                   0x2000009a   Data           2  mcs_hall.o(.data)
-    s_hallElectricalTravel                   0x200000a8   Data           4  mcs_hall.o(.data)
-    s_hallOffsetSinPositive                  0x200000ac   Data           4  mcs_hall.o(.data)
-    s_hallOffsetCosPositive                  0x200000b0   Data           4  mcs_hall.o(.data)
-    s_hallOffsetSinNegative                  0x200000b4   Data           4  mcs_hall.o(.data)
-    s_hallOffsetCosNegative                  0x200000b8   Data           4  mcs_hall.o(.data)
-    s_hallOffsetSamples                      0x200000bc   Data           4  mcs_hall.o(.data)
-    s_hallAlignOffsetSin                     0x200000c0   Data           4  mcs_hall.o(.data)
-    s_hallAlignOffsetCos                     0x200000c4   Data           4  mcs_hall.o(.data)
-    .data                                    0x200000c8   Section        2  mcs_hall.o(.data)
-    .data                                    0x200000cc   Section       32  sensorless_ctrl.o(.data)
-    s_observerFluxSamples                    0x200000cc   Data           1  sensorless_ctrl.o(.data)
-    s_observerPostFluxSlot                   0x200000cd   Data           1  sensorless_ctrl.o(.data)
-    s_observerModAlphaSum                    0x200000dc   Data           4  sensorless_ctrl.o(.data)
-    s_observerModBetaSum                     0x200000e0   Data           4  sensorless_ctrl.o(.data)
-    s_observerIAlphaSum                      0x200000e4   Data           4  sensorless_ctrl.o(.data)
-    s_observerIBetaSum                       0x200000e8   Data           4  sensorless_ctrl.o(.data)
-    .data                                    0x200000ec   Section       60  mcs_pwm_foc.o(.data)
-    m_motor_conf                             0x200000ec   Data          60  mcs_pwm_foc.o(.data)
-    .data                                    0x20000128   Section        6  lks32mc03x_dac.o(.data)
-    .data                                    0x2000012e   Section        4  lks32mc03x_tmp.o(.data)
-    .bss                                     0x20000134   Section       26  manage.o(.bss)
-    .bss                                     0x20000150   Section       68  mcs_hall.o(.bss)
-    s_hallMinMax                             0x20000174   Data          16  mcs_hall.o(.bss)
-    s_hallMinMaxCheckpoint                   0x20000184   Data          16  mcs_hall.o(.bss)
-    .bss                                     0x20000194   Section      208  mcs_pwm_foc.o(.bss)
-    STACK                                    0x20000268   Section     1024  startup_lks32mc03x.o(STACK)
+    .data                                    0x20000038   Section       60  mcs_control.o(.data)
+    s_motorPwmArmed                          0x2000003f   Data           1  mcs_control.o(.data)
+    s_motorStartElapsedMs                    0x20000060   Data           2  mcs_control.o(.data)
+    s_motorCurrentOverMs                     0x20000062   Data           2  mcs_control.o(.data)
+    s_shortFaultCountAtArm                   0x20000064   Data           2  mcs_control.o(.data)
+    s_motorSpeedStableMs                     0x20000066   Data           2  mcs_control.o(.data)
+    s_motorSpeedRampRemainder                0x20000068   Data           2  mcs_control.o(.data)
+    s_motorSpeedFeedbackQ8                   0x2000006c   Data           4  mcs_control.o(.data)
+    s_motorSpeedITermQ10                     0x20000070   Data           4  mcs_control.o(.data)
+    .data                                    0x20000074   Section       18  mcs_foc_hw.o(.data)
+    s_busAdcLatest                           0x2000007a   Data           2  mcs_foc_hw.o(.data)
+    .data                                    0x20000088   Section      104  mcs_hall.o(.data)
+    s_hallReferencePhaseValid                0x2000008d   Data           1  mcs_hall.o(.data)
+    s_hallLearnDirection                     0x2000008e   Data           1  mcs_hall.o(.data)
+    s_hallMinMaxCheckpointValid              0x2000008f   Data           1  mcs_hall.o(.data)
+    s_hallOffsetInvertedLast                 0x20000090   Data           1  mcs_hall.o(.data)
+    s_hallOffsetCandidateValid               0x20000091   Data           1  mcs_hall.o(.data)
+    s_hallAlignPhaseValid                    0x20000092   Data           1  mcs_hall.o(.data)
+    s_hallRuntimeCounter                     0x20000093   Data           1  mcs_hall.o(.data)
+    s_hallRuntimeActive                      0x20000094   Data           1  mcs_hall.o(.data)
+    s_hallSampleA                            0x200000b4   Data           2  mcs_hall.o(.data)
+    s_hallSampleB                            0x200000b6   Data           2  mcs_hall.o(.data)
+    s_hallReferencePhase                     0x200000b8   Data           2  mcs_hall.o(.data)
+    s_hallReferencePhaseLast                 0x200000ba   Data           2  mcs_hall.o(.data)
+    s_hallConvergenceTurnLast                0x200000bc   Data           2  mcs_hall.o(.data)
+    s_hallOffsetCandidateLast                0x200000be   Data           2  mcs_hall.o(.data)
+    s_hallAlignPhaseLast                     0x200000c0   Data           2  mcs_hall.o(.data)
+    s_hallAlignPhaseAnchor                   0x200000c2   Data           2  mcs_hall.o(.data)
+    s_hallElectricalTravel                   0x200000d0   Data           4  mcs_hall.o(.data)
+    s_hallOffsetSinPositive                  0x200000d4   Data           4  mcs_hall.o(.data)
+    s_hallOffsetCosPositive                  0x200000d8   Data           4  mcs_hall.o(.data)
+    s_hallOffsetSinNegative                  0x200000dc   Data           4  mcs_hall.o(.data)
+    s_hallOffsetCosNegative                  0x200000e0   Data           4  mcs_hall.o(.data)
+    s_hallOffsetSamples                      0x200000e4   Data           4  mcs_hall.o(.data)
+    s_hallAlignOffsetSin                     0x200000e8   Data           4  mcs_hall.o(.data)
+    s_hallAlignOffsetCos                     0x200000ec   Data           4  mcs_hall.o(.data)
+    .data                                    0x200000f0   Section        2  mcs_hall.o(.data)
+    .data                                    0x200000f4   Section       32  sensorless_ctrl.o(.data)
+    s_observerFluxSamples                    0x200000f4   Data           1  sensorless_ctrl.o(.data)
+    s_observerPostFluxSlot                   0x200000f5   Data           1  sensorless_ctrl.o(.data)
+    s_observerModAlphaSum                    0x20000104   Data           4  sensorless_ctrl.o(.data)
+    s_observerModBetaSum                     0x20000108   Data           4  sensorless_ctrl.o(.data)
+    s_observerIAlphaSum                      0x2000010c   Data           4  sensorless_ctrl.o(.data)
+    s_observerIBetaSum                       0x20000110   Data           4  sensorless_ctrl.o(.data)
+    .data                                    0x20000114   Section       60  mcs_pwm_foc.o(.data)
+    m_motor_conf                             0x20000114   Data          60  mcs_pwm_foc.o(.data)
+    .data                                    0x20000150   Section        6  lks32mc03x_dac.o(.data)
+    .data                                    0x20000156   Section        4  lks32mc03x_tmp.o(.data)
+    .bss                                     0x2000015c   Section       26  manage.o(.bss)
+    .bss                                     0x20000178   Section       68  mcs_hall.o(.bss)
+    s_hallMinMax                             0x2000019c   Data          16  mcs_hall.o(.bss)
+    s_hallMinMaxCheckpoint                   0x200001ac   Data          16  mcs_hall.o(.bss)
+    .bss                                     0x200001bc   Section      208  mcs_pwm_foc.o(.bss)
+    STACK                                    0x20000290   Section     1024  startup_lks32mc03x.o(STACK)
 
     Global Symbols
 
@@ -1032,118 +1069,121 @@ Image Symbol Table
     __aeabi_idiv                             0x0000012d   Thumb Code     0  idiv.o(.text)
     __aeabi_idivmod                          0x0000012d   Thumb Code    40  idiv.o(.text)
     __aeabi_ldivmod                          0x00000155   Thumb Code    76  ldiv.o(.text)
-    __aeabi_memset                           0x000001a1   Thumb Code    14  memseta.o(.text)
-    __aeabi_memset4                          0x000001a1   Thumb Code     0  memseta.o(.text)
-    __aeabi_memset8                          0x000001a1   Thumb Code     0  memseta.o(.text)
-    __aeabi_memclr                           0x000001af   Thumb Code     4  memseta.o(.text)
-    __aeabi_memclr4                          0x000001af   Thumb Code     0  memseta.o(.text)
-    __aeabi_memclr8                          0x000001af   Thumb Code     0  memseta.o(.text)
-    _memset$wrapper                          0x000001b3   Thumb Code    18  memseta.o(.text)
-    __aeabi_uldivmod                         0x000001c5   Thumb Code    96  uldiv.o(.text)
-    __scatterload                            0x00000225   Thumb Code    28  init.o(.text)
-    __scatterload_rt2                        0x00000225   Thumb Code     0  init.o(.text)
-    __aeabi_llsl                             0x00000249   Thumb Code    32  llshl.o(.text)
-    _ll_shift_l                              0x00000249   Thumb Code     0  llshl.o(.text)
-    __aeabi_llsr                             0x00000269   Thumb Code    34  llushr.o(.text)
-    _ll_ushift_r                             0x00000269   Thumb Code     0  llushr.o(.text)
-    __decompress                             0x0000028b   Thumb Code     0  __dczerorl.o(.text)
-    __decompress0                            0x0000028b   Thumb Code    58  __dczerorl.o(.text)
-    ADC_IRQHandler                           0x000002c5   Thumb Code   114  interrupt.o(i.ADC_IRQHandler)
-    AdcEocHandler                            0x0000034d   Thumb Code    64  mcs_foc_hw.o(i.AdcEocHandler)
-    AdcSampleCal                             0x0000039d   Thumb Code   226  mcs_foc_hw.o(i.AdcSampleCal)
-    CMP_IRQHandler                           0x0000056d   Thumb Code    56  interrupt.o(i.CMP_IRQHandler)
-    CMP_Init                                 0x000005ad   Thumb Code   198  lks32mc03x_cmp.o(i.CMP_Init)
-    CMP_StructInit                           0x00000681   Thumb Code    62  lks32mc03x_cmp.o(i.CMP_StructInit)
-    Clock_Init                               0x000006c1   Thumb Code    58  hardware_init.o(i.Clock_Init)
-    ConfigAdcModeMotor0                      0x00000711   Thumb Code    12  mcs_init.o(i.ConfigAdcModeMotor0)
-    CurrentOffsetCalibration                 0x00000729   Thumb Code   148  mcs_init.o(i.CurrentOffsetCalibration)
-    DAC_Init                                 0x000007d1   Thumb Code   114  lks32mc03x_dac.o(i.DAC_Init)
-    DAC_OutputVoltage                        0x00000855   Thumb Code    84  lks32mc03x_dac.o(i.DAC_OutputVoltage)
-    DAC_StructInit                           0x000008ad   Thumb Code    10  lks32mc03x_dac.o(i.DAC_StructInit)
-    EraseSector                              0x000008b9   Thumb Code    98  lks32mc03x_flash.o(i.EraseSector)
-    FOC_SVM_Q15                              0x00000945   Thumb Code   350  mcs_math.o(i.FOC_SVM_Q15)
-    FeedDogcmd                               0x00000aad   Thumb Code    26  interrupt.o(i.FeedDogcmd)
-    FocHw_ModToVoltageMv                     0x00000ae1   Thumb Code    20  mcs_foc_hw.o(i.FocHw_ModToVoltageMv)
-    FocHw_PhaseDifference                    0x00000af9   Thumb Code     6  mcs_foc_hw.o(i.FocHw_PhaseDifference)
-    FocHw_SatS16                             0x00000b01   Thumb Code    20  mcs_foc_hw.o(i.FocHw_SatS16)
-    Foc_Atan2Q16                             0x00000b2d   Thumb Code    80  sensorless_ctrl.o(i.Foc_Atan2Q16)
-    GPIO_Init                                0x00000c4d   Thumb Code   116  lks32mc03x_gpio.o(i.GPIO_Init)
-    GPIO_PinAFConfig                         0x00000cc1   Thumb Code   202  lks32mc03x_gpio.o(i.GPIO_PinAFConfig)
-    GPIO_StructInit                          0x00000d95   Thumb Code    12  lks32mc03x_gpio.o(i.GPIO_StructInit)
-    GetRchTrimVal                            0x00000da1   Thumb Code    60  lks32mc03x_flash.o(i.GetRchTrimVal)
-    Hall_CalibrationIsValid                  0x00000f01   Thumb Code    12  mcs_hall.o(i.Hall_CalibrationIsValid)
-    Hall_CaptureSample                       0x00000f11   Thumb Code    10  mcs_hall.o(i.Hall_CaptureSample)
-    Hall_FastUpdate                          0x00001151   Thumb Code   276  mcs_hall.o(i.Hall_FastUpdate)
-    Hall_LearnGetDriveMode                   0x000012e5   Thumb Code    40  mcs_hall.o(i.Hall_LearnGetDriveMode)
-    Hall_LearnInit                           0x00001311   Thumb Code   120  mcs_hall.o(i.Hall_LearnInit)
-    Hall_LearnTask1ms                        0x00001395   Thumb Code   572  mcs_hall.o(i.Hall_LearnTask1ms)
-    HardFault_Handler                        0x00001aa1   Thumb Code    26  interrupt.o(i.HardFault_Handler)
-    Hardware_init                            0x00001acd   Thumb Code    96  hardware_init.o(i.Hardware_init)
-    IWDG_Feed                                0x00001b39   Thumb Code    12  lks32mc03x_iwdg.o(i.IWDG_Feed)
-    IWDG_Init                                0x00001b51   Thumb Code    46  lks32mc03x_iwdg.o(i.IWDG_Init)
-    InitAdcMotor0                            0x00001b8d   Thumb Code    54  hardware_init.o(i.InitAdcMotor0)
-    InitBroadGPIO                            0x00001bd1   Thumb Code   230  hardware_init.o(i.InitBroadGPIO)
-    InitCmpMotor0                            0x00001cbd   Thumb Code    76  hardware_init.o(i.InitCmpMotor0)
-    InitDacMotor0                            0x00001d09   Thumb Code    30  hardware_init.o(i.InitDacMotor0)
-    InitEpwmMotor0                           0x00001d29   Thumb Code   146  hardware_init.o(i.InitEpwmMotor0)
-    InitPgaMotor0                            0x00001dd5   Thumb Code    38  hardware_init.o(i.InitPgaMotor0)
-    InitWatchDog                             0x00001e05   Thumb Code    20  hardware_init.o(i.InitWatchDog)
-    MCPWM0_IRQHandler                        0x00001e21   Thumb Code    18  interrupt.o(i.MCPWM0_IRQHandler)
-    MCPWM_Init                               0x00001e3d   Thumb Code   534  lks32mc03x_mcpwm.o(i.MCPWM_Init)
-    MCPWM_StructInit                         0x00002061   Thumb Code    10  lks32mc03x_mcpwm.o(i.MCPWM_StructInit)
-    Mcs_Task_Run                             0x0000206d   Thumb Code    38  mcs_task.o(i.Mcs_Task_Run)
-    Motor_ControlInit                        0x0000212d   Thumb Code    56  mcs_control.o(i.Motor_ControlInit)
-    Motor_ControlTask1ms                     0x0000219d   Thumb Code   460  mcs_control.o(i.Motor_ControlTask1ms)
-    Motor_CurrentCommandReset                0x0000238d   Thumb Code    22  mcs_control.o(i.Motor_CurrentCommandReset)
-    Motor_CurrentCommandUpdate               0x000023a5   Thumb Code    92  mcs_control.o(i.Motor_CurrentCommandUpdate)
-    Motor_CurrentLoopRun                     0x00002405   Thumb Code    12  mcs_pwm_foc.o(i.Motor_CurrentLoopRun)
-    Motor_FocInit                            0x00002415   Thumb Code    10  mcs_pwm_foc.o(i.Motor_FocInit)
-    Motor_FocSlowUpdate1ms                   0x00002425   Thumb Code    76  mcs_foc_hw.o(i.Motor_FocSlowUpdate1ms)
-    Motor_GetSinCosQ15                       0x0000247d   Thumb Code    80  mcs_motor.o(i.Motor_GetSinCosQ15)
-    Motor_SetCurrentTarget                   0x000024d1   Thumb Code    94  mcs_control.o(i.Motor_SetCurrentTarget)
-    ProgramPage                              0x00002579   Thumb Code   214  lks32mc03x_flash.o(i.ProgramPage)
-    PwmAOutputs                              0x00002671   Thumb Code    30  mcs_foc_hw.o(i.PwmAOutputs)
-    Read_Flash                               0x000026a1   Thumb Code    64  lks32mc03x_flash.o(i.Read_Flash)
-    Read_Trim                                0x000026e1   Thumb Code    92  lks32mc03x_nvr.o(i.Read_Trim)
-    SYS_AnalogModuleClockCmd                 0x000027b1   Thumb Code    58  lks32mc03x_sys.o(i.SYS_AnalogModuleClockCmd)
-    SYS_EnableWatchDog                       0x000027f5   Thumb Code    28  lks32mc03x_sys.o(i.SYS_EnableWatchDog)
-    SYS_ModuleClockCmd                       0x00002811   Thumb Code    26  lks32mc03x_sys.o(i.SYS_ModuleClockCmd)
-    SYS_VolSelModule                         0x00002835   Thumb Code    78  lks32mc03x_flash.o(i.SYS_VolSelModule)
-    StopMotorImmdly                          0x00002883   Thumb Code    10  mcs_control.o(i.StopMotorImmdly)
-    SystemInit                               0x0000288d   Thumb Code     8  hardware_init.o(i.SystemInit)
-    Task_Scheduler                           0x00002895   Thumb Code   180  main.o(i.Task_Scheduler)
-    Task_vTickTimerEvent                     0x00002951   Thumb Code    18  manage.o(i.Task_vTickTimerEvent)
-    TempSensor_Init                          0x0000296d   Thumb Code    42  lks32mc03x_tmp.o(i.TempSensor_Init)
-    UARTADD                                  0x000029a5   Thumb Code    48  user_app.o(i.UARTADD)
-    UART_HardWare_Init                       0x000029d5   Thumb Code   114  hardware_init.o(i.UART_HardWare_Init)
-    UART_IRQHandler                          0x00002a55   Thumb Code   192  interrupt.o(i.UART_IRQHandler)
-    UART_Init                                0x00002b2d   Thumb Code   152  lks32mc03x_uart.o(i.UART_Init)
-    UART_ReadData                            0x00002bd1   Thumb Code     4  lks32mc03x_uart.o(i.UART_ReadData)
-    UART_SendData                            0x00002bd5   Thumb Code     4  lks32mc03x_uart.o(i.UART_SendData)
-    UART_StructInit                          0x00002bd9   Thumb Code    30  lks32mc03x_uart.o(i.UART_StructInit)
-    Uartrx_Error_Check                       0x00002bf9   Thumb Code    14  user_app.o(i.Uartrx_Error_Check)
-    User_App_Task_Run                        0x00002c0d   Thumb Code    32  user_app.o(i.User_App_Task_Run)
-    User_Task_Always                         0x00002c2d   Thumb Code     8  user_app.o(i.User_Task_Always)
-    User_app_init                            0x00002c7d   Thumb Code    34  manage.o(i.User_app_init)
-    __ARM_common_ll_mulss                    0x00002ca9   Thumb Code    48  mcs_foc_hw.o(i.__ARM_common_ll_mulss)
-    __ARM_common_switch8                     0x00002cd9   Thumb Code    26  mcs_direction_test.o(i.__ARM_common_switch8)
-    __scatterload_copy                       0x00002cf3   Thumb Code    14  handlers.o(i.__scatterload_copy)
-    __scatterload_null                       0x00002d01   Thumb Code     2  handlers.o(i.__scatterload_null)
-    __scatterload_zeroinit                   0x00002d03   Thumb Code    14  handlers.o(i.__scatterload_zeroinit)
-    delay                                    0x00002f45   Thumb Code    16  hardware_init.o(i.delay)
-    foc_observer_apply_correction            0x00002f55   Thumb Code   146  sensorless_ctrl.o(i.foc_observer_apply_correction)
-    foc_observer_pll_run                     0x00002ff1   Thumb Code    94  sensorless_ctrl.o(i.foc_observer_pll_run)
-    foc_observer_reset                       0x0000305d   Thumb Code    28  sensorless_ctrl.o(i.foc_observer_reset)
-    foc_observer_update                      0x0000307d   Thumb Code   142  sensorless_ctrl.o(i.foc_observer_update)
-    foc_observer_update_phase                0x00003111   Thumb Code    18  sensorless_ctrl.o(i.foc_observer_update_phase)
-    foc_sensorless_update                    0x00003171   Thumb Code   432  sensorless_ctrl.o(i.foc_sensorless_update)
-    main                                     0x00003325   Thumb Code    22  main.o(i.main)
-    mc_sys_init                              0x0000333d   Thumb Code    48  mcs_init.o(i.mc_sys_init)
-    utils_max_abs                            0x000033a9   Thumb Code    30  mcs_math.o(i.utils_max_abs)
-    utils_truncate_number                    0x000033c7   Thumb Code    22  mcs_math.o(i.utils_truncate_number)
-    utils_truncate_number_abs                0x000033dd   Thumb Code    34  mcs_math.o(i.utils_truncate_number_abs)
-    Region$$Table$$Base                      0x0000361c   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x0000363c   Number         0  anon$$obj.o(Region$$Table)
+    __aeabi_lmul                             0x000001a1   Thumb Code   122  llmul.o(.text)
+    _ll_mul                                  0x000001a1   Thumb Code     0  llmul.o(.text)
+    __aeabi_memset                           0x0000021b   Thumb Code    14  memseta.o(.text)
+    __aeabi_memset4                          0x0000021b   Thumb Code     0  memseta.o(.text)
+    __aeabi_memset8                          0x0000021b   Thumb Code     0  memseta.o(.text)
+    __aeabi_memclr                           0x00000229   Thumb Code     4  memseta.o(.text)
+    __aeabi_memclr4                          0x00000229   Thumb Code     0  memseta.o(.text)
+    __aeabi_memclr8                          0x00000229   Thumb Code     0  memseta.o(.text)
+    _memset$wrapper                          0x0000022d   Thumb Code    18  memseta.o(.text)
+    __aeabi_uldivmod                         0x0000023f   Thumb Code    96  uldiv.o(.text)
+    __aeabi_llsl                             0x0000029f   Thumb Code    32  llshl.o(.text)
+    _ll_shift_l                              0x0000029f   Thumb Code     0  llshl.o(.text)
+    __scatterload                            0x000002c1   Thumb Code    28  init.o(.text)
+    __scatterload_rt2                        0x000002c1   Thumb Code     0  init.o(.text)
+    __aeabi_llsr                             0x000002e5   Thumb Code    34  llushr.o(.text)
+    _ll_ushift_r                             0x000002e5   Thumb Code     0  llushr.o(.text)
+    __decompress                             0x00000307   Thumb Code     0  __dczerorl.o(.text)
+    __decompress0                            0x00000307   Thumb Code    58  __dczerorl.o(.text)
+    ADC_IRQHandler                           0x00000341   Thumb Code   114  interrupt.o(i.ADC_IRQHandler)
+    AdcEocHandler                            0x000003c9   Thumb Code    64  mcs_foc_hw.o(i.AdcEocHandler)
+    AdcSampleCal                             0x00000419   Thumb Code   226  mcs_foc_hw.o(i.AdcSampleCal)
+    CMP_IRQHandler                           0x000005e9   Thumb Code    56  interrupt.o(i.CMP_IRQHandler)
+    CMP_Init                                 0x00000629   Thumb Code   198  lks32mc03x_cmp.o(i.CMP_Init)
+    CMP_StructInit                           0x000006fd   Thumb Code    62  lks32mc03x_cmp.o(i.CMP_StructInit)
+    Clock_Init                               0x0000073d   Thumb Code    58  hardware_init.o(i.Clock_Init)
+    ConfigAdcModeMotor0                      0x0000078d   Thumb Code    12  mcs_init.o(i.ConfigAdcModeMotor0)
+    CurrentOffsetCalibration                 0x000007a5   Thumb Code   148  mcs_init.o(i.CurrentOffsetCalibration)
+    DAC_Init                                 0x0000084d   Thumb Code   114  lks32mc03x_dac.o(i.DAC_Init)
+    DAC_OutputVoltage                        0x000008d1   Thumb Code    84  lks32mc03x_dac.o(i.DAC_OutputVoltage)
+    DAC_StructInit                           0x00000929   Thumb Code    10  lks32mc03x_dac.o(i.DAC_StructInit)
+    EraseSector                              0x00000935   Thumb Code    98  lks32mc03x_flash.o(i.EraseSector)
+    FOC_SVM_Q15                              0x000009c1   Thumb Code   350  mcs_math.o(i.FOC_SVM_Q15)
+    FeedDogcmd                               0x00000b29   Thumb Code    26  interrupt.o(i.FeedDogcmd)
+    FocHw_ModToVoltageMv                     0x00000b5d   Thumb Code    20  mcs_foc_hw.o(i.FocHw_ModToVoltageMv)
+    FocHw_PhaseDifference                    0x00000b75   Thumb Code     6  mcs_foc_hw.o(i.FocHw_PhaseDifference)
+    FocHw_SatS16                             0x00000b7d   Thumb Code    20  mcs_foc_hw.o(i.FocHw_SatS16)
+    Foc_Atan2Q16                             0x00000ba9   Thumb Code    80  sensorless_ctrl.o(i.Foc_Atan2Q16)
+    GPIO_Init                                0x00000cc9   Thumb Code   116  lks32mc03x_gpio.o(i.GPIO_Init)
+    GPIO_PinAFConfig                         0x00000d3d   Thumb Code   202  lks32mc03x_gpio.o(i.GPIO_PinAFConfig)
+    GPIO_StructInit                          0x00000e11   Thumb Code    12  lks32mc03x_gpio.o(i.GPIO_StructInit)
+    GetRchTrimVal                            0x00000e1d   Thumb Code    60  lks32mc03x_flash.o(i.GetRchTrimVal)
+    Hall_CalibrationIsValid                  0x00000f7d   Thumb Code    12  mcs_hall.o(i.Hall_CalibrationIsValid)
+    Hall_CaptureSample                       0x00000f8d   Thumb Code    10  mcs_hall.o(i.Hall_CaptureSample)
+    Hall_FastUpdate                          0x000011cd   Thumb Code   276  mcs_hall.o(i.Hall_FastUpdate)
+    Hall_LearnGetDriveMode                   0x00001361   Thumb Code    40  mcs_hall.o(i.Hall_LearnGetDriveMode)
+    Hall_LearnInit                           0x0000138d   Thumb Code   120  mcs_hall.o(i.Hall_LearnInit)
+    Hall_LearnTask1ms                        0x00001411   Thumb Code   572  mcs_hall.o(i.Hall_LearnTask1ms)
+    HardFault_Handler                        0x00001b1d   Thumb Code    26  interrupt.o(i.HardFault_Handler)
+    Hardware_init                            0x00001b49   Thumb Code    96  hardware_init.o(i.Hardware_init)
+    IWDG_Feed                                0x00001bb5   Thumb Code    12  lks32mc03x_iwdg.o(i.IWDG_Feed)
+    IWDG_Init                                0x00001bcd   Thumb Code    46  lks32mc03x_iwdg.o(i.IWDG_Init)
+    InitAdcMotor0                            0x00001c09   Thumb Code    54  hardware_init.o(i.InitAdcMotor0)
+    InitBroadGPIO                            0x00001c4d   Thumb Code   230  hardware_init.o(i.InitBroadGPIO)
+    InitCmpMotor0                            0x00001d39   Thumb Code    76  hardware_init.o(i.InitCmpMotor0)
+    InitDacMotor0                            0x00001d85   Thumb Code    30  hardware_init.o(i.InitDacMotor0)
+    InitEpwmMotor0                           0x00001da5   Thumb Code   146  hardware_init.o(i.InitEpwmMotor0)
+    InitPgaMotor0                            0x00001e51   Thumb Code    38  hardware_init.o(i.InitPgaMotor0)
+    InitWatchDog                             0x00001e81   Thumb Code    20  hardware_init.o(i.InitWatchDog)
+    MCPWM0_IRQHandler                        0x00001e9d   Thumb Code    18  interrupt.o(i.MCPWM0_IRQHandler)
+    MCPWM_Init                               0x00001eb9   Thumb Code   534  lks32mc03x_mcpwm.o(i.MCPWM_Init)
+    MCPWM_StructInit                         0x000020dd   Thumb Code    10  lks32mc03x_mcpwm.o(i.MCPWM_StructInit)
+    Mcs_Task_Run                             0x000020e9   Thumb Code    46  mcs_task.o(i.Mcs_Task_Run)
+    Motor_ControlInit                        0x000021b5   Thumb Code    62  mcs_control.o(i.Motor_ControlInit)
+    Motor_ControlTask1ms                     0x0000222d   Thumb Code   498  mcs_control.o(i.Motor_ControlTask1ms)
+    Motor_CurrentCommandReset                0x00002445   Thumb Code    22  mcs_control.o(i.Motor_CurrentCommandReset)
+    Motor_CurrentCommandUpdate               0x0000245d   Thumb Code   152  mcs_control.o(i.Motor_CurrentCommandUpdate)
+    Motor_CurrentLoopRun                     0x000024fd   Thumb Code    12  mcs_pwm_foc.o(i.Motor_CurrentLoopRun)
+    Motor_FocInit                            0x0000250d   Thumb Code    10  mcs_pwm_foc.o(i.Motor_FocInit)
+    Motor_FocSlowUpdate1ms                   0x0000251d   Thumb Code    76  mcs_foc_hw.o(i.Motor_FocSlowUpdate1ms)
+    Motor_GetSinCosQ15                       0x00002575   Thumb Code    80  mcs_motor.o(i.Motor_GetSinCosQ15)
+    Motor_SetCurrentTarget                   0x000025c9   Thumb Code    94  mcs_control.o(i.Motor_SetCurrentTarget)
+    Motor_SpeedControlUpdate1ms              0x0000264d   Thumb Code   558  mcs_control.o(i.Motor_SpeedControlUpdate1ms)
+    ProgramPage                              0x0000297d   Thumb Code   214  lks32mc03x_flash.o(i.ProgramPage)
+    PwmAOutputs                              0x00002a75   Thumb Code    30  mcs_foc_hw.o(i.PwmAOutputs)
+    Read_Flash                               0x00002aa5   Thumb Code    64  lks32mc03x_flash.o(i.Read_Flash)
+    Read_Trim                                0x00002ae5   Thumb Code    92  lks32mc03x_nvr.o(i.Read_Trim)
+    SYS_AnalogModuleClockCmd                 0x00002bb5   Thumb Code    58  lks32mc03x_sys.o(i.SYS_AnalogModuleClockCmd)
+    SYS_EnableWatchDog                       0x00002bf9   Thumb Code    28  lks32mc03x_sys.o(i.SYS_EnableWatchDog)
+    SYS_ModuleClockCmd                       0x00002c15   Thumb Code    26  lks32mc03x_sys.o(i.SYS_ModuleClockCmd)
+    SYS_VolSelModule                         0x00002c39   Thumb Code    78  lks32mc03x_flash.o(i.SYS_VolSelModule)
+    StopMotorImmdly                          0x00002c87   Thumb Code    10  mcs_control.o(i.StopMotorImmdly)
+    SystemInit                               0x00002c91   Thumb Code     8  hardware_init.o(i.SystemInit)
+    Task_Scheduler                           0x00002c99   Thumb Code   180  main.o(i.Task_Scheduler)
+    Task_vTickTimerEvent                     0x00002d55   Thumb Code    18  manage.o(i.Task_vTickTimerEvent)
+    TempSensor_Init                          0x00002d71   Thumb Code    42  lks32mc03x_tmp.o(i.TempSensor_Init)
+    UARTADD                                  0x00002da9   Thumb Code    48  user_app.o(i.UARTADD)
+    UART_HardWare_Init                       0x00002dd9   Thumb Code   114  hardware_init.o(i.UART_HardWare_Init)
+    UART_IRQHandler                          0x00002e59   Thumb Code   192  interrupt.o(i.UART_IRQHandler)
+    UART_Init                                0x00002f31   Thumb Code   152  lks32mc03x_uart.o(i.UART_Init)
+    UART_ReadData                            0x00002fd5   Thumb Code     4  lks32mc03x_uart.o(i.UART_ReadData)
+    UART_SendData                            0x00002fd9   Thumb Code     4  lks32mc03x_uart.o(i.UART_SendData)
+    UART_StructInit                          0x00002fdd   Thumb Code    30  lks32mc03x_uart.o(i.UART_StructInit)
+    Uartrx_Error_Check                       0x00002ffd   Thumb Code    14  user_app.o(i.Uartrx_Error_Check)
+    User_App_Task_Run                        0x00003011   Thumb Code    32  user_app.o(i.User_App_Task_Run)
+    User_Task_Always                         0x00003031   Thumb Code     8  user_app.o(i.User_Task_Always)
+    User_app_init                            0x00003081   Thumb Code    34  manage.o(i.User_app_init)
+    __ARM_common_ll_mulss                    0x000030ad   Thumb Code    48  mcs_control.o(i.__ARM_common_ll_mulss)
+    __ARM_common_switch8                     0x000030dd   Thumb Code    26  mcs_direction_test.o(i.__ARM_common_switch8)
+    __scatterload_copy                       0x000030f7   Thumb Code    14  handlers.o(i.__scatterload_copy)
+    __scatterload_null                       0x00003105   Thumb Code     2  handlers.o(i.__scatterload_null)
+    __scatterload_zeroinit                   0x00003107   Thumb Code    14  handlers.o(i.__scatterload_zeroinit)
+    delay                                    0x00003349   Thumb Code    16  hardware_init.o(i.delay)
+    foc_observer_apply_correction            0x00003359   Thumb Code   146  sensorless_ctrl.o(i.foc_observer_apply_correction)
+    foc_observer_pll_run                     0x000033f5   Thumb Code    94  sensorless_ctrl.o(i.foc_observer_pll_run)
+    foc_observer_reset                       0x00003461   Thumb Code    28  sensorless_ctrl.o(i.foc_observer_reset)
+    foc_observer_update                      0x00003481   Thumb Code   142  sensorless_ctrl.o(i.foc_observer_update)
+    foc_observer_update_phase                0x00003515   Thumb Code    18  sensorless_ctrl.o(i.foc_observer_update_phase)
+    foc_sensorless_update                    0x00003575   Thumb Code   432  sensorless_ctrl.o(i.foc_sensorless_update)
+    main                                     0x00003729   Thumb Code    22  main.o(i.main)
+    mc_sys_init                              0x00003741   Thumb Code    48  mcs_init.o(i.mc_sys_init)
+    utils_max_abs                            0x000037ad   Thumb Code    30  mcs_math.o(i.utils_max_abs)
+    utils_truncate_number                    0x000037cb   Thumb Code    22  mcs_math.o(i.utils_truncate_number)
+    utils_truncate_number_abs                0x000037e1   Thumb Code    34  mcs_math.o(i.utils_truncate_number_abs)
+    Region$$Table$$Base                      0x00003a20   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x00003a40   Number         0  anon$$obj.o(Region$$Table)
     g_CMP_IF                                 0x20000008   Data           2  interrupt.o(.data)
     gMcpwmEifAtShort                         0x2000000c   Data           2  interrupt.o(.data)
     gMcpwmFail012AtShort                     0x2000000e   Data           2  interrupt.o(.data)
@@ -1169,52 +1209,68 @@ Image Symbol Table
     gMotorRunEnable                          0x20000038   Data           1  mcs_control.o(.data)
     gMotorDirection                          0x20000039   Data           1  mcs_control.o(.data)
     gMotorOperationSensorMode                0x2000003a   Data           1  mcs_control.o(.data)
-    gMotorControlState                       0x2000003b   Data           1  mcs_control.o(.data)
-    gMotorControlFaultCode                   0x2000003c   Data           1  mcs_control.o(.data)
-    gMotorCurrentTargetMa                    0x2000003e   Data           2  mcs_control.o(.data)
-    gMotorCurrentLimitMa                     0x20000040   Data           2  mcs_control.o(.data)
-    gMotorStartDelayMs                       0x20000042   Data           2  mcs_control.o(.data)
-    gBUS_Vol_ADC                             0x2000004c   Data           2  mcs_foc_hw.o(.data)
-    hal1                                     0x2000004e   Data           2  mcs_foc_hw.o(.data)
-    hal2                                     0x20000050   Data           2  mcs_foc_hw.o(.data)
-    gBusVoltageMv                            0x20000054   Data           4  mcs_foc_hw.o(.data)
-    ADC_curr_norm_value                      0x20000058   Data           6  mcs_foc_hw.o(.data)
-    gHallWorkMode                            0x20000060   Data           1  mcs_hall.o(.data)
-    gHallStorageState                        0x20000061   Data           1  mcs_hall.o(.data)
-    gHallLearnState                          0x20000062   Data           1  mcs_hall.o(.data)
-    gHallLearnError                          0x20000063   Data           1  mcs_hall.o(.data)
-    gHallLearnRequest                        0x20000064   Data           1  mcs_hall.o(.data)
-    gHallLearnAlignCurrentMa                 0x2000006e   Data           2  mcs_hall.o(.data)
-    gHallLearnAlignPhase                     0x20000070   Data           2  mcs_hall.o(.data)
-    gHallLearnStableMs                       0x20000072   Data           2  mcs_hall.o(.data)
-    gHallLearnStageElapsedMs                 0x20000074   Data           2  mcs_hall.o(.data)
-    gHallLearnMechanicalTurns                0x20000076   Data           2  mcs_hall.o(.data)
-    gHallLearnStableTurns                    0x20000078   Data           2  mcs_hall.o(.data)
-    gHallLearnQualityQ15                     0x2000007a   Data           2  mcs_hall.o(.data)
-    gHallAlignStableSamples                  0x2000007c   Data           2  mcs_hall.o(.data)
-    gHallAlignElectricalRaw                  0x2000007e   Data           2  mcs_hall.o(.data)
-    gHallRawA                                0x20000080   Data           2  mcs_hall.o(.data)
-    gHallRawB                                0x20000082   Data           2  mcs_hall.o(.data)
-    gHallMechanicalPhase                     0x20000084   Data           2  mcs_hall.o(.data)
-    gHallElectricalPhase                     0x20000086   Data           2  mcs_hall.o(.data)
-    gHallControlPhase                        0x20000088   Data           2  mcs_hall.o(.data)
-    gHallPhaseError                          0x2000008a   Data           2  mcs_hall.o(.data)
-    gHallLearnSampleCount                    0x2000009c   Data           4  mcs_hall.o(.data)
-    gHallNormX                               0x200000a0   Data           4  mcs_hall.o(.data)
-    gHallNormY                               0x200000a4   Data           4  mcs_hall.o(.data)
-    gHallLearnSpinCurrentMa                  0x200000c8   Data           2  mcs_hall.o(.data)
-    gObserverFluxErrorQ13                    0x200000ce   Data           2  sensorless_ctrl.o(.data)
-    gObserverCorrectionGainQ13               0x200000d0   Data           2  sensorless_ctrl.o(.data)
-    gObserverPllPhaseError                   0x200000d2   Data           2  sensorless_ctrl.o(.data)
-    gObserverPhase                           0x200000d4   Data           2  sensorless_ctrl.o(.data)
-    gObserverPhaseError                      0x200000d6   Data           2  sensorless_ctrl.o(.data)
-    gObserverPllSpeedStepQ16                 0x200000d8   Data           4  sensorless_ctrl.o(.data)
-    Stru_DAC_CHECK                           0x20000128   Data           6  lks32mc03x_dac.o(.data)
-    m_TempertureCof                          0x2000012e   Data           4  lks32mc03x_tmp.o(.data)
-    UART0_Message                            0x20000134   Data          26  manage.o(.bss)
-    gHallCalibration                         0x20000150   Data          36  mcs_hall.o(.bss)
-    m_motor                                  0x20000194   Data         208  mcs_pwm_foc.o(.bss)
-    __initial_sp                             0x20000668   Data           0  startup_lks32mc03x.o(STACK)
+    gMotorOperationControlMode               0x2000003b   Data           1  mcs_control.o(.data)
+    gMotorControlState                       0x2000003c   Data           1  mcs_control.o(.data)
+    gMotorControlFaultCode                   0x2000003d   Data           1  mcs_control.o(.data)
+    gMotorSpeedClosedLoopActive              0x2000003e   Data           1  mcs_control.o(.data)
+    gMotorCurrentTargetMa                    0x20000040   Data           2  mcs_control.o(.data)
+    gMotorCurrentLimitMa                     0x20000042   Data           2  mcs_control.o(.data)
+    gMotorStartDelayMs                       0x20000044   Data           2  mcs_control.o(.data)
+    gMotorSpeedTargetErpm                    0x20000046   Data           2  mcs_control.o(.data)
+    gMotorSpeedRampErpmPerS                  0x20000048   Data           2  mcs_control.o(.data)
+    gMotorSpeedKpQ10                         0x2000004a   Data           2  mcs_control.o(.data)
+    gMotorSpeedKiQ10                         0x2000004c   Data           2  mcs_control.o(.data)
+    gMotorSpeedIqLimitMa                     0x2000004e   Data           2  mcs_control.o(.data)
+    gMotorSpeedStartCurrentMa                0x20000050   Data           2  mcs_control.o(.data)
+    gMotorSpeedCurrentRampMaPerMs            0x20000052   Data           2  mcs_control.o(.data)
+    gMotorSpeedCloseLoopMinErpm              0x20000054   Data           2  mcs_control.o(.data)
+    gMotorSpeedCloseLoopStableMs             0x20000056   Data           2  mcs_control.o(.data)
+    gMotorSpeedTargetRampErpm                0x20000058   Data           2  mcs_control.o(.data)
+    gMotorSpeedFeedbackErpm                  0x2000005a   Data           2  mcs_control.o(.data)
+    gMotorSpeedErrorErpm                     0x2000005c   Data           2  mcs_control.o(.data)
+    gMotorSpeedIqCommandMa                   0x2000005e   Data           2  mcs_control.o(.data)
+    gBUS_Vol_ADC                             0x20000074   Data           2  mcs_foc_hw.o(.data)
+    hal1                                     0x20000076   Data           2  mcs_foc_hw.o(.data)
+    hal2                                     0x20000078   Data           2  mcs_foc_hw.o(.data)
+    gBusVoltageMv                            0x2000007c   Data           4  mcs_foc_hw.o(.data)
+    ADC_curr_norm_value                      0x20000080   Data           6  mcs_foc_hw.o(.data)
+    gHallWorkMode                            0x20000088   Data           1  mcs_hall.o(.data)
+    gHallStorageState                        0x20000089   Data           1  mcs_hall.o(.data)
+    gHallLearnState                          0x2000008a   Data           1  mcs_hall.o(.data)
+    gHallLearnError                          0x2000008b   Data           1  mcs_hall.o(.data)
+    gHallLearnRequest                        0x2000008c   Data           1  mcs_hall.o(.data)
+    text_check                               0x20000095   Data           1  mcs_hall.o(.data)
+    gHallLearnAlignCurrentMa                 0x20000096   Data           2  mcs_hall.o(.data)
+    gHallLearnAlignPhase                     0x20000098   Data           2  mcs_hall.o(.data)
+    gHallLearnStableMs                       0x2000009a   Data           2  mcs_hall.o(.data)
+    gHallLearnStageElapsedMs                 0x2000009c   Data           2  mcs_hall.o(.data)
+    gHallLearnMechanicalTurns                0x2000009e   Data           2  mcs_hall.o(.data)
+    gHallLearnStableTurns                    0x200000a0   Data           2  mcs_hall.o(.data)
+    gHallLearnQualityQ15                     0x200000a2   Data           2  mcs_hall.o(.data)
+    gHallAlignStableSamples                  0x200000a4   Data           2  mcs_hall.o(.data)
+    gHallAlignElectricalRaw                  0x200000a6   Data           2  mcs_hall.o(.data)
+    gHallRawA                                0x200000a8   Data           2  mcs_hall.o(.data)
+    gHallRawB                                0x200000aa   Data           2  mcs_hall.o(.data)
+    gHallMechanicalPhase                     0x200000ac   Data           2  mcs_hall.o(.data)
+    gHallElectricalPhase                     0x200000ae   Data           2  mcs_hall.o(.data)
+    gHallControlPhase                        0x200000b0   Data           2  mcs_hall.o(.data)
+    gHallPhaseError                          0x200000b2   Data           2  mcs_hall.o(.data)
+    gHallLearnSampleCount                    0x200000c4   Data           4  mcs_hall.o(.data)
+    gHallNormX                               0x200000c8   Data           4  mcs_hall.o(.data)
+    gHallNormY                               0x200000cc   Data           4  mcs_hall.o(.data)
+    gHallLearnSpinCurrentMa                  0x200000f0   Data           2  mcs_hall.o(.data)
+    gObserverFluxErrorQ13                    0x200000f6   Data           2  sensorless_ctrl.o(.data)
+    gObserverCorrectionGainQ13               0x200000f8   Data           2  sensorless_ctrl.o(.data)
+    gObserverPllPhaseError                   0x200000fa   Data           2  sensorless_ctrl.o(.data)
+    gObserverPhase                           0x200000fc   Data           2  sensorless_ctrl.o(.data)
+    gObserverPhaseError                      0x200000fe   Data           2  sensorless_ctrl.o(.data)
+    gObserverPllSpeedStepQ16                 0x20000100   Data           4  sensorless_ctrl.o(.data)
+    Stru_DAC_CHECK                           0x20000150   Data           6  lks32mc03x_dac.o(.data)
+    m_TempertureCof                          0x20000156   Data           4  lks32mc03x_tmp.o(.data)
+    UART0_Message                            0x2000015c   Data          26  manage.o(.bss)
+    gHallCalibration                         0x20000178   Data          36  mcs_hall.o(.bss)
+    m_motor                                  0x200001bc   Data         208  mcs_pwm_foc.o(.bss)
+    __initial_sp                             0x20000690   Data           0  startup_lks32mc03x.o(STACK)
 
 
 
@@ -1224,194 +1280,200 @@ Memory Map of the image
 
   Image Entry point : 0x000000c1
 
-  Load Region LR_IROM1 (Base: 0x00000000, Size: 0x00003770, Max: 0x00007c00, ABSOLUTE, COMPRESSED[0x00003670])
+  Load Region LR_IROM1 (Base: 0x00000000, Size: 0x00003b9c, Max: 0x00007c00, ABSOLUTE, COMPRESSED[0x00003a84])
 
-    Execution Region ER_IROM1 (Exec base: 0x00000000, Load base: 0x00000000, Size: 0x0000363c, Max: 0x00007c00, ABSOLUTE)
+    Execution Region ER_IROM1 (Exec base: 0x00000000, Load base: 0x00000000, Size: 0x00003a40, Max: 0x00007c00, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x00000000   0x00000000   0x000000c0   Data   RO         2111    RESET               startup_lks32mc03x.o
-    0x000000c0   0x000000c0   0x00000000   Code   RO         2151  * .ARM.Collect$$$$00000000  mc_p.l(entry.o)
-    0x000000c0   0x000000c0   0x00000004   Code   RO         2162    .ARM.Collect$$$$00000001  mc_p.l(entry2.o)
-    0x000000c4   0x000000c4   0x00000004   Code   RO         2165    .ARM.Collect$$$$00000004  mc_p.l(entry5.o)
-    0x000000c8   0x000000c8   0x00000000   Code   RO         2167    .ARM.Collect$$$$00000008  mc_p.l(entry7b.o)
-    0x000000c8   0x000000c8   0x00000000   Code   RO         2169    .ARM.Collect$$$$0000000A  mc_p.l(entry8b.o)
-    0x000000c8   0x000000c8   0x00000008   Code   RO         2170    .ARM.Collect$$$$0000000B  mc_p.l(entry9a.o)
-    0x000000d0   0x000000d0   0x00000004   Code   RO         2177    .ARM.Collect$$$$0000000E  mc_p.l(entry12b.o)
-    0x000000d4   0x000000d4   0x00000000   Code   RO         2172    .ARM.Collect$$$$0000000F  mc_p.l(entry10a.o)
-    0x000000d4   0x000000d4   0x00000000   Code   RO         2174    .ARM.Collect$$$$00000011  mc_p.l(entry11a.o)
-    0x000000d4   0x000000d4   0x00000004   Code   RO         2163    .ARM.Collect$$$$00002712  mc_p.l(entry2.o)
-    0x000000d8   0x000000d8   0x00000028   Code   RO         2112    .text               startup_lks32mc03x.o
-    0x00000100   0x00000100   0x0000002c   Code   RO         2154    .text               mc_p.l(uidiv.o)
-    0x0000012c   0x0000012c   0x00000028   Code   RO         2156    .text               mc_p.l(idiv.o)
-    0x00000154   0x00000154   0x0000004c   Code   RO         2158    .text               mc_p.l(ldiv.o)
-    0x000001a0   0x000001a0   0x00000024   Code   RO         2160    .text               mc_p.l(memseta.o)
-    0x000001c4   0x000001c4   0x00000060   Code   RO         2178    .text               mc_p.l(uldiv.o)
-    0x00000224   0x00000224   0x00000024   Code   RO         2180    .text               mc_p.l(init.o)
-    0x00000248   0x00000248   0x00000020   Code   RO         2182    .text               mc_p.l(llshl.o)
-    0x00000268   0x00000268   0x00000022   Code   RO         2184    .text               mc_p.l(llushr.o)
-    0x0000028a   0x0000028a   0x0000003a   Code   RO         2194    .text               mc_p.l(__dczerorl.o)
-    0x000002c4   0x000002c4   0x00000088   Code   RO          188    i.ADC_IRQHandler    interrupt.o
-    0x0000034c   0x0000034c   0x00000050   Code   RO          523    i.AdcEocHandler     mcs_foc_hw.o
-    0x0000039c   0x0000039c   0x000000f8   Code   RO          524    i.AdcSampleCal      mcs_foc_hw.o
-    0x00000494   0x00000494   0x000000d8   Code   RO          283    i.AnalyseUART0      user_app.o
-    0x0000056c   0x0000056c   0x00000040   Code   RO          189    i.CMP_IRQHandler    interrupt.o
-    0x000005ac   0x000005ac   0x000000d4   Code   RO         1330    i.CMP_Init          lks32mc03x_cmp.o
-    0x00000680   0x00000680   0x0000003e   Code   RO         1331    i.CMP_StructInit    lks32mc03x_cmp.o
-    0x000006be   0x000006be   0x00000002   PAD
-    0x000006c0   0x000006c0   0x00000050   Code   RO         1197    i.Clock_Init        hardware_init.o
-    0x00000710   0x00000710   0x00000018   Code   RO          385    i.ConfigAdcModeMotor0  mcs_init.o
-    0x00000728   0x00000728   0x000000a8   Code   RO          386    i.CurrentOffsetCalibration  mcs_init.o
-    0x000007d0   0x000007d0   0x00000084   Code   RO         1365    i.DAC_Init          lks32mc03x_dac.o
-    0x00000854   0x00000854   0x00000058   Code   RO         1367    i.DAC_OutputVoltage  lks32mc03x_dac.o
-    0x000008ac   0x000008ac   0x0000000a   Code   RO         1368    i.DAC_StructInit    lks32mc03x_dac.o
-    0x000008b6   0x000008b6   0x00000002   PAD
-    0x000008b8   0x000008b8   0x0000008c   Code   RO         1465    i.EraseSector       lks32mc03x_flash.o
-    0x00000944   0x00000944   0x00000168   Code   RO         1062    i.FOC_SVM_Q15       mcs_math.o
-    0x00000aac   0x00000aac   0x00000020   Code   RO          190    i.FeedDogcmd        interrupt.o
-    0x00000acc   0x00000acc   0x00000014   Code   RO          525    i.FocHw_AdcToCurrentMa  mcs_foc_hw.o
-    0x00000ae0   0x00000ae0   0x00000018   Code   RO          526    i.FocHw_ModToVoltageMv  mcs_foc_hw.o
-    0x00000af8   0x00000af8   0x00000006   Code   RO          527    i.FocHw_PhaseDifference  mcs_foc_hw.o
-    0x00000afe   0x00000afe   0x00000002   PAD
-    0x00000b00   0x00000b00   0x00000018   Code   RO          528    i.FocHw_SatS16      mcs_foc_hw.o
-    0x00000b18   0x00000b18   0x00000014   Code   RO         1122    i.Foc_AbsS32        mcs_pwm_foc.o
-    0x00000b2c   0x00000b2c   0x00000054   Code   RO          984    i.Foc_Atan2Q16      sensorless_ctrl.o
-    0x00000b80   0x00000b80   0x0000005c   Code   RO         1123    i.Foc_InitMotorStruct  mcs_pwm_foc.o
-    0x00000bdc   0x00000bdc   0x00000014   Code   RO         1124    i.Foc_IntegrateCurrentError  mcs_pwm_foc.o
-    0x00000bf0   0x00000bf0   0x00000010   Code   RO         1125    i.Foc_LimitS32      mcs_pwm_foc.o
-    0x00000c00   0x00000c00   0x00000018   Code   RO         1126    i.Foc_SatS16        mcs_pwm_foc.o
-    0x00000c18   0x00000c18   0x00000034   Code   RO         1127    i.Foc_WriteSvmPwm   mcs_pwm_foc.o
-    0x00000c4c   0x00000c4c   0x00000074   Code   RO         1540    i.GPIO_Init         lks32mc03x_gpio.o
-    0x00000cc0   0x00000cc0   0x000000d4   Code   RO         1541    i.GPIO_PinAFConfig  lks32mc03x_gpio.o
-    0x00000d94   0x00000d94   0x0000000c   Code   RO         1548    i.GPIO_StructInit   lks32mc03x_gpio.o
-    0x00000da0   0x00000da0   0x0000003c   Code   RO         1466    i.GetRchTrimVal     lks32mc03x_flash.o
-    0x00000ddc   0x00000ddc   0x00000008   Code   RO          773    i.Hall_AbsS32       mcs_hall.o
-    0x00000de4   0x00000de4   0x00000088   Code   RO          774    i.Hall_AccumulateOffset  mcs_hall.o
-    0x00000e6c   0x00000e6c   0x00000026   Code   RO          775    i.Hall_ApproxVectorMagnitude  mcs_hall.o
-    0x00000e92   0x00000e92   0x00000002   PAD
-    0x00000e94   0x00000e94   0x00000024   Code   RO          776    i.Hall_CalculateGain  mcs_hall.o
-    0x00000eb8   0x00000eb8   0x00000048   Code   RO          777    i.Hall_CalculateOrthogonal  mcs_hall.o
-    0x00000f00   0x00000f00   0x00000010   Code   RO          778    i.Hall_CalibrationIsValid  mcs_hall.o
-    0x00000f10   0x00000f10   0x00000010   Code   RO          779    i.Hall_CaptureSample  mcs_hall.o
-    0x00000f20   0x00000f20   0x00000010   Code   RO          780    i.Hall_ClearBytes   mcs_hall.o
-    0x00000f30   0x00000f30   0x00000028   Code   RO          781    i.Hall_ClearCalibration  mcs_hall.o
-    0x00000f58   0x00000f58   0x00000078   Code   RO          782    i.Hall_CompleteOrthogonalStage  mcs_hall.o
-    0x00000fd0   0x00000fd0   0x00000078   Code   RO          783    i.Hall_CompleteRawStage  mcs_hall.o
-    0x00001048   0x00001048   0x00000070   Code   RO          784    i.Hall_CopyCalibrationToRecord  mcs_hall.o
-    0x000010b8   0x000010b8   0x00000048   Code   RO          785    i.Hall_CopyRecordToCalibration  mcs_hall.o
-    0x00001100   0x00001100   0x00000034   Code   RO          786    i.Hall_Crc32        mcs_hall.o
-    0x00001134   0x00001134   0x0000001c   Code   RO          787    i.Hall_Fail         mcs_hall.o
-    0x00001150   0x00001150   0x0000011c   Code   RO          788    i.Hall_FastUpdate   mcs_hall.o
-    0x0000126c   0x0000126c   0x00000078   Code   RO          790    i.Hall_GetOffsetCandidate  mcs_hall.o
-    0x000012e4   0x000012e4   0x0000002c   Code   RO          792    i.Hall_LearnGetDriveMode  mcs_hall.o
-    0x00001310   0x00001310   0x00000084   Code   RO          793    i.Hall_LearnInit    mcs_hall.o
-    0x00001394   0x00001394   0x0000025c   Code   RO          795    i.Hall_LearnTask1ms  mcs_hall.o
-    0x000015f0   0x000015f0   0x0000000e   Code   RO          796    i.Hall_MechanicalToElectrical  mcs_hall.o
-    0x000015fe   0x000015fe   0x00000002   PAD
-    0x00001600   0x00001600   0x00000050   Code   RO          797    i.Hall_MinMaxChangedWithin  mcs_hall.o
-    0x00001650   0x00001650   0x0000006c   Code   RO          798    i.Hall_MinMaxConverged  mcs_hall.o
-    0x000016bc   0x000016bc   0x00000008   Code   RO          799    i.Hall_Normalize    mcs_hall.o
-    0x000016c4   0x000016c4   0x000000cc   Code   RO          800    i.Hall_OffsetConverged  mcs_hall.o
-    0x00001790   0x00001790   0x00000150   Code   RO          801    i.Hall_ProcessAlignment  mcs_hall.o
-    0x000018e0   0x000018e0   0x0000007c   Code   RO          802    i.Hall_RecordIsValid  mcs_hall.o
-    0x0000195c   0x0000195c   0x00000044   Code   RO          803    i.Hall_ResetLearning  mcs_hall.o
-    0x000019a0   0x000019a0   0x00000014   Code   RO          804    i.Hall_ResetOffsetWindow  mcs_hall.o
-    0x000019b4   0x000019b4   0x0000004c   Code   RO          805    i.Hall_ResetStage   mcs_hall.o
-    0x00001a00   0x00001a00   0x00000020   Code   RO          806    i.Hall_SaveMinMaxCheckpoint  mcs_hall.o
-    0x00001a20   0x00001a20   0x00000028   Code   RO          807    i.Hall_UpdateMinMax  mcs_hall.o
-    0x00001a48   0x00001a48   0x00000058   Code   RO          808    i.Hall_UpdateTravel  mcs_hall.o
-    0x00001aa0   0x00001aa0   0x0000002c   Code   RO          191    i.HardFault_Handler  interrupt.o
-    0x00001acc   0x00001acc   0x0000006c   Code   RO         1198    i.Hardware_init     hardware_init.o
-    0x00001b38   0x00001b38   0x00000018   Code   RO         1775    i.IWDG_Feed         lks32mc03x_iwdg.o
-    0x00001b50   0x00001b50   0x0000003c   Code   RO         1776    i.IWDG_Init         lks32mc03x_iwdg.o
-    0x00001b8c   0x00001b8c   0x00000044   Code   RO         1199    i.InitAdcMotor0     hardware_init.o
-    0x00001bd0   0x00001bd0   0x000000ec   Code   RO         1200    i.InitBroadGPIO     hardware_init.o
-    0x00001cbc   0x00001cbc   0x0000004c   Code   RO         1201    i.InitCmpMotor0     hardware_init.o
-    0x00001d08   0x00001d08   0x0000001e   Code   RO         1202    i.InitDacMotor0     hardware_init.o
-    0x00001d26   0x00001d26   0x00000002   PAD
-    0x00001d28   0x00001d28   0x000000ac   Code   RO         1203    i.InitEpwmMotor0    hardware_init.o
-    0x00001dd4   0x00001dd4   0x00000030   Code   RO         1204    i.InitPgaMotor0     hardware_init.o
-    0x00001e04   0x00001e04   0x0000001c   Code   RO         1205    i.InitWatchDog      hardware_init.o
-    0x00001e20   0x00001e20   0x0000001c   Code   RO          192    i.MCPWM0_IRQHandler  interrupt.o
-    0x00001e3c   0x00001e3c   0x00000224   Code   RO         1815    i.MCPWM_Init        lks32mc03x_mcpwm.o
-    0x00002060   0x00002060   0x0000000a   Code   RO         1816    i.MCPWM_StructInit  lks32mc03x_mcpwm.o
-    0x0000206a   0x0000206a   0x00000002   PAD
-    0x0000206c   0x0000206c   0x0000002c   Code   RO          606    i.Mcs_Task_Run      mcs_task.o
-    0x00002098   0x00002098   0x00000008   Code   RO          438    i.Motor_ControlAbsS32  mcs_control.o
-    0x000020a0   0x000020a0   0x00000058   Code   RO          439    i.Motor_ControlCurrentExceeded  mcs_control.o
-    0x000020f8   0x000020f8   0x00000034   Code   RO          440    i.Motor_ControlFaultStop  mcs_control.o
-    0x0000212c   0x0000212c   0x00000044   Code   RO          441    i.Motor_ControlInit  mcs_control.o
-    0x00002170   0x00002170   0x00000010   Code   RO          442    i.Motor_ControlLimitS32  mcs_control.o
-    0x00002180   0x00002180   0x0000001c   Code   RO          443    i.Motor_ControlStepTowards  mcs_control.o
-    0x0000219c   0x0000219c   0x000001f0   Code   RO          444    i.Motor_ControlTask1ms  mcs_control.o
-    0x0000238c   0x0000238c   0x00000016   Code   RO          445    i.Motor_CurrentCommandReset  mcs_control.o
-    0x000023a2   0x000023a2   0x00000002   PAD
-    0x000023a4   0x000023a4   0x00000060   Code   RO          446    i.Motor_CurrentCommandUpdate  mcs_control.o
-    0x00002404   0x00002404   0x00000010   Code   RO         1128    i.Motor_CurrentLoopRun  mcs_pwm_foc.o
-    0x00002414   0x00002414   0x00000010   Code   RO         1129    i.Motor_FocInit     mcs_pwm_foc.o
-    0x00002424   0x00002424   0x00000058   Code   RO          529    i.Motor_FocSlowUpdate1ms  mcs_foc_hw.o
-    0x0000247c   0x0000247c   0x00000054   Code   RO          710    i.Motor_GetSinCosQ15  mcs_motor.o
-    0x000024d0   0x000024d0   0x00000064   Code   RO          447    i.Motor_SetCurrentTarget  mcs_control.o
-    0x00002534   0x00002534   0x00000044   Code   RO         1206    i.NVIC_SetPriority  hardware_init.o
-    0x00002578   0x00002578   0x000000f8   Code   RO         1470    i.ProgramPage       lks32mc03x_flash.o
-    0x00002670   0x00002670   0x00000030   Code   RO          530    i.PwmAOutputs       mcs_foc_hw.o
-    0x000026a0   0x000026a0   0x00000040   Code   RO         1471    i.Read_Flash        lks32mc03x_flash.o
-    0x000026e0   0x000026e0   0x0000005c   Code   RO         2116    i.Read_Trim         lks32mc03x_nvr.lib(lks32mc03x_nvr.o)
-    0x0000273c   0x0000273c   0x00000060   Code   RO          284    i.Run_Status_Check  user_app.o
-    0x0000279c   0x0000279c   0x00000012   Code   RO         1063    i.SVM_LimitInt32    mcs_math.o
-    0x000027ae   0x000027ae   0x00000002   PAD
-    0x000027b0   0x000027b0   0x00000044   Code   RO         1909    i.SYS_AnalogModuleClockCmd  lks32mc03x_sys.o
-    0x000027f4   0x000027f4   0x0000001c   Code   RO         1911    i.SYS_EnableWatchDog  lks32mc03x_sys.o
-    0x00002810   0x00002810   0x00000024   Code   RO         1914    i.SYS_ModuleClockCmd  lks32mc03x_sys.o
-    0x00002834   0x00002834   0x0000004e   Code   RO         1472    i.SYS_VolSelModule  lks32mc03x_flash.o
-    0x00002882   0x00002882   0x0000000a   Code   RO          448    i.StopMotorImmdly   mcs_control.o
-    0x0000288c   0x0000288c   0x00000008   Code   RO         1207    i.SystemInit        hardware_init.o
-    0x00002894   0x00002894   0x000000bc   Code   RO            3    i.Task_Scheduler    main.o
-    0x00002950   0x00002950   0x0000001c   Code   RO          246    i.Task_vTickTimerEvent  manage.o
-    0x0000296c   0x0000296c   0x00000038   Code   RO         2001    i.TempSensor_Init   lks32mc03x_tmp.o
-    0x000029a4   0x000029a4   0x00000030   Code   RO          285    i.UARTADD           user_app.o
-    0x000029d4   0x000029d4   0x00000080   Code   RO         1208    i.UART_HardWare_Init  hardware_init.o
-    0x00002a54   0x00002a54   0x000000d8   Code   RO          193    i.UART_IRQHandler   interrupt.o
-    0x00002b2c   0x00002b2c   0x000000a4   Code   RO         2034    i.UART_Init         lks32mc03x_uart.o
-    0x00002bd0   0x00002bd0   0x00000004   Code   RO         2035    i.UART_ReadData     lks32mc03x_uart.o
-    0x00002bd4   0x00002bd4   0x00000004   Code   RO         2037    i.UART_SendData     lks32mc03x_uart.o
-    0x00002bd8   0x00002bd8   0x0000001e   Code   RO         2041    i.UART_StructInit   lks32mc03x_uart.o
-    0x00002bf6   0x00002bf6   0x00000002   PAD
-    0x00002bf8   0x00002bf8   0x00000014   Code   RO          286    i.Uartrx_Error_Check  user_app.o
-    0x00002c0c   0x00002c0c   0x00000020   Code   RO          287    i.User_App_Task_Run  user_app.o
-    0x00002c2c   0x00002c2c   0x00000008   Code   RO          288    i.User_Task_Always  user_app.o
-    0x00002c34   0x00002c34   0x00000048   Code   RO          289    i.User_Uart_Receive_Check  user_app.o
-    0x00002c7c   0x00002c7c   0x0000002c   Code   RO          247    i.User_app_init     manage.o
-    0x00002ca8   0x00002ca8   0x00000030   Code   RO          594    i.__ARM_common_ll_mulss  mcs_foc_hw.o
-    0x00002cd8   0x00002cd8   0x0000001a   Code   RO          699    i.__ARM_common_switch8  mcs_direction_test.o
-    0x00002cf2   0x00002cf2   0x0000000e   Code   RO         2188    i.__scatterload_copy  mc_p.l(handlers.o)
-    0x00002d00   0x00002d00   0x00000002   Code   RO         2189    i.__scatterload_null  mc_p.l(handlers.o)
-    0x00002d02   0x00002d02   0x0000000e   Code   RO         2190    i.__scatterload_zeroinit  mc_p.l(handlers.o)
-    0x00002d10   0x00002d10   0x00000234   Code   RO         1131    i.control_current   mcs_pwm_foc.o
-    0x00002f44   0x00002f44   0x00000010   Code   RO         1209    i.delay             hardware_init.o
-    0x00002f54   0x00002f54   0x0000009c   Code   RO          985    i.foc_observer_apply_correction  sensorless_ctrl.o
-    0x00002ff0   0x00002ff0   0x0000006c   Code   RO          986    i.foc_observer_pll_run  sensorless_ctrl.o
-    0x0000305c   0x0000305c   0x00000020   Code   RO          987    i.foc_observer_reset  sensorless_ctrl.o
-    0x0000307c   0x0000307c   0x00000094   Code   RO          988    i.foc_observer_update  sensorless_ctrl.o
-    0x00003110   0x00003110   0x00000012   Code   RO          989    i.foc_observer_update_phase  sensorless_ctrl.o
-    0x00003122   0x00003122   0x00000002   PAD
-    0x00003124   0x00003124   0x0000004c   Code   RO          990    i.foc_sensorless_reset  sensorless_ctrl.o
-    0x00003170   0x00003170   0x000001b4   Code   RO          991    i.foc_sensorless_update  sensorless_ctrl.o
-    0x00003324   0x00003324   0x00000016   Code   RO            4    i.main              main.o
-    0x0000333a   0x0000333a   0x00000002   PAD
-    0x0000333c   0x0000333c   0x0000003c   Code   RO          387    i.mc_sys_init       mcs_init.o
-    0x00003378   0x00003378   0x0000001a   Code   RO          992    i.observer_div_1000  sensorless_ctrl.o
-    0x00003392   0x00003392   0x0000000e   Code   RO          993    i.observer_truncate_abs  sensorless_ctrl.o
-    0x000033a0   0x000033a0   0x00000008   Code   RO         1064    i.utils_abs_s32     mcs_math.o
-    0x000033a8   0x000033a8   0x0000001e   Code   RO         1065    i.utils_max_abs     mcs_math.o
-    0x000033c6   0x000033c6   0x00000016   Code   RO         1068    i.utils_truncate_number  mcs_math.o
-    0x000033dc   0x000033dc   0x00000022   Code   RO         1069    i.utils_truncate_number_abs  mcs_math.o
-    0x000033fe   0x000033fe   0x00000200   Data   RO          716    .constdata          mcs_motor.o
-    0x000035fe   0x000035fe   0x0000001e   Data   RO          994    .constdata          sensorless_ctrl.o
-    0x0000361c   0x0000361c   0x00000020   Data   RO         2186    Region$$Table       anon$$obj.o
+    0x00000000   0x00000000   0x000000c0   Data   RO         2132    RESET               startup_lks32mc03x.o
+    0x000000c0   0x000000c0   0x00000000   Code   RO         2172  * .ARM.Collect$$$$00000000  mc_p.l(entry.o)
+    0x000000c0   0x000000c0   0x00000004   Code   RO         2185    .ARM.Collect$$$$00000001  mc_p.l(entry2.o)
+    0x000000c4   0x000000c4   0x00000004   Code   RO         2188    .ARM.Collect$$$$00000004  mc_p.l(entry5.o)
+    0x000000c8   0x000000c8   0x00000000   Code   RO         2190    .ARM.Collect$$$$00000008  mc_p.l(entry7b.o)
+    0x000000c8   0x000000c8   0x00000000   Code   RO         2192    .ARM.Collect$$$$0000000A  mc_p.l(entry8b.o)
+    0x000000c8   0x000000c8   0x00000008   Code   RO         2193    .ARM.Collect$$$$0000000B  mc_p.l(entry9a.o)
+    0x000000d0   0x000000d0   0x00000004   Code   RO         2200    .ARM.Collect$$$$0000000E  mc_p.l(entry12b.o)
+    0x000000d4   0x000000d4   0x00000000   Code   RO         2195    .ARM.Collect$$$$0000000F  mc_p.l(entry10a.o)
+    0x000000d4   0x000000d4   0x00000000   Code   RO         2197    .ARM.Collect$$$$00000011  mc_p.l(entry11a.o)
+    0x000000d4   0x000000d4   0x00000004   Code   RO         2186    .ARM.Collect$$$$00002712  mc_p.l(entry2.o)
+    0x000000d8   0x000000d8   0x00000028   Code   RO         2133    .text               startup_lks32mc03x.o
+    0x00000100   0x00000100   0x0000002c   Code   RO         2175    .text               mc_p.l(uidiv.o)
+    0x0000012c   0x0000012c   0x00000028   Code   RO         2177    .text               mc_p.l(idiv.o)
+    0x00000154   0x00000154   0x0000004c   Code   RO         2179    .text               mc_p.l(ldiv.o)
+    0x000001a0   0x000001a0   0x0000007a   Code   RO         2181    .text               mc_p.l(llmul.o)
+    0x0000021a   0x0000021a   0x00000024   Code   RO         2183    .text               mc_p.l(memseta.o)
+    0x0000023e   0x0000023e   0x00000060   Code   RO         2201    .text               mc_p.l(uldiv.o)
+    0x0000029e   0x0000029e   0x00000020   Code   RO         2203    .text               mc_p.l(llshl.o)
+    0x000002be   0x000002be   0x00000002   PAD
+    0x000002c0   0x000002c0   0x00000024   Code   RO         2205    .text               mc_p.l(init.o)
+    0x000002e4   0x000002e4   0x00000022   Code   RO         2207    .text               mc_p.l(llushr.o)
+    0x00000306   0x00000306   0x0000003a   Code   RO         2217    .text               mc_p.l(__dczerorl.o)
+    0x00000340   0x00000340   0x00000088   Code   RO          188    i.ADC_IRQHandler    interrupt.o
+    0x000003c8   0x000003c8   0x00000050   Code   RO          546    i.AdcEocHandler     mcs_foc_hw.o
+    0x00000418   0x00000418   0x000000f8   Code   RO          547    i.AdcSampleCal      mcs_foc_hw.o
+    0x00000510   0x00000510   0x000000d8   Code   RO          283    i.AnalyseUART0      user_app.o
+    0x000005e8   0x000005e8   0x00000040   Code   RO          189    i.CMP_IRQHandler    interrupt.o
+    0x00000628   0x00000628   0x000000d4   Code   RO         1351    i.CMP_Init          lks32mc03x_cmp.o
+    0x000006fc   0x000006fc   0x0000003e   Code   RO         1352    i.CMP_StructInit    lks32mc03x_cmp.o
+    0x0000073a   0x0000073a   0x00000002   PAD
+    0x0000073c   0x0000073c   0x00000050   Code   RO         1218    i.Clock_Init        hardware_init.o
+    0x0000078c   0x0000078c   0x00000018   Code   RO          385    i.ConfigAdcModeMotor0  mcs_init.o
+    0x000007a4   0x000007a4   0x000000a8   Code   RO          386    i.CurrentOffsetCalibration  mcs_init.o
+    0x0000084c   0x0000084c   0x00000084   Code   RO         1386    i.DAC_Init          lks32mc03x_dac.o
+    0x000008d0   0x000008d0   0x00000058   Code   RO         1388    i.DAC_OutputVoltage  lks32mc03x_dac.o
+    0x00000928   0x00000928   0x0000000a   Code   RO         1389    i.DAC_StructInit    lks32mc03x_dac.o
+    0x00000932   0x00000932   0x00000002   PAD
+    0x00000934   0x00000934   0x0000008c   Code   RO         1486    i.EraseSector       lks32mc03x_flash.o
+    0x000009c0   0x000009c0   0x00000168   Code   RO         1083    i.FOC_SVM_Q15       mcs_math.o
+    0x00000b28   0x00000b28   0x00000020   Code   RO          190    i.FeedDogcmd        interrupt.o
+    0x00000b48   0x00000b48   0x00000014   Code   RO          548    i.FocHw_AdcToCurrentMa  mcs_foc_hw.o
+    0x00000b5c   0x00000b5c   0x00000018   Code   RO          549    i.FocHw_ModToVoltageMv  mcs_foc_hw.o
+    0x00000b74   0x00000b74   0x00000006   Code   RO          550    i.FocHw_PhaseDifference  mcs_foc_hw.o
+    0x00000b7a   0x00000b7a   0x00000002   PAD
+    0x00000b7c   0x00000b7c   0x00000018   Code   RO          551    i.FocHw_SatS16      mcs_foc_hw.o
+    0x00000b94   0x00000b94   0x00000014   Code   RO         1143    i.Foc_AbsS32        mcs_pwm_foc.o
+    0x00000ba8   0x00000ba8   0x00000054   Code   RO         1005    i.Foc_Atan2Q16      sensorless_ctrl.o
+    0x00000bfc   0x00000bfc   0x0000005c   Code   RO         1144    i.Foc_InitMotorStruct  mcs_pwm_foc.o
+    0x00000c58   0x00000c58   0x00000014   Code   RO         1145    i.Foc_IntegrateCurrentError  mcs_pwm_foc.o
+    0x00000c6c   0x00000c6c   0x00000010   Code   RO         1146    i.Foc_LimitS32      mcs_pwm_foc.o
+    0x00000c7c   0x00000c7c   0x00000018   Code   RO         1147    i.Foc_SatS16        mcs_pwm_foc.o
+    0x00000c94   0x00000c94   0x00000034   Code   RO         1148    i.Foc_WriteSvmPwm   mcs_pwm_foc.o
+    0x00000cc8   0x00000cc8   0x00000074   Code   RO         1561    i.GPIO_Init         lks32mc03x_gpio.o
+    0x00000d3c   0x00000d3c   0x000000d4   Code   RO         1562    i.GPIO_PinAFConfig  lks32mc03x_gpio.o
+    0x00000e10   0x00000e10   0x0000000c   Code   RO         1569    i.GPIO_StructInit   lks32mc03x_gpio.o
+    0x00000e1c   0x00000e1c   0x0000003c   Code   RO         1487    i.GetRchTrimVal     lks32mc03x_flash.o
+    0x00000e58   0x00000e58   0x00000008   Code   RO          794    i.Hall_AbsS32       mcs_hall.o
+    0x00000e60   0x00000e60   0x00000088   Code   RO          795    i.Hall_AccumulateOffset  mcs_hall.o
+    0x00000ee8   0x00000ee8   0x00000026   Code   RO          796    i.Hall_ApproxVectorMagnitude  mcs_hall.o
+    0x00000f0e   0x00000f0e   0x00000002   PAD
+    0x00000f10   0x00000f10   0x00000024   Code   RO          797    i.Hall_CalculateGain  mcs_hall.o
+    0x00000f34   0x00000f34   0x00000048   Code   RO          798    i.Hall_CalculateOrthogonal  mcs_hall.o
+    0x00000f7c   0x00000f7c   0x00000010   Code   RO          799    i.Hall_CalibrationIsValid  mcs_hall.o
+    0x00000f8c   0x00000f8c   0x00000010   Code   RO          800    i.Hall_CaptureSample  mcs_hall.o
+    0x00000f9c   0x00000f9c   0x00000010   Code   RO          801    i.Hall_ClearBytes   mcs_hall.o
+    0x00000fac   0x00000fac   0x00000028   Code   RO          802    i.Hall_ClearCalibration  mcs_hall.o
+    0x00000fd4   0x00000fd4   0x00000078   Code   RO          803    i.Hall_CompleteOrthogonalStage  mcs_hall.o
+    0x0000104c   0x0000104c   0x00000078   Code   RO          804    i.Hall_CompleteRawStage  mcs_hall.o
+    0x000010c4   0x000010c4   0x00000070   Code   RO          805    i.Hall_CopyCalibrationToRecord  mcs_hall.o
+    0x00001134   0x00001134   0x00000048   Code   RO          806    i.Hall_CopyRecordToCalibration  mcs_hall.o
+    0x0000117c   0x0000117c   0x00000034   Code   RO          807    i.Hall_Crc32        mcs_hall.o
+    0x000011b0   0x000011b0   0x0000001c   Code   RO          808    i.Hall_Fail         mcs_hall.o
+    0x000011cc   0x000011cc   0x0000011c   Code   RO          809    i.Hall_FastUpdate   mcs_hall.o
+    0x000012e8   0x000012e8   0x00000078   Code   RO          811    i.Hall_GetOffsetCandidate  mcs_hall.o
+    0x00001360   0x00001360   0x0000002c   Code   RO          813    i.Hall_LearnGetDriveMode  mcs_hall.o
+    0x0000138c   0x0000138c   0x00000084   Code   RO          814    i.Hall_LearnInit    mcs_hall.o
+    0x00001410   0x00001410   0x0000025c   Code   RO          816    i.Hall_LearnTask1ms  mcs_hall.o
+    0x0000166c   0x0000166c   0x0000000e   Code   RO          817    i.Hall_MechanicalToElectrical  mcs_hall.o
+    0x0000167a   0x0000167a   0x00000002   PAD
+    0x0000167c   0x0000167c   0x00000050   Code   RO          818    i.Hall_MinMaxChangedWithin  mcs_hall.o
+    0x000016cc   0x000016cc   0x0000006c   Code   RO          819    i.Hall_MinMaxConverged  mcs_hall.o
+    0x00001738   0x00001738   0x00000008   Code   RO          820    i.Hall_Normalize    mcs_hall.o
+    0x00001740   0x00001740   0x000000cc   Code   RO          821    i.Hall_OffsetConverged  mcs_hall.o
+    0x0000180c   0x0000180c   0x00000150   Code   RO          822    i.Hall_ProcessAlignment  mcs_hall.o
+    0x0000195c   0x0000195c   0x0000007c   Code   RO          823    i.Hall_RecordIsValid  mcs_hall.o
+    0x000019d8   0x000019d8   0x00000044   Code   RO          824    i.Hall_ResetLearning  mcs_hall.o
+    0x00001a1c   0x00001a1c   0x00000014   Code   RO          825    i.Hall_ResetOffsetWindow  mcs_hall.o
+    0x00001a30   0x00001a30   0x0000004c   Code   RO          826    i.Hall_ResetStage   mcs_hall.o
+    0x00001a7c   0x00001a7c   0x00000020   Code   RO          827    i.Hall_SaveMinMaxCheckpoint  mcs_hall.o
+    0x00001a9c   0x00001a9c   0x00000028   Code   RO          828    i.Hall_UpdateMinMax  mcs_hall.o
+    0x00001ac4   0x00001ac4   0x00000058   Code   RO          829    i.Hall_UpdateTravel  mcs_hall.o
+    0x00001b1c   0x00001b1c   0x0000002c   Code   RO          191    i.HardFault_Handler  interrupt.o
+    0x00001b48   0x00001b48   0x0000006c   Code   RO         1219    i.Hardware_init     hardware_init.o
+    0x00001bb4   0x00001bb4   0x00000018   Code   RO         1796    i.IWDG_Feed         lks32mc03x_iwdg.o
+    0x00001bcc   0x00001bcc   0x0000003c   Code   RO         1797    i.IWDG_Init         lks32mc03x_iwdg.o
+    0x00001c08   0x00001c08   0x00000044   Code   RO         1220    i.InitAdcMotor0     hardware_init.o
+    0x00001c4c   0x00001c4c   0x000000ec   Code   RO         1221    i.InitBroadGPIO     hardware_init.o
+    0x00001d38   0x00001d38   0x0000004c   Code   RO         1222    i.InitCmpMotor0     hardware_init.o
+    0x00001d84   0x00001d84   0x0000001e   Code   RO         1223    i.InitDacMotor0     hardware_init.o
+    0x00001da2   0x00001da2   0x00000002   PAD
+    0x00001da4   0x00001da4   0x000000ac   Code   RO         1224    i.InitEpwmMotor0    hardware_init.o
+    0x00001e50   0x00001e50   0x00000030   Code   RO         1225    i.InitPgaMotor0     hardware_init.o
+    0x00001e80   0x00001e80   0x0000001c   Code   RO         1226    i.InitWatchDog      hardware_init.o
+    0x00001e9c   0x00001e9c   0x0000001c   Code   RO          192    i.MCPWM0_IRQHandler  interrupt.o
+    0x00001eb8   0x00001eb8   0x00000224   Code   RO         1836    i.MCPWM_Init        lks32mc03x_mcpwm.o
+    0x000020dc   0x000020dc   0x0000000a   Code   RO         1837    i.MCPWM_StructInit  lks32mc03x_mcpwm.o
+    0x000020e6   0x000020e6   0x00000002   PAD
+    0x000020e8   0x000020e8   0x00000034   Code   RO          627    i.Mcs_Task_Run      mcs_task.o
+    0x0000211c   0x0000211c   0x00000008   Code   RO          438    i.Motor_ControlAbsS32  mcs_control.o
+    0x00002124   0x00002124   0x00000058   Code   RO          439    i.Motor_ControlCurrentExceeded  mcs_control.o
+    0x0000217c   0x0000217c   0x00000038   Code   RO          440    i.Motor_ControlFaultStop  mcs_control.o
+    0x000021b4   0x000021b4   0x0000004c   Code   RO          441    i.Motor_ControlInit  mcs_control.o
+    0x00002200   0x00002200   0x00000010   Code   RO          442    i.Motor_ControlLimitS32  mcs_control.o
+    0x00002210   0x00002210   0x0000001c   Code   RO          443    i.Motor_ControlStepTowards  mcs_control.o
+    0x0000222c   0x0000222c   0x00000218   Code   RO          444    i.Motor_ControlTask1ms  mcs_control.o
+    0x00002444   0x00002444   0x00000016   Code   RO          445    i.Motor_CurrentCommandReset  mcs_control.o
+    0x0000245a   0x0000245a   0x00000002   PAD
+    0x0000245c   0x0000245c   0x000000a0   Code   RO          446    i.Motor_CurrentCommandUpdate  mcs_control.o
+    0x000024fc   0x000024fc   0x00000010   Code   RO         1149    i.Motor_CurrentLoopRun  mcs_pwm_foc.o
+    0x0000250c   0x0000250c   0x00000010   Code   RO         1150    i.Motor_FocInit     mcs_pwm_foc.o
+    0x0000251c   0x0000251c   0x00000058   Code   RO          552    i.Motor_FocSlowUpdate1ms  mcs_foc_hw.o
+    0x00002574   0x00002574   0x00000054   Code   RO          731    i.Motor_GetSinCosQ15  mcs_motor.o
+    0x000025c8   0x000025c8   0x00000064   Code   RO          447    i.Motor_SetCurrentTarget  mcs_control.o
+    0x0000262c   0x0000262c   0x00000020   Code   RO          448    i.Motor_SpeedControlReset  mcs_control.o
+    0x0000264c   0x0000264c   0x00000240   Code   RO          449    i.Motor_SpeedControlUpdate1ms  mcs_control.o
+    0x0000288c   0x0000288c   0x00000058   Code   RO          450    i.Motor_SpeedGetIqLimit  mcs_control.o
+    0x000028e4   0x000028e4   0x00000054   Code   RO          451    i.Motor_SpeedRampUpdate  mcs_control.o
+    0x00002938   0x00002938   0x00000044   Code   RO         1227    i.NVIC_SetPriority  hardware_init.o
+    0x0000297c   0x0000297c   0x000000f8   Code   RO         1491    i.ProgramPage       lks32mc03x_flash.o
+    0x00002a74   0x00002a74   0x00000030   Code   RO          553    i.PwmAOutputs       mcs_foc_hw.o
+    0x00002aa4   0x00002aa4   0x00000040   Code   RO         1492    i.Read_Flash        lks32mc03x_flash.o
+    0x00002ae4   0x00002ae4   0x0000005c   Code   RO         2137    i.Read_Trim         lks32mc03x_nvr.lib(lks32mc03x_nvr.o)
+    0x00002b40   0x00002b40   0x00000060   Code   RO          284    i.Run_Status_Check  user_app.o
+    0x00002ba0   0x00002ba0   0x00000012   Code   RO         1084    i.SVM_LimitInt32    mcs_math.o
+    0x00002bb2   0x00002bb2   0x00000002   PAD
+    0x00002bb4   0x00002bb4   0x00000044   Code   RO         1930    i.SYS_AnalogModuleClockCmd  lks32mc03x_sys.o
+    0x00002bf8   0x00002bf8   0x0000001c   Code   RO         1932    i.SYS_EnableWatchDog  lks32mc03x_sys.o
+    0x00002c14   0x00002c14   0x00000024   Code   RO         1935    i.SYS_ModuleClockCmd  lks32mc03x_sys.o
+    0x00002c38   0x00002c38   0x0000004e   Code   RO         1493    i.SYS_VolSelModule  lks32mc03x_flash.o
+    0x00002c86   0x00002c86   0x0000000a   Code   RO          452    i.StopMotorImmdly   mcs_control.o
+    0x00002c90   0x00002c90   0x00000008   Code   RO         1228    i.SystemInit        hardware_init.o
+    0x00002c98   0x00002c98   0x000000bc   Code   RO            3    i.Task_Scheduler    main.o
+    0x00002d54   0x00002d54   0x0000001c   Code   RO          246    i.Task_vTickTimerEvent  manage.o
+    0x00002d70   0x00002d70   0x00000038   Code   RO         2022    i.TempSensor_Init   lks32mc03x_tmp.o
+    0x00002da8   0x00002da8   0x00000030   Code   RO          285    i.UARTADD           user_app.o
+    0x00002dd8   0x00002dd8   0x00000080   Code   RO         1229    i.UART_HardWare_Init  hardware_init.o
+    0x00002e58   0x00002e58   0x000000d8   Code   RO          193    i.UART_IRQHandler   interrupt.o
+    0x00002f30   0x00002f30   0x000000a4   Code   RO         2055    i.UART_Init         lks32mc03x_uart.o
+    0x00002fd4   0x00002fd4   0x00000004   Code   RO         2056    i.UART_ReadData     lks32mc03x_uart.o
+    0x00002fd8   0x00002fd8   0x00000004   Code   RO         2058    i.UART_SendData     lks32mc03x_uart.o
+    0x00002fdc   0x00002fdc   0x0000001e   Code   RO         2062    i.UART_StructInit   lks32mc03x_uart.o
+    0x00002ffa   0x00002ffa   0x00000002   PAD
+    0x00002ffc   0x00002ffc   0x00000014   Code   RO          286    i.Uartrx_Error_Check  user_app.o
+    0x00003010   0x00003010   0x00000020   Code   RO          287    i.User_App_Task_Run  user_app.o
+    0x00003030   0x00003030   0x00000008   Code   RO          288    i.User_Task_Always  user_app.o
+    0x00003038   0x00003038   0x00000048   Code   RO          289    i.User_Uart_Receive_Check  user_app.o
+    0x00003080   0x00003080   0x0000002c   Code   RO          247    i.User_app_init     manage.o
+    0x000030ac   0x000030ac   0x00000030   Code   RO          531    i.__ARM_common_ll_mulss  mcs_control.o
+    0x000030dc   0x000030dc   0x0000001a   Code   RO          720    i.__ARM_common_switch8  mcs_direction_test.o
+    0x000030f6   0x000030f6   0x0000000e   Code   RO         2211    i.__scatterload_copy  mc_p.l(handlers.o)
+    0x00003104   0x00003104   0x00000002   Code   RO         2212    i.__scatterload_null  mc_p.l(handlers.o)
+    0x00003106   0x00003106   0x0000000e   Code   RO         2213    i.__scatterload_zeroinit  mc_p.l(handlers.o)
+    0x00003114   0x00003114   0x00000234   Code   RO         1152    i.control_current   mcs_pwm_foc.o
+    0x00003348   0x00003348   0x00000010   Code   RO         1230    i.delay             hardware_init.o
+    0x00003358   0x00003358   0x0000009c   Code   RO         1006    i.foc_observer_apply_correction  sensorless_ctrl.o
+    0x000033f4   0x000033f4   0x0000006c   Code   RO         1007    i.foc_observer_pll_run  sensorless_ctrl.o
+    0x00003460   0x00003460   0x00000020   Code   RO         1008    i.foc_observer_reset  sensorless_ctrl.o
+    0x00003480   0x00003480   0x00000094   Code   RO         1009    i.foc_observer_update  sensorless_ctrl.o
+    0x00003514   0x00003514   0x00000012   Code   RO         1010    i.foc_observer_update_phase  sensorless_ctrl.o
+    0x00003526   0x00003526   0x00000002   PAD
+    0x00003528   0x00003528   0x0000004c   Code   RO         1011    i.foc_sensorless_reset  sensorless_ctrl.o
+    0x00003574   0x00003574   0x000001b4   Code   RO         1012    i.foc_sensorless_update  sensorless_ctrl.o
+    0x00003728   0x00003728   0x00000016   Code   RO            4    i.main              main.o
+    0x0000373e   0x0000373e   0x00000002   PAD
+    0x00003740   0x00003740   0x0000003c   Code   RO          387    i.mc_sys_init       mcs_init.o
+    0x0000377c   0x0000377c   0x0000001a   Code   RO         1013    i.observer_div_1000  sensorless_ctrl.o
+    0x00003796   0x00003796   0x0000000e   Code   RO         1014    i.observer_truncate_abs  sensorless_ctrl.o
+    0x000037a4   0x000037a4   0x00000008   Code   RO         1085    i.utils_abs_s32     mcs_math.o
+    0x000037ac   0x000037ac   0x0000001e   Code   RO         1086    i.utils_max_abs     mcs_math.o
+    0x000037ca   0x000037ca   0x00000016   Code   RO         1089    i.utils_truncate_number  mcs_math.o
+    0x000037e0   0x000037e0   0x00000022   Code   RO         1090    i.utils_truncate_number_abs  mcs_math.o
+    0x00003802   0x00003802   0x00000200   Data   RO          737    .constdata          mcs_motor.o
+    0x00003a02   0x00003a02   0x0000001e   Data   RO         1015    .constdata          sensorless_ctrl.o
+    0x00003a20   0x00003a20   0x00000020   Data   RO         2209    Region$$Table       anon$$obj.o
 
 
-    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x0000363c, Size: 0x00000668, Max: 0x00001000, ABSOLUTE, COMPRESSED[0x00000034])
+    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x00003a40, Size: 0x00000690, Max: 0x00001000, ABSOLUTE, COMPRESSED[0x00000044])
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -1420,24 +1482,23 @@ Memory Map of the image
     0x2000001c   COMPRESSED   0x00000014   Data   RW          249    .data               manage.o
     0x20000030   COMPRESSED   0x00000004   Data   RW          290    .data               user_app.o
     0x20000034   COMPRESSED   0x00000004   Data   RW          388    .data               mcs_init.o
-    0x20000038   COMPRESSED   0x00000012   Data   RW          449    .data               mcs_control.o
-    0x2000004a   COMPRESSED   0x00000002   PAD
-    0x2000004c   COMPRESSED   0x00000012   Data   RW          531    .data               mcs_foc_hw.o
-    0x2000005e   COMPRESSED   0x00000002   PAD
-    0x20000060   COMPRESSED   0x00000068   Data   RW          810    .data               mcs_hall.o
-    0x200000c8   COMPRESSED   0x00000002   Data   RW          811    .data               mcs_hall.o
-    0x200000ca   COMPRESSED   0x00000002   PAD
-    0x200000cc   COMPRESSED   0x00000020   Data   RW          995    .data               sensorless_ctrl.o
-    0x200000ec   COMPRESSED   0x0000003c   Data   RW         1133    .data               mcs_pwm_foc.o
-    0x20000128   COMPRESSED   0x00000006   Data   RW         1369    .data               lks32mc03x_dac.o
-    0x2000012e   COMPRESSED   0x00000004   Data   RW         2002    .data               lks32mc03x_tmp.o
-    0x20000132   COMPRESSED   0x00000002   PAD
-    0x20000134        -       0x0000001a   Zero   RW          248    .bss                manage.o
-    0x2000014e   COMPRESSED   0x00000002   PAD
-    0x20000150        -       0x00000044   Zero   RW          809    .bss                mcs_hall.o
-    0x20000194        -       0x000000d0   Zero   RW         1132    .bss                mcs_pwm_foc.o
-    0x20000264   COMPRESSED   0x00000004   PAD
-    0x20000268        -       0x00000400   Zero   RW         2109    STACK               startup_lks32mc03x.o
+    0x20000038   COMPRESSED   0x0000003c   Data   RW          453    .data               mcs_control.o
+    0x20000074   COMPRESSED   0x00000012   Data   RW          554    .data               mcs_foc_hw.o
+    0x20000086   COMPRESSED   0x00000002   PAD
+    0x20000088   COMPRESSED   0x00000068   Data   RW          831    .data               mcs_hall.o
+    0x200000f0   COMPRESSED   0x00000002   Data   RW          832    .data               mcs_hall.o
+    0x200000f2   COMPRESSED   0x00000002   PAD
+    0x200000f4   COMPRESSED   0x00000020   Data   RW         1016    .data               sensorless_ctrl.o
+    0x20000114   COMPRESSED   0x0000003c   Data   RW         1154    .data               mcs_pwm_foc.o
+    0x20000150   COMPRESSED   0x00000006   Data   RW         1390    .data               lks32mc03x_dac.o
+    0x20000156   COMPRESSED   0x00000004   Data   RW         2023    .data               lks32mc03x_tmp.o
+    0x2000015a   COMPRESSED   0x00000002   PAD
+    0x2000015c        -       0x0000001a   Zero   RW          248    .bss                manage.o
+    0x20000176   COMPRESSED   0x00000002   PAD
+    0x20000178        -       0x00000044   Zero   RW          830    .bss                mcs_hall.o
+    0x200001bc        -       0x000000d0   Zero   RW         1153    .bss                mcs_pwm_foc.o
+    0x2000028c   COMPRESSED   0x00000004   PAD
+    0x20000290        -       0x00000400   Zero   RW         2130    STACK               startup_lks32mc03x.o
 
 
 ==============================================================================
@@ -1461,23 +1522,23 @@ Image component sizes
        202         12          0          0          0       4256   lks32mc03x_uart.o
        210          8          0          8          0      40368   main.o
         72         20          0         20         26       1830   manage.o
-       984         76          0         18          0       7844   mcs_control.o
+      1928        122          0         60          0      13273   mcs_control.o
         26          0          0          0          0         72   mcs_direction_test.o
-       586         82          0         18          0       5612   mcs_foc_hw.o
-      3264        264          0        106         68      25615   mcs_hall.o
+       538         82          0         18          0       5536   mcs_foc_hw.o
+      3264        264          0        106         68      25634   mcs_hall.o
        252         44          0          4          0       2049   mcs_init.o
        472         18          0          0          0       5142   mcs_math.o
         84          4        512          0          0       1349   mcs_motor.o
        820         46          0         60        208       7557   mcs_pwm_foc.o
-        44          6          0          0          0        759   mcs_task.o
-      1098         48         30         32          0       8583   sensorless_ctrl.o
+        52          6          0          0          0        763   mcs_task.o
+      1098         48         30         32          0       8599   sensorless_ctrl.o
         40         14        192          0       1024        644   startup_lks32mc03x.o
        492         82          0          4          0       4024   user_app.o
 
     ----------------------------------------------------------------------
-     12520       1146        766        308       1332     164985   Object Totals
+     13424       1192        766        348       1332     170377   Object Totals
          0          0         32          0          0          0   (incl. Generated)
-        24          0          0          8          6          0   (incl. Padding)
+        24          0          0          6          6          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -1498,6 +1559,7 @@ Image component sizes
         40          0          0          0          0         72   idiv.o
         36          8          0          0          0         68   init.o
         76          0          0          0          0         76   ldiv.o
+       122          0          0          0          0         84   llmul.o
         32          0          0          0          0         68   llshl.o
         34          0          0          0          0         68   llushr.o
         36          0          0          0          0        100   memseta.o
@@ -1505,18 +1567,18 @@ Image component sizes
         96          0          0          0          0         84   uldiv.o
 
     ----------------------------------------------------------------------
-       598         16          0          0          0       1144   Library Totals
-         0          0          0          0          0          0   (incl. Padding)
+       722         16          0          0          0       1228   Library Totals
+         2          0          0          0          0          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Library Name
 
         92          0          0          0          0        536   lks32mc03x_nvr.lib
-       506         16          0          0          0        608   mc_p.l
+       628         16          0          0          0        692   mc_p.l
 
     ----------------------------------------------------------------------
-       598         16          0          0          0       1144   Library Totals
+       722         16          0          0          0       1228   Library Totals
 
     ----------------------------------------------------------------------
 
@@ -1525,15 +1587,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     13118       1162        766        308       1332     160149   Grand Totals
-     13118       1162        766         52       1332     160149   ELF Image Totals (compressed)
-     13118       1162        766         52          0          0   ROM Totals
+     14146       1208        766        348       1332     165405   Grand Totals
+     14146       1208        766         68       1332     165405   ELF Image Totals (compressed)
+     14146       1208        766         68          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                13884 (  13.56kB)
-    Total RW  Size (RW Data + ZI Data)              1640 (   1.60kB)
-    Total ROM Size (Code + RO Data + RW Data)      13936 (  13.61kB)
+    Total RO  Size (Code + RO Data)                14912 (  14.56kB)
+    Total RW  Size (RW Data + ZI Data)              1680 (   1.64kB)
+    Total ROM Size (Code + RO Data + RW Data)      14980 (  14.63kB)
 
 ==============================================================================
 

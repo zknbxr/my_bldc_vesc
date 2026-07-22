@@ -95,7 +95,7 @@ static void AnalyseUART0(void)
 
 		/*
 		 * 固定9字节协议：
-		 * AA AA 地址 命令 速度 电流 行程高 行程低 校验和
+		 * AA AA 地址 命令 速度(当前保留) 电流 行程高 行程低 校验和
 		 * 校验和为BYTE2到BYTE7的8位累加结果。
 		 */
 		if((length == UART_RX_FRAME_LEN) &&

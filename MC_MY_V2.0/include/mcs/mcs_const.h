@@ -23,6 +23,14 @@
 #define MCS_MOTOR_DIRECTION_REVERSE         (-1)
 #define MCS_MOTOR_DIRECTION_DEFAULT         MCS_MOTOR_DIRECTION_FORWARD
 
+/* 操作模式的外层控制器选择；底层最终都由ADC中断中的电流环执行。 */
+#define MCS_OPERATION_CONTROL_CURRENT        (0U)
+#define MCS_OPERATION_CONTROL_SPEED          (1U)
+
+/* 正式操作模式固定速度目标，以及PLL允许估算的最大电角速度，单位ERPM。 */
+#define MCS_SPEED_TARGET_DEFAULT_ERPM         (10000)
+#define MCS_SPEED_EST_MAX_ERPM                (20000L)
+
 
 #define UTILS_LP_FAST(value, sample, filter_constant) \
     (value = value + ((s32)(filter_constant * (sample - value)) >> 15))

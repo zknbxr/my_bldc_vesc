@@ -8,7 +8,7 @@
 #define OBSERVER_GAIN_TS_Q13               (256L)
 #define OBSERVER_PLL_KP_Q15                (4096L)
 #define OBSERVER_PLL_KI_Q15                (64L)
-#define OBSERVER_PLL_MAX_ERPM              (3000L)
+#define OBSERVER_PLL_MAX_ERPM              MCS_SPEED_EST_MAX_ERPM
 /* 一圈 65536 个角度计数，PLL 更新频率 = 14000 / 4 = 3500 Hz。 */
 #define OBSERVER_PLL_STEP_Q16_PER_ERPM     (20452L)
 

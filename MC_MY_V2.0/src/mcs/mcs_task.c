@@ -24,8 +24,9 @@ void Mcs_Task_Run(const TASK_TICK *tick)
         /* 测试任务退出正式调度，保留源码仅供后续单独调试。 */
         // Motor_DirectionTest_Task();
 
-        /* 正式控制先发布目标，再由独立斜坡模块生成 ADC 快速环使用的电流指令。 */
+        /* 控制状态机先管理PWM，速度外环再发布iq目标，最后由电流斜坡送入快速环。 */
         Motor_ControlTask1ms(tick->ms1);
+        Motor_SpeedControlUpdate1ms(&m_motor, tick->ms1);
         Motor_CurrentCommandUpdate(&m_motor, tick->ms1);
         Hall_LearnTask1ms(tick->ms1);
     }

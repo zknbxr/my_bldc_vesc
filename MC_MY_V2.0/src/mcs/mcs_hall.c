@@ -817,7 +817,7 @@ static void Hall_ResetAlignmentAverage(void)
     s_hallAlignOffsetSin = 0L;
     s_hallAlignOffsetCos = 0L;
 }
-static uint8_t text_check;
+volatile uint8_t text_check;
 static void Hall_ProcessAlignment(s16 raw_a, s16 raw_b)
 {
     MCS_TRIG_Q15 offset_trig;
