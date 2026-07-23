@@ -19,16 +19,6 @@ typedef enum {
     HALL_LEARN_STATE_FAILED
 } hall_learn_state_t;
 
-/*
- * 霍尔工作模式：
- * LEARN使用无感角度完成三级学习；
- * NORMAL从Flash读取参数并由霍尔角度直接驱动FOC。
- */
-typedef enum {
-    HALL_WORK_MODE_LEARN = 0,
-    HALL_WORK_MODE_NORMAL = 1
-} hall_work_mode_t;
-
 /* 学习模式向正式控制层发布的电机动作，不直接操作PWM。 */
 typedef enum {
     HALL_LEARN_DRIVE_STOP = 0,
@@ -67,7 +57,6 @@ typedef struct {
 
 /* 学习结果和关键中间量，保留为全局变量方便Keil Watch观察。 */
 extern volatile hall_calibration_t gHallCalibration;
-extern volatile u8 gHallWorkMode;
 extern volatile u8 gHallStorageState;
 extern volatile u8 gHallLearnState;
 extern volatile u8 gHallLearnError;
@@ -80,7 +69,6 @@ extern volatile u32 gHallLearnSampleCount;
 extern volatile u16 gHallLearnQualityQ15;
 extern volatile u16 gHallAlignStableSamples;
 extern volatile s16 gHallAlignElectricalRaw;
-extern volatile s16 gHallLearnSpinCurrentMa;
 extern volatile s16 gHallLearnAlignCurrentMa;
 extern volatile s16 gHallLearnAlignPhase;
 extern volatile s16 gHallRawA;
@@ -92,11 +80,12 @@ extern volatile s16 gHallElectricalPhase;
 extern volatile s16 gHallControlPhase;
 extern volatile s16 gHallPhaseError;
 
-/* 上电优先加载Flash；没有有效参数时自动进入无感学习模式。 */
+/* 根据MCS_POWER_ON_WORK_MODE加载参数或进入自动无感学习。 */
 void Hall_LearnInit(void);
 void Hall_LearnRequest(void);
 void Hall_LearnCancel(void);
 hall_learn_drive_mode_t Hall_LearnGetDriveMode(void);
+void Hall_LearnBuildControlRequest(motor_control_request_t *request);
 
 /* 学习模式由ADC中断调用：保存同一时刻的两路霍尔值和无感参考角。 */
 void Hall_CaptureSample(s16 hall_a, s16 hall_b, s16 reference_phase);

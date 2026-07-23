@@ -386,7 +386,7 @@ void foc_sensorless_update(motor_all_state_t *motor_now)
     state_now = &motor_now->m_motor_state;
 
     /* 退出运行或切换到其他传感器时，使下次进入无感必定重新初始化。 */
-    if((motor_now->m_state != MC_STATE_RUNNING) ||
+    if(!Motor_IsControlActive(motor_now) ||
        (motor_now->m_conf->foc_sensor_mode != FOC_SENSOR_MODE_SENSORLESS))
     {
         motor_now->m_observer_initial = false;

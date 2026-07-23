@@ -28,8 +28,12 @@
 #define HALL_ALIGN_CURRENT_TOLERANCE_MA       (50L)
 #define HALL_ALIGN_MEASURED_TOLERANCE_MA      (150L)
 
-/* 正常模式每4个PWM周期提取一次霍尔原始角，其余周期由PLL速度外推。 */
+/* 正常模式每4个PWM周期提取一次霍尔原始角，其余周期按角度差速度外推。 */
 #define HALL_RUNTIME_ANGLE_DIV                (4U)
+#define HALL_RUNTIME_MAX_PHASE_STEP           (8192L)
+#define HALL_RUNTIME_SPEED_FILTER_DIV         (16L)
+/* 14 kHz PWM、每4周期更新时，每1 ERPM对应的Q16角度步进。 */
+#define HALL_RUNTIME_STEP_Q16_PER_ERPM        (20452L)
 
 /* 霍尔参数独占主Flash最后一个512字节扇区。 */
 #define HALL_FLASH_MAGIC                      (0x48414C4CUL)
@@ -65,7 +69,6 @@ typedef struct {
 
 volatile hall_calibration_t gHallCalibration;
 /* 默认优先进入正常模式；Flash无有效参数时会自动退回学习模式。 */
-volatile u8 gHallWorkMode = HALL_WORK_MODE_NORMAL;
 volatile u8 gHallStorageState;
 volatile u8 gHallLearnState;
 volatile u8 gHallLearnError;
@@ -78,7 +81,6 @@ volatile u32 gHallLearnSampleCount;
 volatile u16 gHallLearnQualityQ15;
 volatile u16 gHallAlignStableSamples;
 volatile s16 gHallAlignElectricalRaw;
-volatile s16 gHallLearnSpinCurrentMa = 600;
 volatile s16 gHallLearnAlignCurrentMa = 600;
 volatile s16 gHallLearnAlignPhase = 0;
 volatile s16 gHallRawA;
@@ -121,9 +123,12 @@ static s16 s_hallAlignPhaseLast;
 static s16 s_hallAlignPhaseAnchor;
 static bool s_hallAlignPhaseValid;
 
-/* 正常模式霍尔PLL及逐PWM角度预测状态。 */
+/* 正常模式霍尔角度差测速及逐PWM角度预测状态。 */
 static u8 s_hallRuntimeCounter;
 static bool s_hallRuntimeActive;
+static bool s_hallElectricalPhaseValid;
+static u16 s_hallElectricalPhaseLast;
+static s32 s_hallSpeedStepQ16;
 
 static s32 Hall_AbsS32(s32 value)
 {
@@ -831,7 +836,8 @@ static void Hall_ProcessAlignment(s16 raw_a, s16 raw_b)
 
     current_error = Hall_AbsS32((s32)m_motor.m_id_set -
         Hall_AbsS32((s32)gHallLearnAlignCurrentMa));
-    if((m_motor.m_state != MC_STATE_RUNNING) ||
+    if((m_motor.m_run_state != MOTOR_RUN_STATE_RUNNING) ||
+       !Motor_IsPwmEnabled() ||
        (m_motor.m_control_mode != CONTROL_MODE_CURRENT) ||
        !m_motor.m_phase_override ||
        (current_error > HALL_ALIGN_CURRENT_TOLERANCE_MA) ||
@@ -899,7 +905,7 @@ static void Hall_ProcessAlignment(s16 raw_a, s16 raw_b)
 
 hall_learn_drive_mode_t Hall_LearnGetDriveMode(void)
 {
-    if(gHallWorkMode != HALL_WORK_MODE_LEARN)
+    if(gMotorWorkMode != MCS_WORK_MODE_LEARN)
     {
         return HALL_LEARN_DRIVE_STOP;
     }
@@ -920,6 +926,50 @@ hall_learn_drive_mode_t Hall_LearnGetDriveMode(void)
     }
 }
 
+/*
+ * 学习状态机只生成控制请求，不直接操作 PWM 或公共运行状态。
+ * 旋转阶段使用无感速度环，固定角阶段使用 d 轴电流吸附。
+ */
+void Hall_LearnBuildControlRequest(motor_control_request_t *request)
+{
+    hall_learn_drive_mode_t drive_mode;
+    s32 align_current;
+
+    if((request == 0) || (gMotorWorkMode != MCS_WORK_MODE_LEARN))
+    {
+        return;
+    }
+
+    drive_mode = Hall_LearnGetDriveMode();
+    request->sensor_mode = FOC_SENSOR_MODE_SENSORLESS;
+
+    switch(drive_mode)
+    {
+    case HALL_LEARN_DRIVE_SENSORLESS:
+        request->run = true;
+        request->control_mode = CONTROL_MODE_SPEED;
+        request->speed_target_erpm = MCS_SPEED_TARGET_DEFAULT_ERPM;
+        break;
+
+    case HALL_LEARN_DRIVE_ALIGN:
+        align_current = Hall_AbsS32((s32)gHallLearnAlignCurrentMa);
+        if(align_current > 32767L)
+        {
+            align_current = 32767L;
+        }
+        request->run = true;
+        request->control_mode = CONTROL_MODE_CURRENT;
+        request->phase_override = true;
+        request->phase_override_q16 = gHallLearnAlignPhase;
+        request->id_target_ma = (s16)align_current;
+        request->iq_target_ma = 0;
+        break;
+
+    default:
+        break;
+    }
+}
+
 static void Hall_ResetRuntime(motor_all_state_t *motor)
 {
     motor_state_t *state;
@@ -930,6 +980,9 @@ static void Hall_ResetRuntime(motor_all_state_t *motor)
     motor->m_phase_control_q16 = (u32)(u16)state->phase << 16;
     motor->m_pll_phase = state->phase;
     motor->m_pll_speed = 0;
+    s_hallElectricalPhaseValid = false;
+    s_hallElectricalPhaseLast = 0U;
+    s_hallSpeedStepQ16 = 0L;
     s_hallRuntimeCounter = HALL_RUNTIME_ANGLE_DIV - 1U;
     s_hallRuntimeActive = true;
 }
@@ -940,6 +993,9 @@ void Hall_FastUpdate(motor_all_state_t *motor, s16 hall_a, s16 hall_b)
     observer_state *pll;
     s32 hall_x;
     s32 hall_y;
+    s32 phase_step;
+    s32 speed_step_target_q16;
+    s32 speed_erpm;
     u16 mechanical_phase;
     u16 electrical_phase;
     bool angle_updated;
@@ -949,12 +1005,14 @@ void Hall_FastUpdate(motor_all_state_t *motor, s16 hall_a, s16 hall_b)
         return;
     }
     // 学习模式
-    if((gHallWorkMode != HALL_WORK_MODE_NORMAL) ||
+    if((gMotorWorkMode != MCS_WORK_MODE_CONTROL) ||
        (gHallCalibration.valid == 0U) ||
        (motor->m_conf->foc_sensor_mode != FOC_SENSOR_MODE_HALL))
     {
         s_hallRuntimeCounter = 0U;
         s_hallRuntimeActive = false;
+        s_hallElectricalPhaseValid = false;
+        s_hallSpeedStepQ16 = 0L;
         return;
     }
 
@@ -979,10 +1037,45 @@ void Hall_FastUpdate(motor_all_state_t *motor, s16 hall_a, s16 hall_b)
         electrical_phase = (u16)(electrical_phase +
             (u16)gHallCalibration.electrical_offset);
 
-        foc_observer_pll_run((s16)electrical_phase, pll, motor);
-        motor->m_phase_control_q16 = pll->pll_phase_q16;
-        motor->m_phase_control_initialized = true;
-        angle_updated = true;
+        if(!s_hallElectricalPhaseValid)
+        {
+            s_hallElectricalPhaseLast = electrical_phase;
+            s_hallElectricalPhaseValid = true;
+            s_hallSpeedStepQ16 = 0L;
+            motor->m_pll_speed = 0;
+            angle_updated = true;
+        }
+        else
+        {
+            phase_step = (s32)(s16)(electrical_phase -
+                                    s_hallElectricalPhaseLast);
+            s_hallElectricalPhaseLast = electrical_phase;
+
+            /*
+             * 霍尔给出绝对角度，控制角无需再经过无感PLL积分。
+             * 只对相邻绝对角的差值测速；异常跳点不更新角度和速度。
+             */
+            if(Hall_AbsS32(phase_step) <= HALL_RUNTIME_MAX_PHASE_STEP)
+            {
+                speed_step_target_q16 = phase_step * 65536L;
+                s_hallSpeedStepQ16 +=
+                    (speed_step_target_q16 - s_hallSpeedStepQ16) /
+                    HALL_RUNTIME_SPEED_FILTER_DIV;
+                speed_erpm = s_hallSpeedStepQ16 /
+                             HALL_RUNTIME_STEP_Q16_PER_ERPM;
+                motor->m_pll_speed = (s16)speed_erpm;
+                angle_updated = true;
+            }
+        }
+
+        if(angle_updated)
+        {
+            pll->pll_phase_q16 = (u32)electrical_phase << 16;
+            pll->pll_speed_step_q16 = s_hallSpeedStepQ16;
+            pll->pll_initialized = true;
+            motor->m_phase_control_q16 = pll->pll_phase_q16;
+            motor->m_phase_control_initialized = true;
+        }
 
         gHallRawA = hall_a;
         gHallRawB = hall_b;
@@ -1015,7 +1108,24 @@ void Hall_LearnInit(void)
     s_hallRuntimeCounter = 0U;
     s_hallRuntimeActive = false;
 
-    if((gHallWorkMode == HALL_WORK_MODE_NORMAL) &&
+    gMotorWorkMode = MCS_POWER_ON_WORK_MODE;
+
+    if((gMotorWorkMode == MCS_WORK_MODE_CONTROL) &&
+       (MCS_CONTROL_SENSOR_MODE == FOC_SENSOR_MODE_SENSORLESS))
+    {
+        gHallLearnRequest = 0U;
+        gHallLearnState = HALL_LEARN_STATE_IDLE;
+        gHallLearnError = HALL_LEARN_ERROR_NONE;
+        gHallStorageState = HALL_STORAGE_STATE_IDLE;
+        if(m_motor.m_conf != 0)
+        {
+            m_motor.m_conf->foc_sensor_mode = FOC_SENSOR_MODE_SENSORLESS;
+        }
+        return;
+    }
+
+    if((gMotorWorkMode == MCS_WORK_MODE_CONTROL) &&
+       (MCS_CONTROL_SENSOR_MODE == FOC_SENSOR_MODE_HALL) &&
        Hall_LoadCalibration())
     {
         gHallLearnRequest = 0U;
@@ -1029,12 +1139,14 @@ void Hall_LearnInit(void)
         {
             m_motor.m_conf->foc_sensor_mode = FOC_SENSOR_MODE_HALL;
         }
-        gMotorOperationSensorMode = FOC_SENSOR_MODE_HALL;
         return;
     }
 
-    /* 首次上电或Flash校验失败时自动退回无感学习模式。 */
-    gHallWorkMode = HALL_WORK_MODE_LEARN;
+    /*
+     * 宏指定LEARN，或霍尔控制所需的Flash参数无效时，进入无感学习。
+     * 学习旋转由公共速度环控制，不再维护单独的学习电流。
+     */
+    gMotorWorkMode = MCS_WORK_MODE_LEARN;
     if(m_motor.m_conf != 0)
     {
         m_motor.m_conf->foc_sensor_mode = FOC_SENSOR_MODE_SENSORLESS;
@@ -1046,13 +1158,13 @@ void Hall_LearnInit(void)
 void Hall_LearnRequest(void)
 {
     /* 运行中切换角度源不安全，重新学习请求只能在电机关闭时发出。 */
-    if(m_motor.m_state == MC_STATE_RUNNING)
+    if(m_motor.m_run_state != MOTOR_RUN_STATE_OFF)
     {
         return;
     }
 
     __disable_irq();
-    gHallWorkMode = HALL_WORK_MODE_LEARN;
+    gMotorWorkMode = MCS_WORK_MODE_LEARN;
     if(m_motor.m_conf != 0)
     {
         m_motor.m_conf->foc_sensor_mode = FOC_SENSOR_MODE_SENSORLESS;
@@ -1093,9 +1205,8 @@ void Hall_LearnTask1ms(u16 elapsed_ms)
         return;
     }
 
-    /* 正常模式的角度已在ADC中断更新，不再执行学习任务。 */
-    if((gHallWorkMode == HALL_WORK_MODE_NORMAL) &&
-       (gHallCalibration.valid != 0U))
+    /* 控制模式的角度在ADC中断更新，不再执行学习任务。 */
+    if(gMotorWorkMode == MCS_WORK_MODE_CONTROL)
     {
         return;
     }
@@ -1115,16 +1226,16 @@ void Hall_LearnTask1ms(u16 elapsed_ms)
         if(gHallStorageState == HALL_STORAGE_STATE_WAIT_STOP)
         {
             /* 防止保存完成前被新的串口运行命令重新启动。 */
-            gMotorRunEnable = 0U;
+            gMotorCommand.run = 0U;
             if((m_motor.m_control_mode == CONTROL_MODE_NONE) &&
-               (m_motor.m_state == MC_STATE_OFF))
+               (m_motor.m_run_state == MOTOR_RUN_STATE_OFF))
             {
                 if(Hall_SaveCalibration())
                 {
                     gHallStorageState = HALL_STORAGE_STATE_SAVED;
-                    gHallWorkMode = HALL_WORK_MODE_NORMAL;
-                    gMotorOperationSensorMode = FOC_SENSOR_MODE_HALL;
-                    m_motor.m_conf->foc_sensor_mode = FOC_SENSOR_MODE_HALL;
+                    gMotorWorkMode = MCS_WORK_MODE_CONTROL;
+                    m_motor.m_conf->foc_sensor_mode =
+                        MCS_CONTROL_SENSOR_MODE;
                     s_hallRuntimeActive = false;
                     s_hallRuntimeCounter = 0U;
                 }
@@ -1133,7 +1244,7 @@ void Hall_LearnTask1ms(u16 elapsed_ms)
                     gHallStorageState = HALL_STORAGE_STATE_FAILED;
                     gHallLearnState = HALL_LEARN_STATE_FAILED;
                     gHallLearnError = HALL_LEARN_ERROR_FLASH;
-                    gHallWorkMode = HALL_WORK_MODE_LEARN;
+                    gMotorWorkMode = MCS_WORK_MODE_LEARN;
                     m_motor.m_conf->foc_sensor_mode =
                         FOC_SENSOR_MODE_SENSORLESS;
                 }
@@ -1150,7 +1261,7 @@ void Hall_LearnTask1ms(u16 elapsed_ms)
     if(gHallLearnState == HALL_LEARN_STATE_ALIGN_STOP)
     {
         if((m_motor.m_control_mode == CONTROL_MODE_NONE) &&
-           (m_motor.m_state == MC_STATE_OFF))
+           (m_motor.m_run_state == MOTOR_RUN_STATE_OFF))
         {
             Hall_ResetAlignmentAverage();
             s_hallAlignPhaseValid = false;
@@ -1166,7 +1277,7 @@ void Hall_LearnTask1ms(u16 elapsed_ms)
     }
 
     speed_abs = Hall_AbsS32((s32)m_motor.m_pll_speed);
-    if((m_motor.m_state != MC_STATE_RUNNING) ||
+    if((m_motor.m_run_state != MOTOR_RUN_STATE_RUNNING) ||
        (m_motor.m_conf == 0) ||
        (m_motor.m_conf->foc_sensor_mode != FOC_SENSOR_MODE_SENSORLESS) ||
        (speed_abs < HALL_LEARN_MIN_ERPM))

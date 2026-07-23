@@ -113,17 +113,6 @@ void AdcSampleCal(void)
     state_now = &motor_now->m_motor_state;
     conf_now = motor_now->m_conf;
 
-    /* 运行状态只由快速环维护，避免主循环和ADC中断同时写m_state。 */
-    if(motor_now->m_control_mode == CONTROL_MODE_NONE)
-    {
-        motor_now->m_state = MC_STATE_OFF;
-    }
-    else
-    {
-        motor_now->m_state = MC_STATE_RUNNING;
-    }
-
-
     /* 第1步：读取PWM定时触发的两路下桥臂采样电阻ADC值。 */
     raw0 = (s32)AcqAdcSampDatPhaseU();
     raw1 = (s32)AcqAdcSampDatPhaseV();
@@ -205,7 +194,7 @@ void AdcEocHandler(void)
 
     /* 中断内只保存最新慢速ADC数据，换算和滤波放到1ms任务。 */
     s_busAdcLatest = AcqAdcSampDatUdc();
-    if(gHallWorkMode == HALL_WORK_MODE_LEARN)
+    if(gMotorWorkMode == MCS_WORK_MODE_LEARN)
     {
         Hall_CaptureSample(hal1, hal2, m_motor.m_motor_state.phase);
     }

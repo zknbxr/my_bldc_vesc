@@ -137,7 +137,7 @@ static s32 DirectionTest_ApplyMotorDirection(s32 magnitude)
         magnitude = -magnitude;
     }
 
-    if(gMotorDirection == MCS_MOTOR_DIRECTION_REVERSE)
+    if(gMotorCommand.direction == MCS_MOTOR_DIRECTION_REVERSE)
     {
         return -magnitude;
     }
@@ -204,6 +204,7 @@ void Motor_DirectionTest_Stop(void)
     __disable_irq();
     m_motor.m_phase_override = false;
     m_motor.m_control_mode = CONTROL_MODE_NONE;
+    m_motor.m_run_state = MOTOR_RUN_STATE_OFF;
     PwmAOutputs(DISABLE);
     __enable_irq();
     Motor_CurrentCommandReset(&m_motor);
@@ -401,6 +402,7 @@ void Motor_DirectionTest_Task(void)
         s_shortFaultCountAtArm = gShortFaultCount;
         __disable_irq();
         m_motor.m_control_mode = controlModeNext;
+        m_motor.m_run_state = MOTOR_RUN_STATE_RUNNING;
         PwmAOutputs(ENABLE);
         gDirectionTestPwmEnableCount++;
         s_pwmArmAttempted = true;
@@ -410,5 +412,6 @@ void Motor_DirectionTest_Task(void)
     else
     {
         m_motor.m_control_mode = controlModeNext;
+        m_motor.m_run_state = MOTOR_RUN_STATE_RUNNING;
     }
 }

@@ -26,6 +26,10 @@ void Motor_FocLoopRun(u16 angle);
 /*
 	mcs_error_handing.c
 **/
+void Motor_FaultInit(void);
+void Motor_FaultTask1ms(u16 elapsed_ms);
+void Motor_FaultTrip(motor_fault_t fault);
+bool Motor_FaultIsActive(void);
 
 /*
 	interrupt.c
@@ -69,6 +73,10 @@ void CurrentErrDetc(void);
 void StopMotorImmdly(void);
 void Motor_ControlInit(void);
 void Motor_ControlTask1ms(u16 elapsed_ms);
+bool Motor_IsControlRunning(const motor_all_state_t *motor);
+bool Motor_IsControlActive(const motor_all_state_t *motor);
+bool Motor_IsPwmEnabled(void);
+bool Motor_IsRotorMoving(const motor_all_state_t *motor, s16 min_erpm);
 void Motor_SpeedControlUpdate1ms(motor_all_state_t *motor, u16 elapsed_ms);
 void Motor_SetCurrentTarget(motor_all_state_t *motor,
                             s16 id_target_ma,

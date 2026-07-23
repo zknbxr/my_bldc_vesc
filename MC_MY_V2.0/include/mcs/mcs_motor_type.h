@@ -141,13 +141,6 @@ typedef struct {
 } observer_state;
 
 typedef enum {
-   MC_STATE_OFF = 0,
-   MC_STATE_DETECTING,
-   MC_STATE_RUNNING,
-   MC_STATE_FULL_BRAKE,
-} mc_state;
-
-typedef enum {
 	CONTROL_MODE_DUTY = 0,
 	CONTROL_MODE_SPEED,
 	CONTROL_MODE_CURRENT,
@@ -160,6 +153,46 @@ typedef enum {
 	CONTROL_MODE_OPENLOOP_DUTY_PHASE,
 	CONTROL_MODE_NONE
 } mc_control_mode;
+
+/*
+ * 电机功率控制状态。它是软件层唯一的权威运行状态，与“运行命令”、
+ * “控制算法模式”和“转子是否仍在转动”相互独立。
+ */
+typedef enum {
+    MOTOR_RUN_STATE_OFF = 0,
+    MOTOR_RUN_STATE_START_DELAY,
+    MOTOR_RUN_STATE_RUNNING,
+    MOTOR_RUN_STATE_STOPPING,
+    MOTOR_RUN_STATE_FAULT
+} motor_run_state_t;
+
+typedef enum {
+    MOTOR_FAULT_NONE = 0,
+    MOTOR_FAULT_SOFTWARE_OVERCURRENT,
+    MOTOR_FAULT_HARDWARE_SHORT
+} motor_fault_t;
+
+/* 操作模式的应用命令。run 表示请求，不代表电机已经运行。 */
+typedef struct {
+    u8 run;
+    s8 direction;
+    s16 speed_target_erpm;
+} motor_command_t;
+
+/*
+ * 学习模式和操作模式都先生成同一种控制请求，再交给公共运行状态机执行。
+ * 这样公共状态机不需要判断当前是不是学习模式。
+ */
+typedef struct {
+    bool run;
+    mc_control_mode control_mode;
+    mc_foc_sensor_mode sensor_mode;
+    s16 speed_target_erpm;
+    bool phase_override;
+    s16 phase_override_q16;
+    s16 id_target_ma;
+    s16 iq_target_ma;
+} motor_control_request_t;
 
 typedef enum {
 	MTPA_MODE_OFF = 0,
@@ -204,7 +237,8 @@ typedef struct {
 typedef struct
 {
     mc_configuration *m_conf;
-    mc_state m_state;
+    volatile motor_run_state_t m_run_state;
+    volatile motor_fault_t m_fault_code;
     mc_control_mode m_control_mode;
 	motor_state_t m_motor_state;
     
@@ -243,7 +277,7 @@ typedef struct
     s16 m_duty_filtered;
     u16 m_br_no_duty_samples;
     
-    s16 m_speed_pid_set_rpm;
+    s16 m_speed_pid_set_rpm;      /* 模式层发布的带符号速度请求，ERPM */
     s16 m_duty_i_term;
     s16 duty_pi_duty_last;
     

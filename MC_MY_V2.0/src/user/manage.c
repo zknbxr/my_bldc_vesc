@@ -36,6 +36,7 @@ void User_app_init(void)
 	TickRecevice = 0U;
 	uUart0_Counter = 0U;
 	KeyState = Motor_Stop;
+	LastKeyState = Motor_Stop;
 	gUartRxByteCount = 0U;
 	gUartRxFrameCount = 0U;
 	gUartRxErrorCount = 0U;

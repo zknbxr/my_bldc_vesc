@@ -1,50 +1,34 @@
 #include "main.h"
 
-#define MCS_CONTROL_STATE_OFF               (0U)
-#define MCS_CONTROL_STATE_START_DELAY       (1U)
-#define MCS_CONTROL_STATE_RUNNING           (2U)
-#define MCS_CONTROL_STATE_STOPPING          (3U)
-#define MCS_CONTROL_STATE_FAULT             (4U)
-#define MCS_CONTROL_CURRENT_TRIP_MS          (3U)
-#define MCS_CONTROL_MOE_MASK                 (0x0040U)
-
-extern volatile UINT16 gShortFaultCount;
-
 /*
- * 正式控制命令，可由应用层修改，也保留为全局变量方便 Keil Watch 观察。
- * 电流目标只表示幅值，最终 q 轴符号由 gMotorDirection 决定。
+ * 操作模式命令由应用层写入。run 只是“请求运行”，实际状态必须观察
+ * m_motor.m_run_state；转子是否真的运动则观察 m_pll_speed。
  */
-/* 运行命令：1 允许延时启动和运行；0 将电流斜坡降到 0 后关闭 PWM。 */
-volatile u8 gMotorRunEnable = 0U;
-/* 机械方向：MCS_MOTOR_DIRECTION_FORWARD(+1) 或 REVERSE(-1)。 */
-volatile s8 gMotorDirection = MCS_MOTOR_DIRECTION_DEFAULT;
-/* 正式运行的 q 轴电流目标幅值，单位 mA，当前默认 600 mA。 */
-volatile s16 gMotorCurrentTargetMa = 600;
+volatile motor_command_t gMotorCommand = {
+    0U,
+    MCS_MOTOR_DIRECTION_DEFAULT,
+    MCS_SPEED_TARGET_DEFAULT_ERPM
+};
 /* 软件相电流保护阈值，单位 mA；任一相连续超限 3 ms 后立即停机，0 表示关闭。 */
 volatile u16 gMotorCurrentLimitMa = 2000U;
-/* 上电或重新启动时，PWM 使能前的等待时间，单位 ms。 */
-volatile u16 gMotorStartDelayMs = 500U;
-/* 操作模式角度源：默认霍尔；改为FOC_SENSOR_MODE_SENSORLESS可使用无感。 */
-volatile u8 gMotorOperationSensorMode = FOC_SENSOR_MODE_HALL;
-/* 操作模式外环：默认速度环；切换为CURRENT后恢复串口方向+固定电流控制。 */
-volatile u8 gMotorOperationControlMode = MCS_OPERATION_CONTROL_SPEED;
-/* 控制状态：0 关闭，1 启动延时，2 运行，3 斜坡停止中，4 故障停机。 */
-volatile u8 gMotorControlState;
-/* 故障码：0 无故障，1 软件过流，2 MCPWM 硬件故障，3 MOE 意外关闭。 */
-volatile u8 gMotorControlFaultCode;
+/* 上电或重新启动时，PWM 使能前的等待时间，单位 ms。 500*/
+volatile u16 gMotorStartDelayMs = 200U;
+/*
+ * 顶层工作模式：上电由MCS_POWER_ON_WORK_MODE选择；学习并保存成功后，
+ * 本次运行自动由LEARN切换为CONTROL。
+ */
+volatile u8 gMotorWorkMode = MCS_POWER_ON_WORK_MODE;
 
-/* 速度环目标只保存幅值，正负方向仍由gMotorDirection决定，单位ERPM。 */
-volatile s16 gMotorSpeedTargetErpm = MCS_SPEED_TARGET_DEFAULT_ERPM;
 /* 速度目标斜坡，单位ERPM/s；4000表示从0升到3000约需0.75秒。 */
-volatile u16 gMotorSpeedRampErpmPerS = 4000U;
+volatile u16 gMotorSpeedRampErpmPerS = 6000U;
 /* 速度PI参数，Q10单位分别为mA/ERPM和mA/(ERPM*s)。 */
-volatile s16 gMotorSpeedKpQ10 = 205;
-volatile s16 gMotorSpeedKiQ10 = 64;
+volatile s16 gMotorSpeedKpQ10 = 410;
+volatile s16 gMotorSpeedKiQ10 = 96;
 /* 速度PI输出限幅与可选固定启动电流，单位mA；启动电流为0时由PI直接起步。 */
 volatile u16 gMotorSpeedIqLimitMa = 1500U;
 volatile u16 gMotorSpeedStartCurrentMa = 0U;
 /* 速度模式单独使用更快的电流斜坡，使负载突变时能及时增加转矩。 */
-volatile u16 gMotorSpeedCurrentRampMaPerMs = 10U;
+volatile u16 gMotorSpeedCurrentRampMaPerMs = 20U;
 /* 无感/Hall启动达到该速度并稳定一段时间后，速度PI才接管。 */
 volatile u16 gMotorSpeedCloseLoopMinErpm = 500U;
 volatile u16 gMotorSpeedCloseLoopStableMs = 20U;
@@ -57,12 +41,6 @@ volatile u8 gMotorSpeedClosedLoopActive;
 
 /* 已累计的启动等待时间，单位 ms；达到 gMotorStartDelayMs 后使能 PWM。 */
 static u16 s_motorStartElapsedMs;
-/* 相电流连续超限时间，单位 ms；正常一次便清零，用于滤除单次采样毛刺。 */
-static u16 s_motorCurrentOverMs;
-/* PWM 使能瞬间保存的硬件短路故障计数，用于判断运行后是否出现新故障。 */
-static u16 s_shortFaultCountAtArm;
-/* PWM 已正式使能标志；用于区分“尚未启动”和“运行中 MOE 被硬件关闭”。 */
-static bool s_motorPwmArmed;
 /* 速度反馈使用Q8低通状态，积分项使用Q10 mA，避免慢速变化被整数截断。 */
 static s32 s_motorSpeedFeedbackQ8;
 static s32 s_motorSpeedITermQ10;
@@ -183,26 +161,37 @@ static s16 Motor_SpeedRampUpdate(s16 target, u16 elapsed_ms)
     return gMotorSpeedTargetRampErpm;
 }
 
-static bool Motor_ControlCurrentExceeded(void)
+bool Motor_IsControlRunning(const motor_all_state_t *motor)
 {
-    s32 current_max;
+    return (motor != 0) &&
+           (motor->m_run_state == MOTOR_RUN_STATE_RUNNING) &&
+           Motor_IsPwmEnabled();
+}
 
-    if(gMotorCurrentLimitMa == 0U)
+bool Motor_IsControlActive(const motor_all_state_t *motor)
+{
+    return (motor != 0) &&
+           (motor->m_control_mode != CONTROL_MODE_NONE);
+}
+
+bool Motor_IsPwmEnabled(void)
+{
+    return (MCPWM_FAIL012 & MCPWM_MOE_ENABLE_MASK) != 0U;
+}
+
+bool Motor_IsRotorMoving(const motor_all_state_t *motor, s16 min_erpm)
+{
+    s32 speed_abs;
+    s32 threshold;
+
+    if(motor == 0)
     {
         return false;
     }
 
-    current_max = Motor_ControlAbsS32((s32)ADC_curr_norm_value[0]);
-    if(Motor_ControlAbsS32((s32)ADC_curr_norm_value[1]) > current_max)
-    {
-        current_max = Motor_ControlAbsS32((s32)ADC_curr_norm_value[1]);
-    }
-    if(Motor_ControlAbsS32((s32)ADC_curr_norm_value[2]) > current_max)
-    {
-        current_max = Motor_ControlAbsS32((s32)ADC_curr_norm_value[2]);
-    }
-
-    return current_max > (s32)gMotorCurrentLimitMa;
+    speed_abs = Motor_ControlAbsS32((s32)motor->m_pll_speed);
+    threshold = Motor_ControlAbsS32((s32)min_erpm);
+    return speed_abs > threshold;
 }
 
 void Motor_SetCurrentTarget(motor_all_state_t *motor,
@@ -318,7 +307,7 @@ void Motor_CurrentCommandReset(motor_all_state_t *motor)
 
 /*
  * 1ms速度外环。速度PI只生成q轴电流目标，真正的d/q电流PI仍在ADC中断执行。
- * 启动阶段先使用固定q轴电流建立可靠角度和速度，达到门限并稳定后再无扰接管。
+ * 学习旋转和控制模式共用本速度环；固定启动电流设为0时，PI从零电流直接接管。
  */
 void Motor_SpeedControlUpdate1ms(motor_all_state_t *motor, u16 elapsed_ms)
 {
@@ -330,6 +319,7 @@ void Motor_SpeedControlUpdate1ms(motor_all_state_t *motor, u16 elapsed_ms)
     s32 feedback;
     s32 error;
     s32 iq_limit;
+    s32 brake_limit;
     s32 startup_current;
     s32 entry_speed;
     s32 p_term_q10;
@@ -347,29 +337,25 @@ void Motor_SpeedControlUpdate1ms(motor_all_state_t *motor, u16 elapsed_ms)
         return;
     }
 
-    /* 学习模式和电流模式都不允许速度环覆盖各自发布的电流目标。 */
-    if((gHallWorkMode != HALL_WORK_MODE_NORMAL) ||
-       (gMotorOperationControlMode != MCS_OPERATION_CONTROL_SPEED) ||
-       (gMotorRunEnable == 0U) || !s_motorPwmArmed ||
-       (motor->m_control_mode != CONTROL_MODE_SPEED))
+    /* 模式层已经生成带符号速度请求，速度环只关心公共运行状态。 */
+    if((motor->m_run_state != MOTOR_RUN_STATE_RUNNING) ||
+       (motor->m_control_mode != CONTROL_MODE_SPEED) ||
+       !Motor_IsPwmEnabled())
     {
         Motor_SpeedControlReset(true);
         return;
     }
 
-    target_abs = Motor_ControlAbsS32((s32)gMotorSpeedTargetErpm);
+    target_signed = motor->m_speed_pid_set_rpm;
+    target_abs = Motor_ControlAbsS32((s32)target_signed);
     target_abs = Motor_ControlLimitS32(target_abs, 0L, 32767L);
-    target_signed = (s16)target_abs;
-    if(gMotorDirection == MCS_MOTOR_DIRECTION_REVERSE)
-    {
-        target_signed = (s16)(-target_abs);
-    }
     // 速度斜坡
     target_ramped = Motor_SpeedRampUpdate(target_signed, elapsed_ms);
 
     /* m_pll_speed 已经统一为ERPM，这里再做约8ms的一阶低通供速度PI使用。 */
     filter_elapsed = (elapsed_ms > 8U) ? 8L : (s32)elapsed_ms;
-    feedback_q8_target = (s32)motor->m_pll_speed << 8;
+    /* 使用乘法代替负有符号数左移，保证反转时的定点运算行为明确。 */
+    feedback_q8_target = (s32)motor->m_pll_speed * 256L;
     s_motorSpeedFeedbackQ8 +=
         ((feedback_q8_target - s_motorSpeedFeedbackQ8) * filter_elapsed) >> 3;
     feedback = s_motorSpeedFeedbackQ8 >> 8;
@@ -384,15 +370,19 @@ void Motor_SpeedControlUpdate1ms(motor_all_state_t *motor, u16 elapsed_ms)
         return;
     }
     output_limit_q10 = iq_limit << 10;
+    brake_limit = Motor_ControlLimitS32(
+        MCS_SPEED_BRAKE_IQ_LIMIT_MA, 0L, iq_limit);
     if(target_signed > 0)
     {
-        output_min_q10 = 0L;
+        /* 正转超速时允许小幅负iq制动，避免零电流滑行造成周期性波动。 */
+        output_min_q10 = -(brake_limit << 10);
         output_max_q10 = output_limit_q10;
     }
     else
     {
         output_min_q10 = -output_limit_q10;
-        output_max_q10 = 0L;
+        /* 反转超速时，正iq是制动方向。 */
+        output_max_q10 = brake_limit << 10;
     }
 
     /* 低目标速度时把接管门限降到目标值，避免永远停留在固定启动电流。 */
@@ -461,7 +451,7 @@ void Motor_SpeedControlUpdate1ms(motor_all_state_t *motor, u16 elapsed_ms)
         if(((target_signed > 0) && (error > 0L)) ||
            ((target_signed < 0) && (error < 0L)))
         {
-            takeover_iq_q10 = (s32)motor->m_iq_set << 10;
+            takeover_iq_q10 = (s32)motor->m_iq_set * 1024L;
             s_motorSpeedITermQ10 = takeover_iq_q10 - p_term_q10;
         }
         else
@@ -469,7 +459,7 @@ void Motor_SpeedControlUpdate1ms(motor_all_state_t *motor, u16 elapsed_ms)
             s_motorSpeedITermQ10 = 0L;
         }
         s_motorSpeedITermQ10 = Motor_ControlLimitS32(
-            s_motorSpeedITermQ10, -output_limit_q10, output_limit_q10);
+            s_motorSpeedITermQ10, output_min_q10, output_max_q10);
         gMotorSpeedClosedLoopActive = 1U;
         }
     }
@@ -485,7 +475,7 @@ void Motor_SpeedControlUpdate1ms(motor_all_state_t *motor, u16 elapsed_ms)
         (s32)gMotorSpeedKiQ10, 0L, 32767L) * (int64_t)dt_ms) / 1000LL);
     i_candidate_q10 = Motor_ControlLimitS32(
         s_motorSpeedITermQ10 + i_delta_q10,
-        -output_limit_q10, output_limit_q10);
+        output_min_q10, output_max_q10);
     output_q10 = p_term_q10 + i_candidate_q10;
 
     /* 输出饱和且误差仍推动饱和加深时暂停积分，允许反向误差解除饱和。 */
@@ -501,20 +491,200 @@ void Motor_SpeedControlUpdate1ms(motor_all_state_t *motor, u16 elapsed_ms)
     Motor_SetCurrentTarget(motor, 0, gMotorSpeedIqCommandMa);
 }
 
-static void Motor_ControlFaultStop(u8 fault_code)
+static void Motor_ControlRequestReset(motor_control_request_t *request)
 {
-    __disable_irq();
-    m_motor.m_control_mode = CONTROL_MODE_NONE;
-    PwmAOutputs(DISABLE);
-    __enable_irq();
-    
-    Motor_CurrentCommandReset(&m_motor);
-    Motor_SpeedControlReset(true);
-    
-    gMotorRunEnable = 0U;
-    gMotorControlFaultCode = fault_code;
-    gMotorControlState = MCS_CONTROL_STATE_FAULT;
-    s_motorPwmArmed = false;
+    request->run = false;
+    request->control_mode = CONTROL_MODE_NONE;
+    request->sensor_mode = FOC_SENSOR_MODE_SENSORLESS;
+    request->speed_target_erpm = 0;
+    request->phase_override = false;
+    request->phase_override_q16 = 0;
+    request->id_target_ma = 0;
+    request->iq_target_ma = 0;
+}
+
+/* 正常操作模式只解释应用命令，不直接启停 PWM。 */
+static void Motor_OperationBuildControlRequest(
+    motor_control_request_t *request)
+{
+    s32 target_abs;
+
+    if((request == 0) || (gMotorWorkMode != MCS_WORK_MODE_CONTROL))
+    {
+        return;
+    }
+
+    request->run = gMotorCommand.run != 0U;
+    request->control_mode = CONTROL_MODE_SPEED;
+    request->sensor_mode = FOC_SENSOR_MODE_SENSORLESS;
+    if((MCS_CONTROL_SENSOR_MODE == FOC_SENSOR_MODE_HALL) &&
+       Hall_CalibrationIsValid())
+    {
+        request->sensor_mode = FOC_SENSOR_MODE_HALL;
+    }
+
+    target_abs = Motor_ControlAbsS32(
+        (s32)gMotorCommand.speed_target_erpm);
+    target_abs = Motor_ControlLimitS32(target_abs, 0L, 32767L);
+    if(gMotorCommand.direction == MCS_MOTOR_DIRECTION_REVERSE)
+    {
+        target_abs = -target_abs;
+    }
+    request->speed_target_erpm = (s16)target_abs;
+}
+
+/* 顶层模式只在这一处选择，后面的公共状态机不需要了解请求来源。 */
+static void Motor_ModeBuildControlRequest(motor_control_request_t *request)
+{
+    Motor_ControlRequestReset(request);
+
+    switch(gMotorWorkMode)
+    {
+    case MCS_WORK_MODE_LEARN:
+        Hall_LearnBuildControlRequest(request);
+        break;
+
+    case MCS_WORK_MODE_CONTROL:
+        Motor_OperationBuildControlRequest(request);
+        break;
+
+    default:
+        break;
+    }
+}
+
+static void Motor_RunStateStop(void)
+{
+    switch(m_motor.m_run_state)
+    {
+    case MOTOR_RUN_STATE_OFF:
+        /* 已经关闭，不再重复写 MOE 或清控制状态。 */
+        return;
+
+    case MOTOR_RUN_STATE_START_DELAY:
+        /* PWM 尚未打开，取消本次启动即可。 */
+        m_motor.m_speed_pid_set_rpm = 0;
+        Motor_SetCurrentTarget(&m_motor, 0, 0);
+        Motor_SpeedControlReset(true);
+        s_motorStartElapsedMs = 0U;
+        m_motor.m_run_state = MOTOR_RUN_STATE_OFF;
+        return;
+
+    case MOTOR_RUN_STATE_RUNNING:
+        /* 停止命令只发布一次，后续由 STOPPING 状态等待电流斜坡归零。 */
+        m_motor.m_speed_pid_set_rpm = 0;
+        Motor_SetCurrentTarget(&m_motor, 0, 0);
+        Motor_SpeedControlReset(true);
+        m_motor.m_run_state = MOTOR_RUN_STATE_STOPPING;
+        return;
+
+    case MOTOR_RUN_STATE_STOPPING:
+        if((m_motor.m_id_set != 0) || (m_motor.m_iq_set != 0))
+        {
+            return;
+        }
+
+        /* 电流已经归零，只在本次状态转换中关闭一次 MOE。 */
+        __disable_irq();
+        m_motor.m_control_mode = CONTROL_MODE_NONE;
+        m_motor.m_phase_override = false;
+        PwmAOutputs(DISABLE);
+        __enable_irq();
+        m_motor.m_run_state = MOTOR_RUN_STATE_OFF;
+        s_motorStartElapsedMs = 0U;
+        return;
+
+    case MOTOR_RUN_STATE_FAULT:
+    default:
+        /* 故障关断由 Motor_FaultTrip() 负责。 */
+        return;
+    }
+}
+
+/*
+ * 公共功率运行状态机只执行 motor_control_request_t。
+ * 它不知道请求来自串口操作模式还是霍尔学习模式。
+ */
+static void Motor_RunStateTask1ms(
+    const motor_control_request_t *request,
+    u16 elapsed_ms)
+{
+    bool control_changed;
+
+    if((request == 0) || (elapsed_ms == 0U) ||
+       Motor_FaultIsActive())
+    {
+        return;
+    }
+
+    if(!request->run)
+    {
+        Motor_RunStateStop();
+        return;
+    }
+
+    /*
+     * 运行中切换传感器或控制算法会造成角度/积分突变。要求模式层先请求停止，
+     * 电流回零并关闭 PWM 后，再以新请求重新启动。
+     */
+    control_changed = Motor_IsControlActive(&m_motor) &&
+        ((m_motor.m_control_mode != request->control_mode) ||
+         (m_motor.m_conf->foc_sensor_mode != request->sensor_mode));
+    if(control_changed)
+    {
+        Motor_RunStateStop();
+        return;
+    }
+
+    if((m_motor.m_run_state == MOTOR_RUN_STATE_OFF) ||
+       (m_motor.m_run_state == MOTOR_RUN_STATE_START_DELAY))
+    {
+        m_motor.m_run_state = MOTOR_RUN_STATE_START_DELAY;
+        if(s_motorStartElapsedMs < gMotorStartDelayMs)
+        {
+            s_motorStartElapsedMs += elapsed_ms;
+            return;
+        }
+
+        m_motor.m_conf->foc_sensor_mode = request->sensor_mode;
+        m_motor.m_phase_override = request->phase_override;
+        if(request->phase_override)
+        {
+            m_motor.m_motor_state.phase = request->phase_override_q16;
+        }
+        m_motor.m_speed_pid_set_rpm = request->speed_target_erpm;
+
+        __disable_irq();
+        m_motor.m_control_mode = request->control_mode;
+        PwmAOutputs(ENABLE);
+        __enable_irq();
+        m_motor.m_run_state = MOTOR_RUN_STATE_RUNNING;
+    }
+
+    if(m_motor.m_run_state == MOTOR_RUN_STATE_STOPPING)
+    {
+        /* 停机斜坡尚未结束时收到新的同模式命令，允许平滑恢复运行。 */
+        m_motor.m_run_state = MOTOR_RUN_STATE_RUNNING;
+    }
+
+    if(m_motor.m_run_state != MOTOR_RUN_STATE_RUNNING)
+    {
+        return;
+    }
+
+    m_motor.m_phase_override = request->phase_override;
+    if(request->phase_override)
+    {
+        m_motor.m_motor_state.phase = request->phase_override_q16;
+    }
+    m_motor.m_speed_pid_set_rpm = request->speed_target_erpm;
+
+    if(request->control_mode == CONTROL_MODE_CURRENT)
+    {
+        Motor_SetCurrentTarget(&m_motor,
+                               request->id_target_ma,
+                               request->iq_target_ma);
+    }
 }
 
 void Motor_ControlInit(void)
@@ -524,208 +694,42 @@ void Motor_ControlInit(void)
     m_motor.m_control_mode = CONTROL_MODE_NONE;
     PwmAOutputs(DISABLE);
     __enable_irq();
-    // 电流环参数初始化
+
     Motor_CurrentCommandReset(&m_motor);
     Motor_SpeedControlReset(true);
-    /* 操作模式默认关闭；学习模式由霍尔学习状态机自动申请运行。 */
-    gMotorRunEnable = 0U;
-    gMotorControlState = MCS_CONTROL_STATE_OFF;
-    gMotorControlFaultCode = 0U;
+    Motor_FaultInit();
+
+    /* 操作模式默认关闭；学习模式由霍尔学习状态机生成自动运行请求。 */
+    gMotorCommand.run = 0U;
+    gMotorCommand.direction = MCS_MOTOR_DIRECTION_DEFAULT;
+    gMotorCommand.speed_target_erpm = MCS_SPEED_TARGET_DEFAULT_ERPM;
+    m_motor.m_run_state = MOTOR_RUN_STATE_OFF;
+    m_motor.m_fault_code = MOTOR_FAULT_NONE;
+    m_motor.m_speed_pid_set_rpm = 0;
     s_motorStartElapsedMs = 0U;
-    s_motorCurrentOverMs = 0U;
-    s_shortFaultCountAtArm = gShortFaultCount;
-    s_motorPwmArmed = false;
 }
 
 /*
- * 正式电机控制状态机，由主循环中的 1 ms 调度任务调用。
- * 本函数只处理运行命令、启动延时、PWM 启停、保护和最终电流目标；
- * 无感/Hall 角度、电流采样、电流 PI 以及 PWM 更新仍由 ADC 快速环完成。
- *
- * 执行顺序：
- *   1. 检查 MCPWM/MOE 硬件故障；
- *   2. 检查相电流连续超限；
- *   3. 处理停止命令并等待电流斜坡回零；
- *   4. 处理上电启动延时和 PWM 使能；
- *   5. 根据机械方向发布带符号的 q 轴电流目标。
+ * 1 ms 模式入口。学习模式和操作模式分别生成统一请求，公共状态机执行请求。
+ * 故障判断已独立到 Motor_FaultTask1ms()。
  */
 void Motor_ControlTask1ms(u16 elapsed_ms)
 {
-    hall_learn_drive_mode_t learn_drive_mode;
-    bool learning_control;
-    bool run_requested;
-    bool publish_current_target;
-    s32 id_target;
-    s32 iq_target;
+    motor_control_request_t request;
 
     if(elapsed_ms == 0U)
     {
         return;
     }
 
-    learning_control = gHallWorkMode == HALL_WORK_MODE_LEARN;
-    publish_current_target = true;
-    learn_drive_mode = Hall_LearnGetDriveMode();
-    if(learning_control)
-    {
-        run_requested = (learn_drive_mode != HALL_LEARN_DRIVE_STOP) &&
-                        (gMotorControlFaultCode == 0U);
-    }
-    else
-    {
-        run_requested = gMotorRunEnable != 0U;
-    }
-
-    /* PWM 运行后，新增硬件短路事件或 MOE 意外关闭都必须立即停机。 */
-    if(s_motorPwmArmed &&
-       ((gShortFaultCount != s_shortFaultCountAtArm) ||
-        ((MCPWM_FAIL012 & MCS_CONTROL_MOE_MASK) == 0U)))
-    {
-        Motor_ControlFaultStop(
-            (gShortFaultCount != s_shortFaultCountAtArm) ? 2U : 3U);
-        return;
-    }
-
-    /* 软件过流要求连续超限 3 ms，避免单次 ADC 毛刺造成误停机。 */
-    if(s_motorPwmArmed && Motor_ControlCurrentExceeded())
-    {
-        s_motorCurrentOverMs += elapsed_ms;
-        if(s_motorCurrentOverMs >= MCS_CONTROL_CURRENT_TRIP_MS)
-        {
-            Motor_ControlFaultStop(1U);
-            return;
-        }
-    }
-    else
-    {
-        s_motorCurrentOverMs = 0U;
-    }
-
-    /* 正常停止先把目标设为 0，让独立电流斜坡平滑卸载，再关闭 PWM。 */
-    if(!run_requested)
-    {
-        Motor_SetCurrentTarget(&m_motor, 0, 0);
-        Motor_SpeedControlReset(true);
-        gMotorControlState = MCS_CONTROL_STATE_STOPPING;
-
-        if((m_motor.m_id_set == 0) && (m_motor.m_iq_set == 0))
-        {
-            __disable_irq();
-            m_motor.m_control_mode = CONTROL_MODE_NONE;
-            PwmAOutputs(DISABLE);
-            __enable_irq();
-            gMotorControlState = MCS_CONTROL_STATE_OFF;
-            s_motorPwmArmed = false;
-            s_motorStartElapsedMs = 0U;
-        }
-        return;
-    }
-
-    /* 尚未启动时先等待功率级和采样稳定，再以零电流使能 PWM。 */
-    if(!s_motorPwmArmed)
-    {
-        gMotorControlState = MCS_CONTROL_STATE_START_DELAY;
-        if(s_motorStartElapsedMs < gMotorStartDelayMs)
-        {
-            s_motorStartElapsedMs += elapsed_ms;
-            return;
-        }
-
-        if(learning_control)
-        {
-            m_motor.m_conf->foc_sensor_mode = FOC_SENSOR_MODE_SENSORLESS;
-            m_motor.m_phase_override =
-                learn_drive_mode == HALL_LEARN_DRIVE_ALIGN;
-            if(m_motor.m_phase_override)
-            {
-                m_motor.m_motor_state.phase = gHallLearnAlignPhase;
-            }
-        }
-        else
-        {
-            m_motor.m_phase_override = false;
-            if((gMotorOperationSensorMode == FOC_SENSOR_MODE_HALL) &&
-               Hall_CalibrationIsValid())
-            {
-                m_motor.m_conf->foc_sensor_mode = FOC_SENSOR_MODE_HALL;
-            }
-            else
-            {
-                m_motor.m_conf->foc_sensor_mode = FOC_SENSOR_MODE_SENSORLESS;
-            }
-        }
-        s_shortFaultCountAtArm = gShortFaultCount;
-        __disable_irq();
-        if(learning_control ||
-           (gMotorOperationControlMode == MCS_OPERATION_CONTROL_CURRENT))
-        {
-            m_motor.m_control_mode = CONTROL_MODE_CURRENT;
-        }
-        else
-        {
-            m_motor.m_control_mode = CONTROL_MODE_SPEED;
-        }
-        PwmAOutputs(ENABLE);
-        __enable_irq();
-        s_motorPwmArmed = true;
-    }
-
-    if(learning_control &&
-       (learn_drive_mode == HALL_LEARN_DRIVE_ALIGN))
-    {
-        /* 固定电角度只施加d轴电流，使转子吸附到已知磁场方向。 */
-        m_motor.m_phase_override = true;
-        m_motor.m_motor_state.phase = gHallLearnAlignPhase;
-        id_target = Motor_ControlAbsS32((s32)gHallLearnAlignCurrentMa);
-        iq_target = 0L;
-    }
-    else
-    {
-        m_motor.m_phase_override = false;
-        id_target = 0L;
-        if(learning_control)
-        {
-            /* 学习模式固定正向无感旋转，不接受串口方向和停止命令。 */
-            iq_target = Motor_ControlAbsS32((s32)gHallLearnSpinCurrentMa);
-        }
-        else
-        {
-            if(gMotorOperationControlMode == MCS_OPERATION_CONTROL_SPEED)
-            {
-                /* 速度模式的iq目标在随后的1ms速度外环中发布。 */
-                iq_target = 0L;
-                publish_current_target = false;
-            }
-            else
-            {
-                /* 电流模式由串口方向和固定电流幅值直接生成q轴目标。 */
-                iq_target = Motor_ControlAbsS32((s32)gMotorCurrentTargetMa);
-                if(gMotorDirection == MCS_MOTOR_DIRECTION_REVERSE)
-                {
-                    iq_target = -iq_target;
-                }
-            }
-        }
-    }
-    id_target = Motor_ControlLimitS32(id_target, -32768L, 32767L);
-    iq_target = Motor_ControlLimitS32(iq_target, -32768L, 32767L);
-    if(publish_current_target)
-    {
-        Motor_SetCurrentTarget(&m_motor, (s16)id_target, (s16)iq_target);
-    }
-    gMotorControlState = MCS_CONTROL_STATE_RUNNING;
+    Motor_ModeBuildControlRequest(&request);
+    Motor_RunStateTask1ms(&request, elapsed_ms);
 }
 
 
 
 void StopMotorImmdly(void)
 {
-    /* Emergency-style stop used by legacy control code.
-     * Keep it simple: disable PWM first, then mark the MCS motor sub-state
-     * as BRAKE so APP/reporting code can observe that the drive is no longer
-     * producing torque.
-     */
-    Motor_ControlFaultStop(0U);
-		
+    Motor_FaultTrip(MOTOR_FAULT_HARDWARE_SHORT);
 }
 

@@ -31,28 +31,49 @@ void User_App_Task_Run(const TASK_TICK *tick)
 static void User_App_DispatchUartCommand(void)
 {
 	/* 学习模式由霍尔状态机独占电机控制权，串口命令只接收但不执行。 */
-	if(gHallWorkMode != HALL_WORK_MODE_NORMAL){
+	if(gMotorWorkMode != MCS_WORK_MODE_CONTROL){
+		return;
+	}
+
+	/* 相同命令只更新通信诊断，不重复触发电机状态转换。 */
+	if(KeyState == LastKeyState){
+		return;
+	}
+    
+// 没必要，后期不止这几个命令
+//	if((KeyState != Motor_Up) &&
+//			(KeyState != Motor_Down) &&
+//			(KeyState != Motor_Stop)){
+//		gUartRxErrorCount++;
+//		return;
+//	}
+
+	/*
+	 * 先记录命令边沿。故障期间的命令变化只被记录而不执行，因此恢复后持续
+	 * 重发同一个命令不会自动启动，必须再次出现不同的新命令。
+	 */
+	LastKeyState = KeyState;
+	if(Motor_FaultIsActive()){
 		return;
 	}
 
 	/* BYTE3命令字：0x01正转，0x02反转，0x03停止。 */
 	switch(KeyState){
 	case Motor_Up:
-		gMotorDirection = MCS_MOTOR_DIRECTION_FORWARD;
-		gMotorRunEnable = 1U;
+		gMotorCommand.direction = MCS_MOTOR_DIRECTION_FORWARD;
+		gMotorCommand.run = 1U;
 		break;
 
 	case Motor_Down:
-		gMotorDirection = MCS_MOTOR_DIRECTION_REVERSE;
-		gMotorRunEnable = 1U;
+		gMotorCommand.direction = MCS_MOTOR_DIRECTION_REVERSE;
+		gMotorCommand.run = 1U;
 		break;
 
 	case Motor_Stop:
-		gMotorRunEnable = 0U;
+		gMotorCommand.run = 0U;
 		break;
 
 	default:
-		gUartRxErrorCount++;
 		break;
 	}
 }

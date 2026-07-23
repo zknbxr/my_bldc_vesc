@@ -755,7 +755,7 @@ void mcpwm_foc_set_pid_speed(float rpm) {
 		//如果设置了速度斜坡 s_pid_ramp_erpms_s
 		if (motor->m_control_mode != CONTROL_MODE_SPEED ||
 				motor->m_state != MC_STATE_RUNNING) {
-			//如果之前不是速度模式，或者电机还没运行，就把速度PID当前目标值初始化为“当前速度值”
+			
 			motor->m_speed_pid_set_rpm = mcpwm_foc_get_rpm();
 		}
 		//保存最终命令目标，会让m_speed_pid_set_rpm一步步接近这个目标值

@@ -119,7 +119,8 @@ static void Foc_InitMotorStruct(motor_all_state_t *motor)
     if(motor->m_conf == 0)
     {
         motor->m_conf = &m_motor_conf;
-        motor->m_state = MC_STATE_OFF;
+        motor->m_run_state = MOTOR_RUN_STATE_OFF;
+        motor->m_fault_code = MOTOR_FAULT_NONE;
         motor->m_control_mode = CONTROL_MODE_NONE;
 
         /* 这些配置在运行中保持不变，预先计算以减少快速环中的限幅和乘法。 */

@@ -23,13 +23,25 @@
 #define MCS_MOTOR_DIRECTION_REVERSE         (-1)
 #define MCS_MOTOR_DIRECTION_DEFAULT         MCS_MOTOR_DIRECTION_FORWARD
 
-/* 操作模式的外层控制器选择；底层最终都由ADC中断中的电流环执行。 */
-#define MCS_OPERATION_CONTROL_CURRENT        (0U)
-#define MCS_OPERATION_CONTROL_SPEED          (1U)
+/*
+ * 顶层工作模式。学习模式上电自动无感恒速学习，完成后运行时切换到控制模式；
+ * 控制模式由串口启停，并由下面的宏选择无感或霍尔角度源。
+ */
+#define MCS_WORK_MODE_LEARN                  (0U)
+#define MCS_WORK_MODE_CONTROL                (1U)
+/*
+ * 学习固件选LEARN：上电自动无感恒速学习，保存成功后本次运行转入CONTROL。
+ * 正式固件选CONTROL：上电加载Flash参数，并等待串口运行命令。
+ */
+#define MCS_POWER_ON_WORK_MODE               MCS_WORK_MODE_CONTROL
+/* CONTROL模式的角度来源只在这里选择：SENSORLESS或HALL。 */
+#define MCS_CONTROL_SENSOR_MODE              FOC_SENSOR_MODE_HALL  //FOC_SENSOR_MODE_HALL   FOC_SENSOR_MODE_SENSORLESS
 
 /* 正式操作模式固定速度目标，以及PLL允许估算的最大电角速度，单位ERPM。 */
-#define MCS_SPEED_TARGET_DEFAULT_ERPM         (10000)
+#define MCS_SPEED_TARGET_DEFAULT_ERPM         (8000)
 #define MCS_SPEED_EST_MAX_ERPM                (20000L)
+/* 超速时允许的反向制动电流。限制得低于驱动电流，避免突然强回馈。 */
+#define MCS_SPEED_BRAKE_IQ_LIMIT_MA           (1000L)
 
 
 #define UTILS_LP_FAST(value, sample, filter_constant) \
