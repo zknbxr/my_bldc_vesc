@@ -276,9 +276,11 @@ static void control_current(motor_all_state_t *motor, u16 dt)
     state_m->iq_error = Ierr_q;
 
     kp = (s32)conf_now->foc_current_kp;
-    ki = conf_now->foc_temp_comp ?
-         (s32)motor->m_current_ki_temp_comp :
-         (s32)conf_now->foc_current_ki;
+    ki = (s32)conf_now->foc_current_ki;
+    
+//    ki = conf_now->foc_temp_comp ?
+//         (s32)motor->m_current_ki_temp_comp :
+//         (s32)conf_now->foc_current_ki;
 
     /* Kp/Ki 输出均为 Q15 调制度，Ki 在每次 ADC 中断中积分一次。 */
     p_d = Ierr_d * kp;

@@ -236,21 +236,48 @@ typedef struct {
 
 typedef struct
 {
-    mc_configuration *m_conf;
-    volatile motor_run_state_t m_run_state;
-    volatile motor_fault_t m_fault_code;
-    mc_control_mode m_control_mode;
-	motor_state_t m_motor_state;
+
+    mc_configuration *m_conf;               /* 电机配置参数指针：限流、PI、无感参数、传感器模式等 */
+    volatile motor_run_state_t m_run_state; /* 实际运行状态：OFF、启动等待、运行、停止、故障 */
+    volatile motor_fault_t m_fault_code;    /* 当前故障码；无故障为 MOTOR_FAULT_NONE */
+    mc_control_mode m_control_mode;         /* 当前控制方式：速度、电流、开环、无控制等 */
+    motor_state_t m_motor_state;            /* FOC快环实时状态：电流、角度、电压、调制度、PI积分等 */
     
-    bool m_phase_control_initialized;    
+    bool m_phase_control_initialized; /* Hall/无感预测角是否有效；速度环接管也会检查它 */
+    bool m_phase_override;            /* 强制角度模式；为true时不让传感器角覆盖控制角 */
+    bool m_observer_initial;          /* 无感观测器是否已经完成本次运行的初始化 */
+
+    s16 m_phase_now_observer;         /* 磁链观测器直接计算出的电角度 */
+    observer_state m_observer_state;  /* 无感磁链、PLL状态；Hall模式也复用了其中部分PLL字段 */
+    s16 m_pll_phase;                  /* 最终用于FOC控制的预测角度 */
+    u32 m_phase_control_q16;          /* 带16位小数的角度累加器，用于PWM周期之间精细外推 */
+    s16 m_pll_speed;                  /* 带符号电角速度，单位ERPM；Hall和无感统一写入这里 */
+    
+    
+    s16 m_id_set_target;              /* 模式层发布的d轴最终目标，单位mA */
+    s16 m_iq_set_target;              /* 速度环/模式层发布的q轴最终目标，单位mA */
+    s16 m_id_set;                     /* 经过电流斜坡后的d轴命令，ADC中断读取 */
+    s16 m_iq_set;                     /* 经过电流斜坡后的q轴命令，ADC中断读取 */
+
+    s16 m_speed_pid_set_rpm;          /* 速度环带符号目标，实际单位是ERPM */
+    s16 p_max_v_mag;                  /* 初始化时计算的最大电压矢量调制度，Q15 */
+    
+    s16 m_current_ki_temp_comp;       /* 温度补偿后的电流Ki 暂未使用*/   
+    
+    
+    /*
+     * 剩下的属于未移植变量，可以暂时不管
+     */
     bool m_i_alpha_beta_has_offset;
     bool m_was_control_duty;
     bool duty_was_pi;
-    bool m_phase_override;
+
     bool m_cc_was_hfi;
     bool m_duty_next_set;
-    bool m_observer_initial;
-    s16 m_current_ki_temp_comp;
+    
+   
+    
+    
     s16 p_lq;
     s16 p_ld;
     s16 m_speed_est_fast;
@@ -260,16 +287,13 @@ typedef struct
     s16 m_i_beta_sample_next;
     u16 p_fs;
     u16 p_dt;            /* elapsed current-loop ticks */
-    s16 p_max_v_mag;     /* 初始化后缓存的最大电压矢量调制度，Q15 */
+
     
     s16 m_i_alpha_sample_with_offset;
     s16 m_i_beta_sample_with_offset;
     
-    s16 m_pll_speed;
-    s16 m_id_set_target;
-    s16 m_iq_set_target;
-    s16 m_id_set;
-    s16 m_iq_set;
+    
+    
     s16 m_duty_abs_filtered;
     s16 m_duty_cycle_set;
     s16 m_br_speed_before;
@@ -277,17 +301,17 @@ typedef struct
     s16 m_duty_filtered;
     u16 m_br_no_duty_samples;
     
-    s16 m_speed_pid_set_rpm;      /* 模式层发布的带符号速度请求，ERPM */
+    
     s16 m_duty_i_term;
     s16 duty_pi_duty_last;
     
-    s16 m_phase_now_observer;
-    observer_state m_observer_state;
+
+
     s16 m_i_fw_override;
     s16 m_i_fw_set;
     s16 p_duty_norm;
-    s16 m_pll_phase;
-    u32 m_phase_control_q16;       /* 每个 PWM 周期外推的 Q16 控制角 */
+    
+    
 
 } motor_all_state_t;
     

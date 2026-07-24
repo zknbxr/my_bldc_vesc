@@ -12,7 +12,7 @@ volatile motor_command_t gMotorCommand = {
 /* 软件相电流保护阈值，单位 mA；任一相连续超限 3 ms 后立即停机，0 表示关闭。 */
 volatile u16 gMotorCurrentLimitMa = 2000U;
 /* 上电或重新启动时，PWM 使能前的等待时间，单位 ms。 500*/
-volatile u16 gMotorStartDelayMs = 200U;
+volatile u16 gMotorStartDelayMs = 10U;
 /*
  * 顶层工作模式：上电由MCS_POWER_ON_WORK_MODE选择；学习并保存成功后，
  * 本次运行自动由LEARN切换为CONTROL。
@@ -20,15 +20,15 @@ volatile u16 gMotorStartDelayMs = 200U;
 volatile u8 gMotorWorkMode = MCS_POWER_ON_WORK_MODE;
 
 /* 速度目标斜坡，单位ERPM/s；4000表示从0升到3000约需0.75秒。 */
-volatile u16 gMotorSpeedRampErpmPerS = 6000U;
+volatile u16 gMotorSpeedRampErpmPerS = 30000U;
 /* 速度PI参数，Q10单位分别为mA/ERPM和mA/(ERPM*s)。 */
 volatile s16 gMotorSpeedKpQ10 = 410;
-volatile s16 gMotorSpeedKiQ10 = 96;
+volatile s16 gMotorSpeedKiQ10 = 1024;
 /* 速度PI输出限幅与可选固定启动电流，单位mA；启动电流为0时由PI直接起步。 */
 volatile u16 gMotorSpeedIqLimitMa = 1500U;
 volatile u16 gMotorSpeedStartCurrentMa = 0U;
-/* 速度模式单独使用更快的电流斜坡，使负载突变时能及时增加转矩。 */
-volatile u16 gMotorSpeedCurrentRampMaPerMs = 20U;
+/* 速度模式单独使用更快的电流斜坡，使负载突变时能及时增加转矩。60 */
+volatile u16 gMotorSpeedCurrentRampMaPerMs = 100U;
 /* 无感/Hall启动达到该速度并稳定一段时间后，速度PI才接管。 */
 volatile u16 gMotorSpeedCloseLoopMinErpm = 500U;
 volatile u16 gMotorSpeedCloseLoopStableMs = 20U;
@@ -41,8 +41,7 @@ volatile u8 gMotorSpeedClosedLoopActive;
 
 /* 已累计的启动等待时间，单位 ms；达到 gMotorStartDelayMs 后使能 PWM。 */
 static u16 s_motorStartElapsedMs;
-/* 速度反馈使用Q8低通状态，积分项使用Q10 mA，避免慢速变化被整数截断。 */
-static s32 s_motorSpeedFeedbackQ8;
+/* 积分项使用Q10 mA，避免慢速变化被整数截断。 */
 static s32 s_motorSpeedITermQ10;
 static u16 s_motorSpeedStableMs;
 static u16 s_motorSpeedRampRemainder;
@@ -102,7 +101,6 @@ static void Motor_SpeedControlReset(bool reset_target_ramp)
     {
         gMotorSpeedTargetRampErpm = 0;
         s_motorSpeedRampRemainder = 0U;
-        s_motorSpeedFeedbackQ8 = 0L;
         gMotorSpeedFeedbackErpm = 0;
     }
 }
@@ -252,6 +250,7 @@ void Motor_CurrentCommandUpdate(motor_all_state_t *motor, u16 elapsed_ms)
     {
         ramp_ma_per_ms = (s32)gMotorSpeedCurrentRampMaPerMs;
     }
+    
     if(motor->m_control_mode == CONTROL_MODE_SPEED)
     {
         /* 最后一层钳位，防止任何异常目标绕过速度PI的iq限流。 */
@@ -314,8 +313,6 @@ void Motor_SpeedControlUpdate1ms(motor_all_state_t *motor, u16 elapsed_ms)
     s32 target_abs;
     s16 target_signed;
     s16 target_ramped;
-    s32 feedback_q8_target;
-    s32 filter_elapsed;
     s32 feedback;
     s32 error;
     s32 iq_limit;
@@ -352,13 +349,8 @@ void Motor_SpeedControlUpdate1ms(motor_all_state_t *motor, u16 elapsed_ms)
     // 速度斜坡
     target_ramped = Motor_SpeedRampUpdate(target_signed, elapsed_ms);
 
-    /* m_pll_speed 已经统一为ERPM，这里再做约8ms的一阶低通供速度PI使用。 */
-    filter_elapsed = (elapsed_ms > 8U) ? 8L : (s32)elapsed_ms;
-    /* 使用乘法代替负有符号数左移，保证反转时的定点运算行为明确。 */
-    feedback_q8_target = (s32)motor->m_pll_speed * 256L;
-    s_motorSpeedFeedbackQ8 +=
-        ((feedback_q8_target - s_motorSpeedFeedbackQ8) * filter_elapsed) >> 3;
-    feedback = s_motorSpeedFeedbackQ8 >> 8;
+    /* Hall测速和无感PLL已经完成平滑，速度PI直接使用该反馈以减少延迟。 */
+    feedback = (s32)motor->m_pll_speed;
     feedback = Motor_ControlLimitS32(feedback, -32768L, 32767L);
     gMotorSpeedFeedbackErpm = (s16)feedback;
 
@@ -369,9 +361,12 @@ void Motor_SpeedControlUpdate1ms(motor_all_state_t *motor, u16 elapsed_ms)
         Motor_SetCurrentTarget(motor, 0, 0);
         return;
     }
+    
     output_limit_q10 = iq_limit << 10;
+    
     brake_limit = Motor_ControlLimitS32(
         MCS_SPEED_BRAKE_IQ_LIMIT_MA, 0L, iq_limit);
+    
     if(target_signed > 0)
     {
         /* 正转超速时允许小幅负iq制动，避免零电流滑行造成周期性波动。 */
@@ -391,6 +386,7 @@ void Motor_SpeedControlUpdate1ms(motor_all_state_t *motor, u16 elapsed_ms)
     {
         entry_speed = target_abs;
     }
+    
     if(entry_speed < 50L)
     {
         entry_speed = 50L;
@@ -513,10 +509,14 @@ static void Motor_OperationBuildControlRequest(
     {
         return;
     }
-
+    
+    /*
+     * 运动状态，运行模式，传感器模式
+     */
     request->run = gMotorCommand.run != 0U;
     request->control_mode = CONTROL_MODE_SPEED;
     request->sensor_mode = FOC_SENSOR_MODE_SENSORLESS;
+    
     if((MCS_CONTROL_SENSOR_MODE == FOC_SENSOR_MODE_HALL) &&
        Hall_CalibrationIsValid())
     {
@@ -536,6 +536,10 @@ static void Motor_OperationBuildControlRequest(
 /* 顶层模式只在这一处选择，后面的公共状态机不需要了解请求来源。 */
 static void Motor_ModeBuildControlRequest(motor_control_request_t *request)
 {
+    /*
+     * 每一次都会将状态恢复默认然后重新幅值
+     * 在控制模式里选择运动模式和传感器模式，给定目标转速
+     */
     Motor_ControlRequestReset(request);
 
     switch(gMotorWorkMode)
@@ -626,6 +630,7 @@ static void Motor_RunStateTask1ms(
     /*
      * 运行中切换传感器或控制算法会造成角度/积分突变。要求模式层先请求停止，
      * 电流回零并关闭 PWM 后，再以新请求重新启动。
+     * 电机停止使能或者切换了传感器控制模式，先关闭PWM
      */
     control_changed = Motor_IsControlActive(&m_motor) &&
         ((m_motor.m_control_mode != request->control_mode) ||
@@ -652,6 +657,7 @@ static void Motor_RunStateTask1ms(
         {
             m_motor.m_motor_state.phase = request->phase_override_q16;
         }
+
         m_motor.m_speed_pid_set_rpm = request->speed_target_erpm;
 
         __disable_irq();
