@@ -35,10 +35,10 @@
  */
 #define MCS_POWER_ON_WORK_MODE               MCS_WORK_MODE_CONTROL
 /* CONTROL模式的角度来源只在这里选择：SENSORLESS或HALL。 */
-#define MCS_CONTROL_SENSOR_MODE              FOC_SENSOR_MODE_SENSORLESS  //FOC_SENSOR_MODE_HALL   FOC_SENSOR_MODE_SENSORLESS
+#define MCS_CONTROL_SENSOR_MODE              FOC_SENSOR_MODE_HALL  //FOC_SENSOR_MODE_HALL   FOC_SENSOR_MODE_SENSORLESS
 
 /* 正式操作模式固定速度目标，以及PLL允许估算的最大电角速度，单位ERPM。 */
-#define MCS_SPEED_TARGET_DEFAULT_ERPM         (8000)
+#define MCS_SPEED_TARGET_DEFAULT_ERPM         (5000)
 #define MCS_SPEED_EST_MAX_ERPM                (20000L)
 /* 超速时允许的反向制动电流。限制得低于驱动电流，避免突然强回馈。 */
 #define MCS_SPEED_BRAKE_IQ_LIMIT_MA           (1200L)

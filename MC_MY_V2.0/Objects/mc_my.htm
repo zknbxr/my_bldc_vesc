@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\mc_my.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\mc_my.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Fri Jul 24 16:34:53 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Sat Jul 25 16:42:19 2026
 <BR><P>
 <H3>Maximum Stack Usage =        240 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -52,7 +52,7 @@ Global Symbols
 <P><STRONG><a name="[16]"></a>__main</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry.o(.ARM.Collect$$$$00000000))
 <BR>[Address Reference Count : 1]<UL><LI> startup_lks32mc03x.o(.text)
 </UL>
-<P><STRONG><a name="[b8]"></a>_main_stk</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry2.o(.ARM.Collect$$$$00000001))
+<P><STRONG><a name="[ba]"></a>_main_stk</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry2.o(.ARM.Collect$$$$00000001))
 
 <P><STRONG><a name="[17]"></a>_main_scatterload</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry5.o(.ARM.Collect$$$$00000004))
 <BR><BR>[Calls]<UL><LI><a href="#[18]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__scatterload
@@ -62,19 +62,19 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[18]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__scatterload
 </UL>
 
-<P><STRONG><a name="[b9]"></a>_main_clock</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry7b.o(.ARM.Collect$$$$00000008))
+<P><STRONG><a name="[bb]"></a>_main_clock</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry7b.o(.ARM.Collect$$$$00000008))
 
-<P><STRONG><a name="[ba]"></a>_main_cpp_init</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry8b.o(.ARM.Collect$$$$0000000A))
+<P><STRONG><a name="[bc]"></a>_main_cpp_init</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry8b.o(.ARM.Collect$$$$0000000A))
 
-<P><STRONG><a name="[bb]"></a>_main_init</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry9a.o(.ARM.Collect$$$$0000000B))
+<P><STRONG><a name="[bd]"></a>_main_init</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry9a.o(.ARM.Collect$$$$0000000B))
 
 <P><STRONG><a name="[19]"></a>__rt_lib_shutdown_fini</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry12b.o(.ARM.Collect$$$$0000000E))
 <BR><BR>[Calls]<UL><LI><a href="#[1a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__arm_fini_ (Weak Reference)
 </UL>
 
-<P><STRONG><a name="[bc]"></a>__rt_final_cpp</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry10a.o(.ARM.Collect$$$$0000000F))
+<P><STRONG><a name="[be]"></a>__rt_final_cpp</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry10a.o(.ARM.Collect$$$$0000000F))
 
-<P><STRONG><a name="[bd]"></a>__rt_final_exit</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry11a.o(.ARM.Collect$$$$00000011))
+<P><STRONG><a name="[bf]"></a>__rt_final_exit</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry11a.o(.ARM.Collect$$$$00000011))
 
 <P><STRONG><a name="[0]"></a>Reset_Handler</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, startup_lks32mc03x.o(.text))
 <BR>[Address Reference Count : 1]<UL><LI> startup_lks32mc03x.o(RESET)
@@ -141,29 +141,29 @@ Global Symbols
 <P><STRONG><a name="[12]"></a>WAKE_IRQHandler</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, startup_lks32mc03x.o(.text))
 <BR>[Address Reference Count : 1]<UL><LI> startup_lks32mc03x.o(RESET)
 </UL>
-<P><STRONG><a name="[be]"></a>__aeabi_uidiv</STRONG> (Thumb, 0 bytes, Stack size 12 bytes, uidiv.o(.text), UNUSED)
+<P><STRONG><a name="[c0]"></a>__aeabi_uidiv</STRONG> (Thumb, 0 bytes, Stack size 12 bytes, uidiv.o(.text), UNUSED)
 
 <P><STRONG><a name="[1c]"></a>__aeabi_uidivmod</STRONG> (Thumb, 44 bytes, Stack size 12 bytes, uidiv.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 12<LI>Call Chain = __aeabi_uidivmod
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_idivmod
-<LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedRampUpdate
+<BR>[Called By]<UL><LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedRampUpdate
+<LI><a href="#[1b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_idivmod
 </UL>
 
-<P><STRONG><a name="[bf]"></a>__aeabi_idiv</STRONG> (Thumb, 0 bytes, Stack size 16 bytes, idiv.o(.text), UNUSED)
+<P><STRONG><a name="[c1]"></a>__aeabi_idiv</STRONG> (Thumb, 0 bytes, Stack size 16 bytes, idiv.o(.text), UNUSED)
 
 <P><STRONG><a name="[1b]"></a>__aeabi_idivmod</STRONG> (Thumb, 40 bytes, Stack size 16 bytes, idiv.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 28<LI>Call Chain = __aeabi_idivmod &rArr; __aeabi_uidivmod
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_uidivmod
 </UL>
-<BR>[Called By]<UL><LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;control_current
-<LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_pll_run
-<LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_apply_correction
-<LI><a href="#[af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;observer_div_1000
+<BR>[Called By]<UL><LI><a href="#[29]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_FastUpdate
+<LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;control_current
+<LI><a href="#[af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_pll_run
+<LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_apply_correction
+<LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;observer_div_1000
 <LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_GetOffsetCandidate
 <LI><a href="#[51]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_CalculateGain
-<LI><a href="#[29]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_FastUpdate
 </UL>
 
 <P><STRONG><a name="[1d]"></a>__aeabi_ldivmod</STRONG> (Thumb, 76 bytes, Stack size 24 bytes, ldiv.o(.text))
@@ -171,8 +171,8 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_uldivmod
 </UL>
-<BR>[Called By]<UL><LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Init
-<LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
+<BR>[Called By]<UL><LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
+<LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Init
 </UL>
 
 <P><STRONG><a name="[1f]"></a>__aeabi_lmul</STRONG> (Thumb, 122 bytes, Stack size 64 bytes, llmul.o(.text))
@@ -180,30 +180,30 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[20]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_llsl
 </UL>
-<BR>[Called By]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
+<BR>[Called By]<UL><LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
 </UL>
 
-<P><STRONG><a name="[c0]"></a>_ll_mul</STRONG> (Thumb, 0 bytes, Stack size 64 bytes, llmul.o(.text), UNUSED)
+<P><STRONG><a name="[c2]"></a>_ll_mul</STRONG> (Thumb, 0 bytes, Stack size 64 bytes, llmul.o(.text), UNUSED)
 
 <P><STRONG><a name="[22]"></a>__aeabi_memset</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, memseta.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[23]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_memset$wrapper
 <LI><a href="#[21]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr
 </UL>
 
-<P><STRONG><a name="[c1]"></a>__aeabi_memset4</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
+<P><STRONG><a name="[c3]"></a>__aeabi_memset4</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
 
-<P><STRONG><a name="[c2]"></a>__aeabi_memset8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
+<P><STRONG><a name="[c4]"></a>__aeabi_memset8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
 
 <P><STRONG><a name="[21]"></a>__aeabi_memclr</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, memseta.o(.text))
 <BR><BR>[Calls]<UL><LI><a href="#[22]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memset
 </UL>
-<BR>[Called By]<UL><LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MCPWM_StructInit
+<BR>[Called By]<UL><LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MCPWM_StructInit
 <LI><a href="#[42]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DAC_StructInit
 </UL>
 
-<P><STRONG><a name="[c3]"></a>__aeabi_memclr4</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
+<P><STRONG><a name="[c5]"></a>__aeabi_memclr4</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
 
-<P><STRONG><a name="[c4]"></a>__aeabi_memclr8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
+<P><STRONG><a name="[c6]"></a>__aeabi_memclr8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
 
 <P><STRONG><a name="[23]"></a>_memset$wrapper</STRONG> (Thumb, 18 bytes, Stack size 8 bytes, memseta.o(.text), UNUSED)
 <BR><BR>[Calls]<UL><LI><a href="#[22]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memset
@@ -221,11 +221,11 @@ Global Symbols
 <P><STRONG><a name="[20]"></a>__aeabi_llsl</STRONG> (Thumb, 32 bytes, Stack size 8 bytes, llshl.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = __aeabi_llsl
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_lmul
-<LI><a href="#[1e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_uldivmod
+<BR>[Called By]<UL><LI><a href="#[1e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_uldivmod
+<LI><a href="#[1f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_lmul
 </UL>
 
-<P><STRONG><a name="[c5]"></a>_ll_shift_l</STRONG> (Thumb, 0 bytes, Stack size 8 bytes, llshl.o(.text), UNUSED)
+<P><STRONG><a name="[c7]"></a>_ll_shift_l</STRONG> (Thumb, 0 bytes, Stack size 8 bytes, llshl.o(.text), UNUSED)
 
 <P><STRONG><a name="[18]"></a>__scatterload</STRONG> (Thumb, 28 bytes, Stack size 0 bytes, init.o(.text))
 <BR><BR>[Calls]<UL><LI><a href="#[25]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main_after_scatterload
@@ -233,7 +233,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[17]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_main_scatterload
 </UL>
 
-<P><STRONG><a name="[c6]"></a>__scatterload_rt2</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, init.o(.text), UNUSED)
+<P><STRONG><a name="[c8]"></a>__scatterload_rt2</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, init.o(.text), UNUSED)
 
 <P><STRONG><a name="[24]"></a>__aeabi_llsr</STRONG> (Thumb, 34 bytes, Stack size 8 bytes, llushr.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = __aeabi_llsr
@@ -241,11 +241,11 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[1e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_uldivmod
 </UL>
 
-<P><STRONG><a name="[c7]"></a>_ll_ushift_r</STRONG> (Thumb, 0 bytes, Stack size 8 bytes, llushr.o(.text), UNUSED)
+<P><STRONG><a name="[c9]"></a>_ll_ushift_r</STRONG> (Thumb, 0 bytes, Stack size 8 bytes, llushr.o(.text), UNUSED)
 
-<P><STRONG><a name="[c8]"></a>__decompress</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __dczerorl.o(.text), UNUSED)
+<P><STRONG><a name="[ca]"></a>__decompress</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __dczerorl.o(.text), UNUSED)
 
-<P><STRONG><a name="[c9]"></a>__decompress0</STRONG> (Thumb, 58 bytes, Stack size unknown bytes, __dczerorl.o(.text), UNUSED)
+<P><STRONG><a name="[cb]"></a>__decompress0</STRONG> (Thumb, 58 bytes, Stack size unknown bytes, __dczerorl.o(.text), UNUSED)
 
 <P><STRONG><a name="[10]"></a>ADC_IRQHandler</STRONG> (Thumb, 114 bytes, Stack size 16 bytes, interrupt.o(i.ADC_IRQHandler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 204<LI>Call Chain = ADC_IRQHandler &rArr; AdcEocHandler &rArr; AdcSampleCal &rArr; foc_sensorless_update &rArr; foc_observer_update &rArr; observer_div_1000 &rArr; __aeabi_idivmod &rArr; __aeabi_uidivmod
@@ -290,21 +290,21 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[38]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SYS_ModuleClockCmd
 </UL>
-<BR>[Called By]<UL><LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitCmpMotor0
+<BR>[Called By]<UL><LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitCmpMotor0
 </UL>
 
-<P><STRONG><a name="[7b]"></a>CMP_StructInit</STRONG> (Thumb, 62 bytes, Stack size 0 bytes, lks32mc03x_cmp.o(i.CMP_StructInit))
-<BR><BR>[Called By]<UL><LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitCmpMotor0
+<P><STRONG><a name="[7c]"></a>CMP_StructInit</STRONG> (Thumb, 62 bytes, Stack size 0 bytes, lks32mc03x_cmp.o(i.CMP_StructInit))
+<BR><BR>[Called By]<UL><LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitCmpMotor0
 </UL>
 
 <P><STRONG><a name="[39]"></a>Clock_Init</STRONG> (Thumb, 58 bytes, Stack size 8 bytes, hardware_init.o(i.Clock_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = Clock_Init &rArr; SYS_VolSelModule
 </UL>
-<BR>[Calls]<UL><LI><a href="#[3a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SYS_VolSelModule
-<LI><a href="#[3b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay
+<BR>[Calls]<UL><LI><a href="#[3b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay
+<LI><a href="#[3a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SYS_VolSelModule
 </UL>
 <BR>[Called By]<UL><LI><a href="#[15]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemInit
-<LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitCmpMotor0
+<LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitCmpMotor0
 </UL>
 
 <P><STRONG><a name="[3d]"></a>ConfigAdcModeMotor0</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, mcs_init.o(i.ConfigAdcModeMotor0))
@@ -317,7 +317,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[3e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitAdcMotor0
 <LI><a href="#[3d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ConfigAdcModeMotor0
 </UL>
-<BR>[Called By]<UL><LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mc_sys_init
+<BR>[Called By]<UL><LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mc_sys_init
 </UL>
 
 <P><STRONG><a name="[3f]"></a>DAC_Init</STRONG> (Thumb, 114 bytes, Stack size 16 bytes, lks32mc03x_dac.o(i.DAC_Init))
@@ -326,13 +326,13 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[40]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SYS_AnalogModuleClockCmd
 <LI><a href="#[41]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Read_Trim
 </UL>
-<BR>[Called By]<UL><LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitDacMotor0
+<BR>[Called By]<UL><LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitDacMotor0
 </UL>
 
-<P><STRONG><a name="[7c]"></a>DAC_OutputVoltage</STRONG> (Thumb, 84 bytes, Stack size 8 bytes, lks32mc03x_dac.o(i.DAC_OutputVoltage))
+<P><STRONG><a name="[7d]"></a>DAC_OutputVoltage</STRONG> (Thumb, 84 bytes, Stack size 8 bytes, lks32mc03x_dac.o(i.DAC_OutputVoltage))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = DAC_OutputVoltage
 </UL>
-<BR>[Called By]<UL><LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitDacMotor0
+<BR>[Called By]<UL><LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitDacMotor0
 </UL>
 
 <P><STRONG><a name="[42]"></a>DAC_StructInit</STRONG> (Thumb, 10 bytes, Stack size 8 bytes, lks32mc03x_dac.o(i.DAC_StructInit))
@@ -340,13 +340,13 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[21]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr
 </UL>
-<BR>[Called By]<UL><LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitDacMotor0
+<BR>[Called By]<UL><LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitDacMotor0
 </UL>
 
-<P><STRONG><a name="[61]"></a>EraseSector</STRONG> (Thumb, 98 bytes, Stack size 20 bytes, lks32mc03x_flash.o(i.EraseSector))
+<P><STRONG><a name="[64]"></a>EraseSector</STRONG> (Thumb, 98 bytes, Stack size 20 bytes, lks32mc03x_flash.o(i.EraseSector))
 <BR><BR>[Stack]<UL><LI>Max Depth = 20<LI>Call Chain = EraseSector
 </UL>
-<BR>[Called By]<UL><LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
 </UL>
 
 <P><STRONG><a name="[43]"></a>FOC_SVM_Q15</STRONG> (Thumb, 350 bytes, Stack size 40 bytes, mcs_math.o(i.FOC_SVM_Q15))
@@ -355,7 +355,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[45]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SVM_LimitInt32
 <LI><a href="#[44]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_common_switch8
 </UL>
-<BR>[Called By]<UL><LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;control_current
+<BR>[Called By]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;control_current
 </UL>
 
 <P><STRONG><a name="[46]"></a>FeedDogcmd</STRONG> (Thumb, 26 bytes, Stack size 8 bytes, interrupt.o(i.FeedDogcmd))
@@ -363,20 +363,20 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[47]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IWDG_Feed
 </UL>
-<BR>[Called By]<UL><LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;User_App_Task_Run
+<BR>[Called By]<UL><LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;User_App_Task_Run
 </UL>
 
-<P><STRONG><a name="[b2]"></a>FocHw_ModToVoltageMv</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, mcs_foc_hw.o(i.FocHw_ModToVoltageMv))
+<P><STRONG><a name="[b4]"></a>FocHw_ModToVoltageMv</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, mcs_foc_hw.o(i.FocHw_ModToVoltageMv))
 <BR><BR>[Called By]<UL><LI><a href="#[2e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_sensorless_update
 </UL>
 
-<P><STRONG><a name="[b3]"></a>FocHw_PhaseDifference</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, mcs_foc_hw.o(i.FocHw_PhaseDifference))
+<P><STRONG><a name="[b5]"></a>FocHw_PhaseDifference</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, mcs_foc_hw.o(i.FocHw_PhaseDifference))
 <BR><BR>[Called By]<UL><LI><a href="#[2e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_sensorless_update
 </UL>
 
 <P><STRONG><a name="[2d]"></a>FocHw_SatS16</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, mcs_foc_hw.o(i.FocHw_SatS16))
 <BR><BR>[Called By]<UL><LI><a href="#[2e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_sensorless_update
-<LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FocSlowUpdate1ms
+<LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FocSlowUpdate1ms
 <LI><a href="#[2a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AdcSampleCal
 <LI><a href="#[2c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FocHw_AdcToCurrentMa
 </UL>
@@ -384,18 +384,18 @@ Global Symbols
 <P><STRONG><a name="[4d]"></a>Foc_Atan2Q16</STRONG> (Thumb, 80 bytes, Stack size 16 bytes, sensorless_ctrl.o(i.Foc_Atan2Q16))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = Foc_Atan2Q16
 </UL>
-<BR>[Called By]<UL><LI><a href="#[b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_update_phase
-<LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ProcessAlignment
+<BR>[Called By]<UL><LI><a href="#[29]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_FastUpdate
+<LI><a href="#[b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_update_phase
+<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ProcessAlignment
 <LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_GetOffsetCandidate
 <LI><a href="#[4b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_AccumulateOffset
-<LI><a href="#[29]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_FastUpdate
 </UL>
 
-<P><STRONG><a name="[7a]"></a>GPIO_Init</STRONG> (Thumb, 116 bytes, Stack size 16 bytes, lks32mc03x_gpio.o(i.GPIO_Init))
+<P><STRONG><a name="[7b]"></a>GPIO_Init</STRONG> (Thumb, 116 bytes, Stack size 16 bytes, lks32mc03x_gpio.o(i.GPIO_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = GPIO_Init
 </UL>
-<BR>[Called By]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_HardWare_Init
-<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitBroadGPIO
+<BR>[Called By]<UL><LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_HardWare_Init
+<LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitBroadGPIO
 </UL>
 
 <P><STRONG><a name="[4a]"></a>GPIO_PinAFConfig</STRONG> (Thumb, 202 bytes, Stack size 20 bytes, lks32mc03x_gpio.o(i.GPIO_PinAFConfig))
@@ -403,43 +403,47 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[44]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_common_switch8
 </UL>
-<BR>[Called By]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_HardWare_Init
-<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitBroadGPIO
+<BR>[Called By]<UL><LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_HardWare_Init
+<LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitBroadGPIO
 </UL>
 
-<P><STRONG><a name="[79]"></a>GPIO_StructInit</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, lks32mc03x_gpio.o(i.GPIO_StructInit))
-<BR><BR>[Called By]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_HardWare_Init
-<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitBroadGPIO
+<P><STRONG><a name="[7a]"></a>GPIO_StructInit</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, lks32mc03x_gpio.o(i.GPIO_StructInit))
+<BR><BR>[Called By]<UL><LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_HardWare_Init
+<LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitBroadGPIO
 </UL>
 
-<P><STRONG><a name="[9e]"></a>GetRchTrimVal</STRONG> (Thumb, 60 bytes, Stack size 0 bytes, lks32mc03x_flash.o(i.GetRchTrimVal))
+<P><STRONG><a name="[a0]"></a>GetRchTrimVal</STRONG> (Thumb, 60 bytes, Stack size 0 bytes, lks32mc03x_flash.o(i.GetRchTrimVal))
 <BR><BR>[Called By]<UL><LI><a href="#[3a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SYS_VolSelModule
+</UL>
+
+<P><STRONG><a name="[99]"></a>Hall_CalibrationIsValid</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, mcs_hall.o(i.Hall_CalibrationIsValid))
+<BR><BR>[Called By]<UL><LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_OperationBuildControlRequest
 </UL>
 
 <P><STRONG><a name="[2b]"></a>Hall_CaptureSample</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, mcs_hall.o(i.Hall_CaptureSample))
 <BR><BR>[Called By]<UL><LI><a href="#[26]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AdcEocHandler
 </UL>
 
-<P><STRONG><a name="[29]"></a>Hall_FastUpdate</STRONG> (Thumb, 372 bytes, Stack size 56 bytes, mcs_hall.o(i.Hall_FastUpdate))
+<P><STRONG><a name="[29]"></a>Hall_FastUpdate</STRONG> (Thumb, 368 bytes, Stack size 56 bytes, mcs_hall.o(i.Hall_FastUpdate))
 <BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = Hall_FastUpdate &rArr; Hall_CalculateOrthogonal
 </UL>
-<BR>[Calls]<UL><LI><a href="#[4d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Foc_Atan2Q16
+<BR>[Calls]<UL><LI><a href="#[5a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_reset
+<LI><a href="#[4d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Foc_Atan2Q16
 <LI><a href="#[4e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_MechanicalToElectrical
 <LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_CalculateOrthogonal
 <LI><a href="#[50]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_AbsS32
 <LI><a href="#[1b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_idivmod
-<LI><a href="#[5a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_reset
 </UL>
 <BR>[Called By]<UL><LI><a href="#[26]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AdcEocHandler
 </UL>
 
-<P><STRONG><a name="[5c]"></a>Hall_LearnBuildControlRequest</STRONG> (Thumb, 80 bytes, Stack size 24 bytes, mcs_hall.o(i.Hall_LearnBuildControlRequest))
+<P><STRONG><a name="[5c]"></a>Hall_LearnBuildControlRequest</STRONG> (Thumb, 78 bytes, Stack size 24 bytes, mcs_hall.o(i.Hall_LearnBuildControlRequest))
 <BR><BR>[Stack]<UL><LI>Max Depth = 36<LI>Call Chain = Hall_LearnBuildControlRequest &rArr; Hall_LearnGetDriveMode &rArr; __ARM_common_switch8
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnGetDriveMode
 <LI><a href="#[50]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_AbsS32
 </UL>
-<BR>[Called By]<UL><LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ModeBuildControlRequest
+<BR>[Called By]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlTask1ms
 </UL>
 
 <P><STRONG><a name="[5d]"></a>Hall_LearnGetDriveMode</STRONG> (Thumb, 42 bytes, Stack size 4 bytes, mcs_hall.o(i.Hall_LearnGetDriveMode))
@@ -450,29 +454,33 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnBuildControlRequest
 </UL>
 
-<P><STRONG><a name="[5e]"></a>Hall_LearnInit</STRONG> (Thumb, 66 bytes, Stack size 16 bytes, mcs_hall.o(i.Hall_LearnInit))
-<BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = Hall_LearnInit &rArr; Hall_ResetLearning
+<P><STRONG><a name="[5e]"></a>Hall_LearnInit</STRONG> (Thumb, 124 bytes, Stack size 72 bytes, mcs_hall.o(i.Hall_LearnInit))
+<BR><BR>[Stack]<UL><LI>Max Depth = 104<LI>Call Chain = Hall_LearnInit &rArr; Hall_RecordIsValid &rArr; Hall_Crc32
 </UL>
-<BR>[Calls]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ResetLearning
+<BR>[Calls]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Read_Flash
+<LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ResetLearning
+<LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_RecordIsValid
+<LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_CopyRecordToCalibration
+<LI><a href="#[58]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ClearBytes
 </UL>
-<BR>[Called By]<UL><LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mc_sys_init
+<BR>[Called By]<UL><LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mc_sys_init
 </UL>
 
-<P><STRONG><a name="[60]"></a>Hall_LearnTask1ms</STRONG> (Thumb, 564 bytes, Stack size 128 bytes, mcs_hall.o(i.Hall_LearnTask1ms))
+<P><STRONG><a name="[63]"></a>Hall_LearnTask1ms</STRONG> (Thumb, 564 bytes, Stack size 128 bytes, mcs_hall.o(i.Hall_LearnTask1ms))
 <BR><BR>[Stack]<UL><LI>Max Depth = 208<LI>Call Chain = Hall_LearnTask1ms &rArr; Hall_ProcessAlignment &rArr; Hall_CalculateOrthogonal
 </UL>
-<BR>[Calls]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Read_Flash
-<LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ProgramPage
-<LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EraseSector
-<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_UpdateTravel
-<LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_UpdateMinMax
+<BR>[Calls]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Read_Flash
+<LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ProgramPage
+<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EraseSector
+<LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_UpdateTravel
+<LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_UpdateMinMax
 <LI><a href="#[54]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ResetStage
-<LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ResetLearning
-<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_RecordIsValid
-<LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ProcessAlignment
-<LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_OffsetConverged
+<LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ResetLearning
+<LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_RecordIsValid
+<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ProcessAlignment
+<LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_OffsetConverged
 <LI><a href="#[52]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_Normalize
-<LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_MinMaxConverged
+<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_MinMaxConverged
 <LI><a href="#[57]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_CopyCalibrationToRecord
 <LI><a href="#[56]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_CompleteRawStage
 <LI><a href="#[53]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_CompleteOrthogonalStage
@@ -480,7 +488,7 @@ Global Symbols
 <LI><a href="#[4b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_AccumulateOffset
 <LI><a href="#[50]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_AbsS32
 </UL>
-<BR>[Called By]<UL><LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Mcs_Task_Run
+<BR>[Called By]<UL><LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Mcs_Task_Run
 </UL>
 
 <P><STRONG><a name="[2]"></a>HardFault_Handler</STRONG> (Thumb, 26 bytes, Stack size 0 bytes, interrupt.o(i.HardFault_Handler))
@@ -490,20 +498,20 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_lks32mc03x.o(RESET)
 </UL>
-<P><STRONG><a name="[6f]"></a>Hardware_init</STRONG> (Thumb, 96 bytes, Stack size 8 bytes, hardware_init.o(i.Hardware_init))
+<P><STRONG><a name="[70]"></a>Hardware_init</STRONG> (Thumb, 96 bytes, Stack size 8 bytes, hardware_init.o(i.Hardware_init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = Hardware_init &rArr; UART_HardWare_Init &rArr; UART_Init &rArr; __aeabi_ldivmod &rArr; __aeabi_uldivmod &rArr; __aeabi_llsr
 </UL>
-<BR>[Calls]<UL><LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TempSensor_Init
-<LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_HardWare_Init
-<LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitWatchDog
-<LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitPgaMotor0
-<LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitEpwmMotor0
-<LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitDacMotor0
-<LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitCmpMotor0
-<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitBroadGPIO
-<LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;NVIC_SetPriority
-<LI><a href="#[3b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay
+<BR>[Calls]<UL><LI><a href="#[3b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay
 <LI><a href="#[3e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitAdcMotor0
+<LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TempSensor_Init
+<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_HardWare_Init
+<LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitWatchDog
+<LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitPgaMotor0
+<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitEpwmMotor0
+<LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitDacMotor0
+<LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitCmpMotor0
+<LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitBroadGPIO
+<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;NVIC_SetPriority
 </UL>
 <BR>[Called By]<UL><LI><a href="#[14]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -512,8 +520,8 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FeedDogcmd
 </UL>
 
-<P><STRONG><a name="[9d]"></a>IWDG_Init</STRONG> (Thumb, 46 bytes, Stack size 0 bytes, lks32mc03x_iwdg.o(i.IWDG_Init))
-<BR><BR>[Called By]<UL><LI><a href="#[7f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SYS_EnableWatchDog
+<P><STRONG><a name="[9f]"></a>IWDG_Init</STRONG> (Thumb, 46 bytes, Stack size 0 bytes, lks32mc03x_iwdg.o(i.IWDG_Init))
+<BR><BR>[Called By]<UL><LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SYS_EnableWatchDog
 </UL>
 
 <P><STRONG><a name="[3e]"></a>InitAdcMotor0</STRONG> (Thumb, 54 bytes, Stack size 8 bytes, hardware_init.o(i.InitAdcMotor0))
@@ -522,258 +530,260 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[40]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SYS_AnalogModuleClockCmd
 </UL>
 <BR>[Called By]<UL><LI><a href="#[3c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CurrentOffsetCalibration
-<LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
+<LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
 </UL>
 
-<P><STRONG><a name="[71]"></a>InitBroadGPIO</STRONG> (Thumb, 230 bytes, Stack size 32 bytes, hardware_init.o(i.InitBroadGPIO))
+<P><STRONG><a name="[72]"></a>InitBroadGPIO</STRONG> (Thumb, 230 bytes, Stack size 32 bytes, hardware_init.o(i.InitBroadGPIO))
 <BR><BR>[Stack]<UL><LI>Max Depth = 60<LI>Call Chain = InitBroadGPIO &rArr; GPIO_PinAFConfig &rArr; __ARM_common_switch8
 </UL>
-<BR>[Calls]<UL><LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_StructInit
+<BR>[Calls]<UL><LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_StructInit
 <LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_PinAFConfig
-<LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_Init
+<LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_Init
 </UL>
-<BR>[Called By]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
+<BR>[Called By]<UL><LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
 </UL>
 
-<P><STRONG><a name="[74]"></a>InitCmpMotor0</STRONG> (Thumb, 76 bytes, Stack size 128 bytes, hardware_init.o(i.InitCmpMotor0))
+<P><STRONG><a name="[75]"></a>InitCmpMotor0</STRONG> (Thumb, 76 bytes, Stack size 128 bytes, hardware_init.o(i.InitCmpMotor0))
 <BR><BR>[Stack]<UL><LI>Max Depth = 152<LI>Call Chain = InitCmpMotor0 &rArr; Clock_Init &rArr; SYS_VolSelModule
 </UL>
 <BR>[Calls]<UL><LI><a href="#[40]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SYS_AnalogModuleClockCmd
-<LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CMP_StructInit
+<LI><a href="#[7c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CMP_StructInit
 <LI><a href="#[37]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CMP_Init
 <LI><a href="#[39]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Clock_Init
 </UL>
-<BR>[Called By]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
+<BR>[Called By]<UL><LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
 </UL>
 
-<P><STRONG><a name="[72]"></a>InitDacMotor0</STRONG> (Thumb, 30 bytes, Stack size 8 bytes, hardware_init.o(i.InitDacMotor0))
+<P><STRONG><a name="[73]"></a>InitDacMotor0</STRONG> (Thumb, 30 bytes, Stack size 8 bytes, hardware_init.o(i.InitDacMotor0))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = InitDacMotor0 &rArr; DAC_Init &rArr; SYS_AnalogModuleClockCmd
 </UL>
 <BR>[Calls]<UL><LI><a href="#[42]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DAC_StructInit
-<LI><a href="#[7c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DAC_OutputVoltage
+<LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DAC_OutputVoltage
 <LI><a href="#[3f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DAC_Init
 </UL>
-<BR>[Called By]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
+<BR>[Called By]<UL><LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
 </UL>
 
-<P><STRONG><a name="[70]"></a>InitEpwmMotor0</STRONG> (Thumb, 146 bytes, Stack size 128 bytes, hardware_init.o(i.InitEpwmMotor0))
+<P><STRONG><a name="[71]"></a>InitEpwmMotor0</STRONG> (Thumb, 146 bytes, Stack size 128 bytes, hardware_init.o(i.InitEpwmMotor0))
 <BR><BR>[Stack]<UL><LI>Max Depth = 152<LI>Call Chain = InitEpwmMotor0 &rArr; MCPWM_Init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MCPWM_StructInit
-<LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MCPWM_Init
+<BR>[Calls]<UL><LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MCPWM_StructInit
+<LI><a href="#[7f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MCPWM_Init
 </UL>
-<BR>[Called By]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
+<BR>[Called By]<UL><LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
 </UL>
 
-<P><STRONG><a name="[73]"></a>InitPgaMotor0</STRONG> (Thumb, 38 bytes, Stack size 8 bytes, hardware_init.o(i.InitPgaMotor0))
+<P><STRONG><a name="[74]"></a>InitPgaMotor0</STRONG> (Thumb, 38 bytes, Stack size 8 bytes, hardware_init.o(i.InitPgaMotor0))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = InitPgaMotor0 &rArr; SYS_AnalogModuleClockCmd
 </UL>
 <BR>[Calls]<UL><LI><a href="#[40]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SYS_AnalogModuleClockCmd
 </UL>
-<BR>[Called By]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
+<BR>[Called By]<UL><LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
 </UL>
 
-<P><STRONG><a name="[75]"></a>InitWatchDog</STRONG> (Thumb, 20 bytes, Stack size 8 bytes, hardware_init.o(i.InitWatchDog))
+<P><STRONG><a name="[76]"></a>InitWatchDog</STRONG> (Thumb, 20 bytes, Stack size 8 bytes, hardware_init.o(i.InitWatchDog))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = InitWatchDog &rArr; SYS_EnableWatchDog
 </UL>
-<BR>[Calls]<UL><LI><a href="#[7f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SYS_EnableWatchDog
+<BR>[Calls]<UL><LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SYS_EnableWatchDog
 </UL>
-<BR>[Called By]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
+<BR>[Called By]<UL><LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
 </UL>
 
 <P><STRONG><a name="[8]"></a>MCPWM0_IRQHandler</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, interrupt.o(i.MCPWM0_IRQHandler))
 <BR>[Address Reference Count : 1]<UL><LI> startup_lks32mc03x.o(RESET)
 </UL>
-<P><STRONG><a name="[7e]"></a>MCPWM_Init</STRONG> (Thumb, 534 bytes, Stack size 24 bytes, lks32mc03x_mcpwm.o(i.MCPWM_Init))
+<P><STRONG><a name="[7f]"></a>MCPWM_Init</STRONG> (Thumb, 534 bytes, Stack size 24 bytes, lks32mc03x_mcpwm.o(i.MCPWM_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = MCPWM_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[38]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SYS_ModuleClockCmd
 </UL>
-<BR>[Called By]<UL><LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitEpwmMotor0
+<BR>[Called By]<UL><LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitEpwmMotor0
 </UL>
 
-<P><STRONG><a name="[7d]"></a>MCPWM_StructInit</STRONG> (Thumb, 10 bytes, Stack size 8 bytes, lks32mc03x_mcpwm.o(i.MCPWM_StructInit))
+<P><STRONG><a name="[7e]"></a>MCPWM_StructInit</STRONG> (Thumb, 10 bytes, Stack size 8 bytes, lks32mc03x_mcpwm.o(i.MCPWM_StructInit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = MCPWM_StructInit
 </UL>
 <BR>[Calls]<UL><LI><a href="#[21]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr
 </UL>
-<BR>[Called By]<UL><LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitEpwmMotor0
+<BR>[Called By]<UL><LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitEpwmMotor0
 </UL>
 
-<P><STRONG><a name="[80]"></a>Mcs_Task_Run</STRONG> (Thumb, 64 bytes, Stack size 8 bytes, mcs_task.o(i.Mcs_Task_Run))
+<P><STRONG><a name="[81]"></a>Mcs_Task_Run</STRONG> (Thumb, 64 bytes, Stack size 8 bytes, mcs_task.o(i.Mcs_Task_Run))
 <BR><BR>[Stack]<UL><LI>Max Depth = 216<LI>Call Chain = Mcs_Task_Run &rArr; Hall_LearnTask1ms &rArr; Hall_ProcessAlignment &rArr; Hall_CalculateOrthogonal
 </UL>
-<BR>[Calls]<UL><LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
-<LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FocSlowUpdate1ms
-<LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
-<LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_CurrentCommandUpdate
-<LI><a href="#[83]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlTask1ms
-<LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultTask1ms
-<LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultIsActive
+<BR>[Calls]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FocSlowUpdate1ms
+<LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
+<LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_CurrentCommandUpdate
+<LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlTask1ms
+<LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultTask1ms
+<LI><a href="#[83]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultIsActive
 </UL>
-<BR>[Called By]<UL><LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Scheduler
+<BR>[Called By]<UL><LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Scheduler
 </UL>
 
-<P><STRONG><a name="[87]"></a>Motor_ControlInit</STRONG> (Thumb, 76 bytes, Stack size 16 bytes, mcs_control.o(i.Motor_ControlInit))
+<P><STRONG><a name="[88]"></a>Motor_ControlInit</STRONG> (Thumb, 74 bytes, Stack size 16 bytes, mcs_control.o(i.Motor_ControlInit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = Motor_ControlInit
 </UL>
-<BR>[Calls]<UL><LI><a href="#[89]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_CurrentCommandReset
-<LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlReset
-<LI><a href="#[88]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PwmAOutputs
-<LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultInit
+<BR>[Calls]<UL><LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_CurrentCommandReset
+<LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlReset
+<LI><a href="#[89]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PwmAOutputs
+<LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultInit
 </UL>
 <BR>[Called By]<UL><LI><a href="#[14]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[83]"></a>Motor_ControlTask1ms</STRONG> (Thumb, 22 bytes, Stack size 24 bytes, mcs_control.o(i.Motor_ControlTask1ms))
+<P><STRONG><a name="[84]"></a>Motor_ControlTask1ms</STRONG> (Thumb, 66 bytes, Stack size 24 bytes, mcs_control.o(i.Motor_ControlTask1ms))
 <BR><BR>[Stack]<UL><LI>Max Depth = 104<LI>Call Chain = Motor_ControlTask1ms &rArr; Motor_RunStateTask1ms &rArr; Motor_RunStateStop &rArr; Motor_SetCurrentTarget
 </UL>
-<BR>[Calls]<UL><LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_RunStateTask1ms
-<LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ModeBuildControlRequest
+<BR>[Calls]<UL><LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnBuildControlRequest
+<LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_RunStateTask1ms
+<LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_OperationBuildControlRequest
 </UL>
-<BR>[Called By]<UL><LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Mcs_Task_Run
-</UL>
-
-<P><STRONG><a name="[89]"></a>Motor_CurrentCommandReset</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, mcs_control.o(i.Motor_CurrentCommandReset))
-<BR><BR>[Called By]<UL><LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlInit
+<BR>[Called By]<UL><LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Mcs_Task_Run
 </UL>
 
-<P><STRONG><a name="[85]"></a>Motor_CurrentCommandUpdate</STRONG> (Thumb, 152 bytes, Stack size 40 bytes, mcs_control.o(i.Motor_CurrentCommandUpdate))
+<P><STRONG><a name="[8a]"></a>Motor_CurrentCommandReset</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, mcs_control.o(i.Motor_CurrentCommandReset))
+<BR><BR>[Called By]<UL><LI><a href="#[88]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlInit
+</UL>
+
+<P><STRONG><a name="[86]"></a>Motor_CurrentCommandUpdate</STRONG> (Thumb, 152 bytes, Stack size 40 bytes, mcs_control.o(i.Motor_CurrentCommandUpdate))
 <BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = Motor_CurrentCommandUpdate &rArr; Motor_SpeedGetIqLimit
 </UL>
-<BR>[Calls]<UL><LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedGetIqLimit
-<LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlStepTowards
-<LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlLimitS32
+<BR>[Calls]<UL><LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedGetIqLimit
+<LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlStepTowards
+<LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlLimitS32
 </UL>
-<BR>[Called By]<UL><LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Mcs_Task_Run
+<BR>[Called By]<UL><LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Mcs_Task_Run
 </UL>
 
 <P><STRONG><a name="[32]"></a>Motor_CurrentLoopRun</STRONG> (Thumb, 12 bytes, Stack size 8 bytes, mcs_pwm_foc.o(i.Motor_CurrentLoopRun))
 <BR><BR>[Stack]<UL><LI>Max Depth = 128<LI>Call Chain = Motor_CurrentLoopRun &rArr; control_current &rArr; FOC_SVM_Q15 &rArr; __ARM_common_switch8
 </UL>
-<BR>[Calls]<UL><LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;control_current
+<BR>[Calls]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;control_current
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AdcSampleCal
 </UL>
 
-<P><STRONG><a name="[8b]"></a>Motor_FaultInit</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, mcs_error_handling.o(i.Motor_FaultInit))
-<BR><BR>[Called By]<UL><LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlInit
+<P><STRONG><a name="[8c]"></a>Motor_FaultInit</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, mcs_error_handling.o(i.Motor_FaultInit))
+<BR><BR>[Called By]<UL><LI><a href="#[88]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlInit
 </UL>
 
-<P><STRONG><a name="[82]"></a>Motor_FaultIsActive</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, mcs_error_handling.o(i.Motor_FaultIsActive))
-<BR><BR>[Called By]<UL><LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_RunStateTask1ms
-<LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultTask1ms
+<P><STRONG><a name="[83]"></a>Motor_FaultIsActive</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, mcs_error_handling.o(i.Motor_FaultIsActive))
+<BR><BR>[Called By]<UL><LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_RunStateTask1ms
+<LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultTask1ms
 <LI><a href="#[35]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;User_App_DispatchUartCommand
-<LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Mcs_Task_Run
+<LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Mcs_Task_Run
 </UL>
 
-<P><STRONG><a name="[81]"></a>Motor_FaultTask1ms</STRONG> (Thumb, 158 bytes, Stack size 16 bytes, mcs_error_handling.o(i.Motor_FaultTask1ms))
+<P><STRONG><a name="[82]"></a>Motor_FaultTask1ms</STRONG> (Thumb, 158 bytes, Stack size 16 bytes, mcs_error_handling.o(i.Motor_FaultTask1ms))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = Motor_FaultTask1ms &rArr; Motor_FaultCurrentExceeded
 </UL>
-<BR>[Calls]<UL><LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_IsPwmEnabled
-<LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_IsControlActive
-<LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultTrip
-<LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultCurrentExceeded
-<LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultIsActive
+<BR>[Calls]<UL><LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_IsPwmEnabled
+<LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_IsControlActive
+<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultTrip
+<LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultCurrentExceeded
+<LI><a href="#[83]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultIsActive
 </UL>
-<BR>[Called By]<UL><LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Mcs_Task_Run
+<BR>[Called By]<UL><LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Mcs_Task_Run
 </UL>
 
-<P><STRONG><a name="[95]"></a>Motor_FaultTrip</STRONG> (Thumb, 52 bytes, Stack size 8 bytes, mcs_error_handling.o(i.Motor_FaultTrip))
+<P><STRONG><a name="[96]"></a>Motor_FaultTrip</STRONG> (Thumb, 52 bytes, Stack size 8 bytes, mcs_error_handling.o(i.Motor_FaultTrip))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = Motor_FaultTrip
 </UL>
-<BR>[Calls]<UL><LI><a href="#[88]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PwmAOutputs
+<BR>[Calls]<UL><LI><a href="#[89]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PwmAOutputs
 </UL>
-<BR>[Called By]<UL><LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultTask1ms
+<BR>[Called By]<UL><LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultTask1ms
 <LI><a href="#[28]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;StopMotorImmdly
 </UL>
 
-<P><STRONG><a name="[96]"></a>Motor_FocInit</STRONG> (Thumb, 10 bytes, Stack size 8 bytes, mcs_pwm_foc.o(i.Motor_FocInit))
+<P><STRONG><a name="[97]"></a>Motor_FocInit</STRONG> (Thumb, 10 bytes, Stack size 8 bytes, mcs_pwm_foc.o(i.Motor_FocInit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = Motor_FocInit &rArr; Foc_InitMotorStruct
 </UL>
 <BR>[Calls]<UL><LI><a href="#[48]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Foc_InitMotorStruct
 </UL>
-<BR>[Called By]<UL><LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mc_sys_init
+<BR>[Called By]<UL><LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mc_sys_init
 </UL>
 
-<P><STRONG><a name="[86]"></a>Motor_FocSlowUpdate1ms</STRONG> (Thumb, 76 bytes, Stack size 16 bytes, mcs_foc_hw.o(i.Motor_FocSlowUpdate1ms))
+<P><STRONG><a name="[87]"></a>Motor_FocSlowUpdate1ms</STRONG> (Thumb, 76 bytes, Stack size 16 bytes, mcs_foc_hw.o(i.Motor_FocSlowUpdate1ms))
 <BR><BR>[Stack]<UL><LI>Max Depth = 40<LI>Call Chain = Motor_FocSlowUpdate1ms &rArr; __ARM_common_ll_mulss
 </UL>
 <BR>[Calls]<UL><LI><a href="#[2d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FocHw_SatS16
-<LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_common_ll_mulss
+<LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_common_ll_mulss
 </UL>
-<BR>[Called By]<UL><LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Mcs_Task_Run
+<BR>[Called By]<UL><LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Mcs_Task_Run
 </UL>
 
 <P><STRONG><a name="[2f]"></a>Motor_GetSinCosQ15</STRONG> (Thumb, 80 bytes, Stack size 12 bytes, mcs_motor.o(i.Motor_GetSinCosQ15))
 <BR><BR>[Stack]<UL><LI>Max Depth = 12<LI>Call Chain = Motor_GetSinCosQ15
 </UL>
-<BR>[Called By]<UL><LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ProcessAlignment
+<BR>[Called By]<UL><LI><a href="#[2a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AdcSampleCal
+<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ProcessAlignment
 <LI><a href="#[4b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_AccumulateOffset
-<LI><a href="#[2a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AdcSampleCal
 </UL>
 
-<P><STRONG><a name="[94]"></a>Motor_IsControlActive</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, mcs_control.o(i.Motor_IsControlActive))
+<P><STRONG><a name="[95]"></a>Motor_IsControlActive</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, mcs_control.o(i.Motor_IsControlActive))
 <BR><BR>[Called By]<UL><LI><a href="#[2e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_sensorless_update
-<LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_RunStateTask1ms
-<LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultTask1ms
+<LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_RunStateTask1ms
+<LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultTask1ms
 </UL>
 
-<P><STRONG><a name="[6d]"></a>Motor_IsPwmEnabled</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, mcs_control.o(i.Motor_IsPwmEnabled))
-<BR><BR>[Called By]<UL><LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ProcessAlignment
-<LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
-<LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultTask1ms
+<P><STRONG><a name="[6e]"></a>Motor_IsPwmEnabled</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, mcs_control.o(i.Motor_IsPwmEnabled))
+<BR><BR>[Called By]<UL><LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
+<LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultTask1ms
+<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ProcessAlignment
 </UL>
 
-<P><STRONG><a name="[9a]"></a>Motor_SetCurrentTarget</STRONG> (Thumb, 94 bytes, Stack size 32 bytes, mcs_control.o(i.Motor_SetCurrentTarget))
+<P><STRONG><a name="[9c]"></a>Motor_SetCurrentTarget</STRONG> (Thumb, 94 bytes, Stack size 32 bytes, mcs_control.o(i.Motor_SetCurrentTarget))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = Motor_SetCurrentTarget
 </UL>
-<BR>[Calls]<UL><LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlLimitS32
-<LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlAbsS32
+<BR>[Calls]<UL><LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlLimitS32
+<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlAbsS32
 </UL>
-<BR>[Called By]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
-<LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_RunStateTask1ms
-<LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_RunStateStop
+<BR>[Called By]<UL><LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
+<LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_RunStateTask1ms
+<LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_RunStateStop
 </UL>
 
-<P><STRONG><a name="[84]"></a>Motor_SpeedControlUpdate1ms</STRONG> (Thumb, 558 bytes, Stack size 48 bytes, mcs_control.o(i.Motor_SpeedControlUpdate1ms))
+<P><STRONG><a name="[85]"></a>Motor_SpeedControlUpdate1ms</STRONG> (Thumb, 558 bytes, Stack size 48 bytes, mcs_control.o(i.Motor_SpeedControlUpdate1ms))
 <BR><BR>[Stack]<UL><LI>Max Depth = 128<LI>Call Chain = Motor_SpeedControlUpdate1ms &rArr; __aeabi_ldivmod &rArr; __aeabi_uldivmod &rArr; __aeabi_llsr
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_lmul
+<BR>[Calls]<UL><LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_common_ll_mulss
+<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SetCurrentTarget
+<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedRampUpdate
+<LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedGetIqLimit
+<LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlReset
+<LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlLimitS32
+<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlAbsS32
+<LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_IsPwmEnabled
+<LI><a href="#[1f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_lmul
 <LI><a href="#[1d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ldivmod
-<LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_common_ll_mulss
-<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SetCurrentTarget
-<LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedRampUpdate
-<LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedGetIqLimit
-<LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlReset
-<LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlLimitS32
-<LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlAbsS32
-<LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_IsPwmEnabled
 </UL>
-<BR>[Called By]<UL><LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Mcs_Task_Run
+<BR>[Called By]<UL><LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Mcs_Task_Run
 </UL>
 
-<P><STRONG><a name="[62]"></a>ProgramPage</STRONG> (Thumb, 214 bytes, Stack size 32 bytes, lks32mc03x_flash.o(i.ProgramPage))
+<P><STRONG><a name="[65]"></a>ProgramPage</STRONG> (Thumb, 214 bytes, Stack size 32 bytes, lks32mc03x_flash.o(i.ProgramPage))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = ProgramPage
 </UL>
-<BR>[Called By]<UL><LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
 </UL>
 
-<P><STRONG><a name="[88]"></a>PwmAOutputs</STRONG> (Thumb, 30 bytes, Stack size 0 bytes, mcs_foc_hw.o(i.PwmAOutputs))
-<BR><BR>[Called By]<UL><LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_RunStateTask1ms
-<LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_RunStateStop
-<LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultTrip
-<LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlInit
+<P><STRONG><a name="[89]"></a>PwmAOutputs</STRONG> (Thumb, 30 bytes, Stack size 0 bytes, mcs_foc_hw.o(i.PwmAOutputs))
+<BR><BR>[Called By]<UL><LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_RunStateTask1ms
+<LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_RunStateStop
+<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultTrip
+<LI><a href="#[88]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlInit
 </UL>
 
-<P><STRONG><a name="[63]"></a>Read_Flash</STRONG> (Thumb, 64 bytes, Stack size 16 bytes, lks32mc03x_flash.o(i.Read_Flash))
+<P><STRONG><a name="[5f]"></a>Read_Flash</STRONG> (Thumb, 64 bytes, Stack size 16 bytes, lks32mc03x_flash.o(i.Read_Flash))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = Read_Flash
 </UL>
-<BR>[Called By]<UL><LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnInit
 </UL>
 
 <P><STRONG><a name="[41]"></a>Read_Trim</STRONG> (Thumb, 92 bytes, Stack size 0 bytes, lks32mc03x_nvr.o(i.Read_Trim))
-<BR><BR>[Called By]<UL><LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TempSensor_Init
+<BR><BR>[Called By]<UL><LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TempSensor_Init
 <LI><a href="#[3a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SYS_VolSelModule
 <LI><a href="#[3f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DAC_Init
 </UL>
@@ -781,30 +791,30 @@ Global Symbols
 <P><STRONG><a name="[40]"></a>SYS_AnalogModuleClockCmd</STRONG> (Thumb, 58 bytes, Stack size 8 bytes, lks32mc03x_sys.o(i.SYS_AnalogModuleClockCmd))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = SYS_AnalogModuleClockCmd
 </UL>
-<BR>[Called By]<UL><LI><a href="#[3f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DAC_Init
-<LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitPgaMotor0
-<LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitCmpMotor0
-<LI><a href="#[3e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitAdcMotor0
+<BR>[Called By]<UL><LI><a href="#[3e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitAdcMotor0
+<LI><a href="#[3f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DAC_Init
+<LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitPgaMotor0
+<LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitCmpMotor0
 </UL>
 
-<P><STRONG><a name="[7f]"></a>SYS_EnableWatchDog</STRONG> (Thumb, 28 bytes, Stack size 24 bytes, lks32mc03x_sys.o(i.SYS_EnableWatchDog))
+<P><STRONG><a name="[80]"></a>SYS_EnableWatchDog</STRONG> (Thumb, 28 bytes, Stack size 24 bytes, lks32mc03x_sys.o(i.SYS_EnableWatchDog))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = SYS_EnableWatchDog
 </UL>
-<BR>[Calls]<UL><LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IWDG_Init
+<BR>[Calls]<UL><LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IWDG_Init
 </UL>
-<BR>[Called By]<UL><LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitWatchDog
+<BR>[Called By]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InitWatchDog
 </UL>
 
 <P><STRONG><a name="[38]"></a>SYS_ModuleClockCmd</STRONG> (Thumb, 26 bytes, Stack size 0 bytes, lks32mc03x_sys.o(i.SYS_ModuleClockCmd))
-<BR><BR>[Called By]<UL><LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Init
-<LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MCPWM_Init
+<BR><BR>[Called By]<UL><LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Init
+<LI><a href="#[7f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MCPWM_Init
 <LI><a href="#[37]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CMP_Init
 </UL>
 
 <P><STRONG><a name="[3a]"></a>SYS_VolSelModule</STRONG> (Thumb, 78 bytes, Stack size 16 bytes, lks32mc03x_flash.o(i.SYS_VolSelModule))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = SYS_VolSelModule
 </UL>
-<BR>[Calls]<UL><LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GetRchTrimVal
+<BR>[Calls]<UL><LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GetRchTrimVal
 <LI><a href="#[41]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Read_Trim
 </UL>
 <BR>[Called By]<UL><LI><a href="#[39]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Clock_Init
@@ -813,7 +823,7 @@ Global Symbols
 <P><STRONG><a name="[28]"></a>StopMotorImmdly</STRONG> (Thumb, 10 bytes, Stack size 8 bytes, mcs_control.o(i.StopMotorImmdly))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = StopMotorImmdly &rArr; Motor_FaultTrip
 </UL>
-<BR>[Calls]<UL><LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultTrip
+<BR>[Calls]<UL><LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultTrip
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HardFault_Handler
 <LI><a href="#[10]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_IRQHandler
@@ -826,12 +836,12 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_lks32mc03x.o(.text)
 </UL>
-<P><STRONG><a name="[9f]"></a>Task_Scheduler</STRONG> (Thumb, 180 bytes, Stack size 24 bytes, main.o(i.Task_Scheduler))
+<P><STRONG><a name="[a1]"></a>Task_Scheduler</STRONG> (Thumb, 180 bytes, Stack size 24 bytes, main.o(i.Task_Scheduler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 240<LI>Call Chain = Task_Scheduler &rArr; Mcs_Task_Run &rArr; Hall_LearnTask1ms &rArr; Hall_ProcessAlignment &rArr; Hall_CalculateOrthogonal
 </UL>
-<BR>[Calls]<UL><LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;User_Task_Always
-<LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;User_App_Task_Run
-<LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Mcs_Task_Run
+<BR>[Calls]<UL><LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;User_Task_Always
+<LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;User_App_Task_Run
+<LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Mcs_Task_Run
 </UL>
 <BR>[Called By]<UL><LI><a href="#[14]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -840,12 +850,12 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[10]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_IRQHandler
 </UL>
 
-<P><STRONG><a name="[77]"></a>TempSensor_Init</STRONG> (Thumb, 42 bytes, Stack size 8 bytes, lks32mc03x_tmp.o(i.TempSensor_Init))
+<P><STRONG><a name="[78]"></a>TempSensor_Init</STRONG> (Thumb, 42 bytes, Stack size 8 bytes, lks32mc03x_tmp.o(i.TempSensor_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = TempSensor_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[41]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Read_Trim
 </UL>
-<BR>[Called By]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
+<BR>[Called By]<UL><LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
 </UL>
 
 <P><STRONG><a name="[34]"></a>UARTADD</STRONG> (Thumb, 48 bytes, Stack size 8 bytes, user_app.o(i.UARTADD))
@@ -855,80 +865,80 @@ Global Symbols
 <LI><a href="#[33]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AnalyseUART0
 </UL>
 
-<P><STRONG><a name="[76]"></a>UART_HardWare_Init</STRONG> (Thumb, 114 bytes, Stack size 40 bytes, hardware_init.o(i.UART_HardWare_Init))
+<P><STRONG><a name="[77]"></a>UART_HardWare_Init</STRONG> (Thumb, 114 bytes, Stack size 40 bytes, hardware_init.o(i.UART_HardWare_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 152<LI>Call Chain = UART_HardWare_Init &rArr; UART_Init &rArr; __aeabi_ldivmod &rArr; __aeabi_uldivmod &rArr; __aeabi_llsr
 </UL>
-<BR>[Calls]<UL><LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_StructInit
-<LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Init
-<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_StructInit
+<BR>[Calls]<UL><LI><a href="#[a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_StructInit
+<LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Init
+<LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_StructInit
 <LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_PinAFConfig
-<LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_Init
-<LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;NVIC_SetPriority
+<LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_Init
+<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;NVIC_SetPriority
 </UL>
-<BR>[Called By]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
+<BR>[Called By]<UL><LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
 </UL>
 
 <P><STRONG><a name="[e]"></a>UART_IRQHandler</STRONG> (Thumb, 192 bytes, Stack size 24 bytes, interrupt.o(i.UART_IRQHandler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = UART_IRQHandler
 </UL>
-<BR>[Calls]<UL><LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_SendData
-<LI><a href="#[a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_ReadData
+<BR>[Calls]<UL><LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_SendData
+<LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_ReadData
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_lks32mc03x.o(RESET)
 </UL>
-<P><STRONG><a name="[a3]"></a>UART_Init</STRONG> (Thumb, 152 bytes, Stack size 32 bytes, lks32mc03x_uart.o(i.UART_Init))
+<P><STRONG><a name="[a5]"></a>UART_Init</STRONG> (Thumb, 152 bytes, Stack size 32 bytes, lks32mc03x_uart.o(i.UART_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 112<LI>Call Chain = UART_Init &rArr; __aeabi_ldivmod &rArr; __aeabi_uldivmod &rArr; __aeabi_llsr
 </UL>
 <BR>[Calls]<UL><LI><a href="#[38]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SYS_ModuleClockCmd
 <LI><a href="#[1d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ldivmod
 </UL>
-<BR>[Called By]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_HardWare_Init
+<BR>[Called By]<UL><LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_HardWare_Init
 </UL>
 
-<P><STRONG><a name="[a4]"></a>UART_ReadData</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, lks32mc03x_uart.o(i.UART_ReadData))
+<P><STRONG><a name="[a6]"></a>UART_ReadData</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, lks32mc03x_uart.o(i.UART_ReadData))
 <BR><BR>[Called By]<UL><LI><a href="#[e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_IRQHandler
 </UL>
 
-<P><STRONG><a name="[9c]"></a>UART_SendData</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, lks32mc03x_uart.o(i.UART_SendData))
+<P><STRONG><a name="[9e]"></a>UART_SendData</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, lks32mc03x_uart.o(i.UART_SendData))
 <BR><BR>[Called By]<UL><LI><a href="#[36]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Run_Status_Check
 <LI><a href="#[e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_IRQHandler
 </UL>
 
-<P><STRONG><a name="[a2]"></a>UART_StructInit</STRONG> (Thumb, 30 bytes, Stack size 0 bytes, lks32mc03x_uart.o(i.UART_StructInit))
-<BR><BR>[Called By]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_HardWare_Init
+<P><STRONG><a name="[a4]"></a>UART_StructInit</STRONG> (Thumb, 30 bytes, Stack size 0 bytes, lks32mc03x_uart.o(i.UART_StructInit))
+<BR><BR>[Called By]<UL><LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_HardWare_Init
 </UL>
 
-<P><STRONG><a name="[a6]"></a>Uartrx_Error_Check</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, user_app.o(i.Uartrx_Error_Check))
-<BR><BR>[Called By]<UL><LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;User_App_Task_Run
+<P><STRONG><a name="[a8]"></a>Uartrx_Error_Check</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, user_app.o(i.Uartrx_Error_Check))
+<BR><BR>[Called By]<UL><LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;User_App_Task_Run
 </UL>
 
-<P><STRONG><a name="[a1]"></a>User_App_Task_Run</STRONG> (Thumb, 32 bytes, Stack size 8 bytes, user_app.o(i.User_App_Task_Run))
+<P><STRONG><a name="[a3]"></a>User_App_Task_Run</STRONG> (Thumb, 32 bytes, Stack size 8 bytes, user_app.o(i.User_App_Task_Run))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = User_App_Task_Run &rArr; FeedDogcmd
 </UL>
-<BR>[Calls]<UL><LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Uartrx_Error_Check
-<LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;User_Uart_Receive_Check
+<BR>[Calls]<UL><LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Uartrx_Error_Check
+<LI><a href="#[a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;User_Uart_Receive_Check
 <LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FeedDogcmd
 </UL>
-<BR>[Called By]<UL><LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Scheduler
+<BR>[Called By]<UL><LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Scheduler
 </UL>
 
-<P><STRONG><a name="[a0]"></a>User_Task_Always</STRONG> (Thumb, 8 bytes, Stack size 8 bytes, user_app.o(i.User_Task_Always))
+<P><STRONG><a name="[a2]"></a>User_Task_Always</STRONG> (Thumb, 8 bytes, Stack size 8 bytes, user_app.o(i.User_Task_Always))
 <BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = User_Task_Always &rArr; AnalyseUART0 &rArr; Run_Status_Check &rArr; UARTADD
 </UL>
 <BR>[Calls]<UL><LI><a href="#[33]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AnalyseUART0
 </UL>
-<BR>[Called By]<UL><LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Scheduler
+<BR>[Called By]<UL><LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Scheduler
 </UL>
 
-<P><STRONG><a name="[b5]"></a>User_app_init</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, manage.o(i.User_app_init))
+<P><STRONG><a name="[b7]"></a>User_app_init</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, manage.o(i.User_app_init))
 <BR><BR>[Called By]<UL><LI><a href="#[14]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[97]"></a>__ARM_common_ll_mulss</STRONG> (Thumb, 48 bytes, Stack size 24 bytes, mcs_control.o(i.__ARM_common_ll_mulss))
+<P><STRONG><a name="[98]"></a>__ARM_common_ll_mulss</STRONG> (Thumb, 48 bytes, Stack size 24 bytes, mcs_control.o(i.__ARM_common_ll_mulss))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = __ARM_common_ll_mulss
 </UL>
-<BR>[Called By]<UL><LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FocSlowUpdate1ms
-<LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
+<BR>[Called By]<UL><LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FocSlowUpdate1ms
+<LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
 </UL>
 
 <P><STRONG><a name="[44]"></a>__ARM_common_switch8</STRONG> (Thumb, 26 bytes, Stack size 8 bytes, mcs_direction_test.o(i.__ARM_common_switch8))
@@ -939,52 +949,52 @@ Global Symbols
 <LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnGetDriveMode
 </UL>
 
-<P><STRONG><a name="[ca]"></a>__scatterload_copy</STRONG> (Thumb, 14 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_copy), UNUSED)
+<P><STRONG><a name="[cc]"></a>__scatterload_copy</STRONG> (Thumb, 14 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_copy), UNUSED)
 
-<P><STRONG><a name="[cb]"></a>__scatterload_null</STRONG> (Thumb, 2 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_null), UNUSED)
+<P><STRONG><a name="[cd]"></a>__scatterload_null</STRONG> (Thumb, 2 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_null), UNUSED)
 
-<P><STRONG><a name="[cc]"></a>__scatterload_zeroinit</STRONG> (Thumb, 14 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_zeroinit), UNUSED)
+<P><STRONG><a name="[ce]"></a>__scatterload_zeroinit</STRONG> (Thumb, 14 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_zeroinit), UNUSED)
 
 <P><STRONG><a name="[3b]"></a>delay</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, hardware_init.o(i.delay))
-<BR><BR>[Called By]<UL><LI><a href="#[39]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Clock_Init
-<LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mc_sys_init
-<LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
+<BR><BR>[Called By]<UL><LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mc_sys_init
+<LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
+<LI><a href="#[39]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Clock_Init
 </UL>
 
-<P><STRONG><a name="[ab]"></a>foc_observer_apply_correction</STRONG> (Thumb, 146 bytes, Stack size 24 bytes, sensorless_ctrl.o(i.foc_observer_apply_correction))
+<P><STRONG><a name="[ad]"></a>foc_observer_apply_correction</STRONG> (Thumb, 146 bytes, Stack size 24 bytes, sensorless_ctrl.o(i.foc_observer_apply_correction))
 <BR><BR>[Stack]<UL><LI>Max Depth = 52<LI>Call Chain = foc_observer_apply_correction &rArr; __aeabi_idivmod &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;observer_truncate_abs
+<BR>[Calls]<UL><LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;observer_truncate_abs
 <LI><a href="#[1b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_idivmod
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_sensorless_update
 </UL>
 
-<P><STRONG><a name="[ad]"></a>foc_observer_pll_run</STRONG> (Thumb, 92 bytes, Stack size 24 bytes, sensorless_ctrl.o(i.foc_observer_pll_run))
+<P><STRONG><a name="[af]"></a>foc_observer_pll_run</STRONG> (Thumb, 92 bytes, Stack size 24 bytes, sensorless_ctrl.o(i.foc_observer_pll_run))
 <BR><BR>[Stack]<UL><LI>Max Depth = 52<LI>Call Chain = foc_observer_pll_run &rArr; __aeabi_idivmod &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;observer_truncate_abs
+<BR>[Calls]<UL><LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;observer_truncate_abs
 <LI><a href="#[1b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_idivmod
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_sensorless_update
 </UL>
 
 <P><STRONG><a name="[5a]"></a>foc_observer_reset</STRONG> (Thumb, 28 bytes, Stack size 0 bytes, sensorless_ctrl.o(i.foc_observer_reset))
-<BR><BR>[Called By]<UL><LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_sensorless_reset
-<LI><a href="#[29]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_FastUpdate
-<LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mc_sys_init
+<BR><BR>[Called By]<UL><LI><a href="#[29]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_FastUpdate
+<LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mc_sys_init
+<LI><a href="#[b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_sensorless_reset
 </UL>
 
-<P><STRONG><a name="[ae]"></a>foc_observer_update</STRONG> (Thumb, 142 bytes, Stack size 48 bytes, sensorless_ctrl.o(i.foc_observer_update))
+<P><STRONG><a name="[b0]"></a>foc_observer_update</STRONG> (Thumb, 142 bytes, Stack size 48 bytes, sensorless_ctrl.o(i.foc_observer_update))
 <BR><BR>[Stack]<UL><LI>Max Depth = 84<LI>Call Chain = foc_observer_update &rArr; observer_div_1000 &rArr; __aeabi_idivmod &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;observer_truncate_abs
-<LI><a href="#[af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;observer_div_1000
+<BR>[Calls]<UL><LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;observer_truncate_abs
+<LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;observer_div_1000
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_sensorless_update
 </UL>
 
-<P><STRONG><a name="[b0]"></a>foc_observer_update_phase</STRONG> (Thumb, 18 bytes, Stack size 8 bytes, sensorless_ctrl.o(i.foc_observer_update_phase))
+<P><STRONG><a name="[b2]"></a>foc_observer_update_phase</STRONG> (Thumb, 18 bytes, Stack size 8 bytes, sensorless_ctrl.o(i.foc_observer_update_phase))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = foc_observer_update_phase &rArr; Foc_Atan2Q16
 </UL>
 <BR>[Calls]<UL><LI><a href="#[4d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Foc_Atan2Q16
@@ -995,15 +1005,15 @@ Global Symbols
 <P><STRONG><a name="[2e]"></a>foc_sensorless_update</STRONG> (Thumb, 428 bytes, Stack size 56 bytes, sensorless_ctrl.o(i.foc_sensorless_update))
 <BR><BR>[Stack]<UL><LI>Max Depth = 140<LI>Call Chain = foc_sensorless_update &rArr; foc_observer_update &rArr; observer_div_1000 &rArr; __aeabi_idivmod &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_update_phase
-<LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_update
-<LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_pll_run
-<LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_apply_correction
-<LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_sensorless_reset
-<LI><a href="#[2d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FocHw_SatS16
-<LI><a href="#[b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FocHw_PhaseDifference
-<LI><a href="#[b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FocHw_ModToVoltageMv
-<LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_IsControlActive
+<BR>[Calls]<UL><LI><a href="#[2d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FocHw_SatS16
+<LI><a href="#[b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FocHw_PhaseDifference
+<LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FocHw_ModToVoltageMv
+<LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_IsControlActive
+<LI><a href="#[b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_update_phase
+<LI><a href="#[b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_update
+<LI><a href="#[af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_pll_run
+<LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_apply_correction
+<LI><a href="#[b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_sensorless_reset
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AdcSampleCal
 </UL>
@@ -1011,20 +1021,20 @@ Global Symbols
 <P><STRONG><a name="[14]"></a>main</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, main.o(i.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 240<LI>Call Chain = main &rArr; Task_Scheduler &rArr; Mcs_Task_Run &rArr; Hall_LearnTask1ms &rArr; Hall_ProcessAlignment &rArr; Hall_CalculateOrthogonal
 </UL>
-<BR>[Calls]<UL><LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mc_sys_init
-<LI><a href="#[b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;User_app_init
-<LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlInit
-<LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
-<LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Scheduler
+<BR>[Calls]<UL><LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mc_sys_init
+<LI><a href="#[b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;User_app_init
+<LI><a href="#[88]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlInit
+<LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
+<LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_Scheduler
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> entry9a.o(.ARM.Collect$$$$0000000B)
 </UL>
-<P><STRONG><a name="[b4]"></a>mc_sys_init</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, mcs_init.o(i.mc_sys_init))
-<BR><BR>[Stack]<UL><LI>Max Depth = 64<LI>Call Chain = mc_sys_init &rArr; CurrentOffsetCalibration &rArr; InitAdcMotor0 &rArr; SYS_AnalogModuleClockCmd
+<P><STRONG><a name="[b6]"></a>mc_sys_init</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, mcs_init.o(i.mc_sys_init))
+<BR><BR>[Stack]<UL><LI>Max Depth = 120<LI>Call Chain = mc_sys_init &rArr; Hall_LearnInit &rArr; Hall_RecordIsValid &rArr; Hall_Crc32
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_reset
 <LI><a href="#[3b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay
-<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FocInit
+<LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FocInit
 <LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnInit
 <LI><a href="#[3c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CurrentOffsetCalibration
 </UL>
@@ -1034,19 +1044,19 @@ Global Symbols
 <P><STRONG><a name="[30]"></a>utils_max_abs</STRONG> (Thumb, 30 bytes, Stack size 16 bytes, mcs_math.o(i.utils_max_abs))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = utils_max_abs
 </UL>
-<BR>[Calls]<UL><LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;utils_abs_s32
+<BR>[Calls]<UL><LI><a href="#[b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;utils_abs_s32
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AdcSampleCal
 </UL>
 
-<P><STRONG><a name="[b7]"></a>utils_truncate_number</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, mcs_math.o(i.utils_truncate_number))
+<P><STRONG><a name="[b9]"></a>utils_truncate_number</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, mcs_math.o(i.utils_truncate_number))
 <BR><BR>[Called By]<UL><LI><a href="#[31]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;utils_truncate_number_abs
 </UL>
 
 <P><STRONG><a name="[31]"></a>utils_truncate_number_abs</STRONG> (Thumb, 34 bytes, Stack size 4 bytes, mcs_math.o(i.utils_truncate_number_abs))
 <BR><BR>[Stack]<UL><LI>Max Depth = 4<LI>Call Chain = utils_truncate_number_abs
 </UL>
-<BR>[Calls]<UL><LI><a href="#[b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;utils_truncate_number
+<BR>[Calls]<UL><LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;utils_truncate_number
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AdcSampleCal
 </UL>
@@ -1061,14 +1071,14 @@ Local Symbols
 <LI><a href="#[35]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;User_App_DispatchUartCommand
 <LI><a href="#[36]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Run_Status_Check
 </UL>
-<BR>[Called By]<UL><LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;User_Task_Always
+<BR>[Called By]<UL><LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;User_Task_Always
 </UL>
 
 <P><STRONG><a name="[36]"></a>Run_Status_Check</STRONG> (Thumb, 78 bytes, Stack size 8 bytes, user_app.o(i.Run_Status_Check))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = Run_Status_Check &rArr; UARTADD
 </UL>
 <BR>[Calls]<UL><LI><a href="#[34]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UARTADD
-<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_SendData
+<LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_SendData
 </UL>
 <BR>[Called By]<UL><LI><a href="#[33]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AnalyseUART0
 </UL>
@@ -1076,102 +1086,102 @@ Local Symbols
 <P><STRONG><a name="[35]"></a>User_App_DispatchUartCommand</STRONG> (Thumb, 72 bytes, Stack size 8 bytes, user_app.o(i.User_App_DispatchUartCommand))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = User_App_DispatchUartCommand
 </UL>
-<BR>[Calls]<UL><LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultIsActive
+<BR>[Calls]<UL><LI><a href="#[83]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultIsActive
 </UL>
 <BR>[Called By]<UL><LI><a href="#[33]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AnalyseUART0
 </UL>
 
-<P><STRONG><a name="[a5]"></a>User_Uart_Receive_Check</STRONG> (Thumb, 58 bytes, Stack size 0 bytes, user_app.o(i.User_Uart_Receive_Check))
-<BR><BR>[Called By]<UL><LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;User_App_Task_Run
+<P><STRONG><a name="[a7]"></a>User_Uart_Receive_Check</STRONG> (Thumb, 58 bytes, Stack size 0 bytes, user_app.o(i.User_Uart_Receive_Check))
+<BR><BR>[Called By]<UL><LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;User_App_Task_Run
 </UL>
 
-<P><STRONG><a name="[93]"></a>Motor_FaultAbsS32</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, mcs_error_handling.o(i.Motor_FaultAbsS32))
-<BR><BR>[Called By]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultCurrentExceeded
+<P><STRONG><a name="[94]"></a>Motor_FaultAbsS32</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, mcs_error_handling.o(i.Motor_FaultAbsS32))
+<BR><BR>[Called By]<UL><LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultCurrentExceeded
 </UL>
 
-<P><STRONG><a name="[92]"></a>Motor_FaultCurrentExceeded</STRONG> (Thumb, 80 bytes, Stack size 16 bytes, mcs_error_handling.o(i.Motor_FaultCurrentExceeded))
+<P><STRONG><a name="[93]"></a>Motor_FaultCurrentExceeded</STRONG> (Thumb, 80 bytes, Stack size 16 bytes, mcs_error_handling.o(i.Motor_FaultCurrentExceeded))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = Motor_FaultCurrentExceeded
 </UL>
-<BR>[Calls]<UL><LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultAbsS32
+<BR>[Calls]<UL><LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultAbsS32
 </UL>
-<BR>[Called By]<UL><LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultTask1ms
-</UL>
-
-<P><STRONG><a name="[98]"></a>Motor_ControlAbsS32</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, mcs_control.o(i.Motor_ControlAbsS32))
-<BR><BR>[Called By]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
-<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SetCurrentTarget
-<LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedGetIqLimit
-<LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ModeBuildControlRequest
+<BR>[Called By]<UL><LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultTask1ms
 </UL>
 
-<P><STRONG><a name="[8f]"></a>Motor_ControlLimitS32</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, mcs_control.o(i.Motor_ControlLimitS32))
-<BR><BR>[Called By]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
-<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SetCurrentTarget
-<LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_CurrentCommandUpdate
-<LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedGetIqLimit
-<LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ModeBuildControlRequest
+<P><STRONG><a name="[9a]"></a>Motor_ControlAbsS32</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, mcs_control.o(i.Motor_ControlAbsS32))
+<BR><BR>[Called By]<UL><LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
+<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SetCurrentTarget
+<LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedGetIqLimit
+<LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_OperationBuildControlRequest
 </UL>
 
-<P><STRONG><a name="[90]"></a>Motor_ControlStepTowards</STRONG> (Thumb, 28 bytes, Stack size 0 bytes, mcs_control.o(i.Motor_ControlStepTowards))
-<BR><BR>[Called By]<UL><LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_CurrentCommandUpdate
-<LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedRampUpdate
+<P><STRONG><a name="[90]"></a>Motor_ControlLimitS32</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, mcs_control.o(i.Motor_ControlLimitS32))
+<BR><BR>[Called By]<UL><LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
+<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SetCurrentTarget
+<LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_CurrentCommandUpdate
+<LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedGetIqLimit
+<LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_OperationBuildControlRequest
 </UL>
 
-<P><STRONG><a name="[8c]"></a>Motor_ModeBuildControlRequest</STRONG> (Thumb, 102 bytes, Stack size 16 bytes, mcs_control.o(i.Motor_ModeBuildControlRequest))
-<BR><BR>[Stack]<UL><LI>Max Depth = 52<LI>Call Chain = Motor_ModeBuildControlRequest &rArr; Hall_LearnBuildControlRequest &rArr; Hall_LearnGetDriveMode &rArr; __ARM_common_switch8
-</UL>
-<BR>[Calls]<UL><LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnBuildControlRequest
-<LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlLimitS32
-<LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlAbsS32
-</UL>
-<BR>[Called By]<UL><LI><a href="#[83]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlTask1ms
+<P><STRONG><a name="[91]"></a>Motor_ControlStepTowards</STRONG> (Thumb, 28 bytes, Stack size 0 bytes, mcs_control.o(i.Motor_ControlStepTowards))
+<BR><BR>[Called By]<UL><LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_CurrentCommandUpdate
+<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedRampUpdate
 </UL>
 
-<P><STRONG><a name="[99]"></a>Motor_RunStateStop</STRONG> (Thumb, 116 bytes, Stack size 16 bytes, mcs_control.o(i.Motor_RunStateStop))
+<P><STRONG><a name="[8d]"></a>Motor_OperationBuildControlRequest</STRONG> (Thumb, 78 bytes, Stack size 16 bytes, mcs_control.o(i.Motor_OperationBuildControlRequest))
+<BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = Motor_OperationBuildControlRequest
+</UL>
+<BR>[Calls]<UL><LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_CalibrationIsValid
+<LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlLimitS32
+<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlAbsS32
+</UL>
+<BR>[Called By]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlTask1ms
+</UL>
+
+<P><STRONG><a name="[9b]"></a>Motor_RunStateStop</STRONG> (Thumb, 116 bytes, Stack size 16 bytes, mcs_control.o(i.Motor_RunStateStop))
 <BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = Motor_RunStateStop &rArr; Motor_SetCurrentTarget
 </UL>
-<BR>[Calls]<UL><LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SetCurrentTarget
-<LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlReset
-<LI><a href="#[88]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PwmAOutputs
+<BR>[Calls]<UL><LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SetCurrentTarget
+<LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlReset
+<LI><a href="#[89]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PwmAOutputs
 </UL>
-<BR>[Called By]<UL><LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_RunStateTask1ms
+<BR>[Called By]<UL><LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_RunStateTask1ms
 </UL>
 
-<P><STRONG><a name="[8d]"></a>Motor_RunStateTask1ms</STRONG> (Thumb, 230 bytes, Stack size 32 bytes, mcs_control.o(i.Motor_RunStateTask1ms))
+<P><STRONG><a name="[8e]"></a>Motor_RunStateTask1ms</STRONG> (Thumb, 230 bytes, Stack size 32 bytes, mcs_control.o(i.Motor_RunStateTask1ms))
 <BR><BR>[Stack]<UL><LI>Max Depth = 80<LI>Call Chain = Motor_RunStateTask1ms &rArr; Motor_RunStateStop &rArr; Motor_SetCurrentTarget
 </UL>
-<BR>[Calls]<UL><LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SetCurrentTarget
-<LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_RunStateStop
-<LI><a href="#[88]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PwmAOutputs
-<LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_IsControlActive
-<LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultIsActive
+<BR>[Calls]<UL><LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SetCurrentTarget
+<LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_RunStateStop
+<LI><a href="#[89]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PwmAOutputs
+<LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_IsControlActive
+<LI><a href="#[83]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FaultIsActive
 </UL>
-<BR>[Called By]<UL><LI><a href="#[83]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlTask1ms
-</UL>
-
-<P><STRONG><a name="[8a]"></a>Motor_SpeedControlReset</STRONG> (Thumb, 26 bytes, Stack size 0 bytes, mcs_control.o(i.Motor_SpeedControlReset))
-<BR><BR>[Called By]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
-<LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_RunStateStop
-<LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlInit
+<BR>[Called By]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlTask1ms
 </UL>
 
-<P><STRONG><a name="[8e]"></a>Motor_SpeedGetIqLimit</STRONG> (Thumb, 80 bytes, Stack size 16 bytes, mcs_control.o(i.Motor_SpeedGetIqLimit))
+<P><STRONG><a name="[8b]"></a>Motor_SpeedControlReset</STRONG> (Thumb, 26 bytes, Stack size 0 bytes, mcs_control.o(i.Motor_SpeedControlReset))
+<BR><BR>[Called By]<UL><LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
+<LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_RunStateStop
+<LI><a href="#[88]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlInit
+</UL>
+
+<P><STRONG><a name="[8f]"></a>Motor_SpeedGetIqLimit</STRONG> (Thumb, 80 bytes, Stack size 16 bytes, mcs_control.o(i.Motor_SpeedGetIqLimit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = Motor_SpeedGetIqLimit
 </UL>
-<BR>[Calls]<UL><LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlLimitS32
-<LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlAbsS32
+<BR>[Calls]<UL><LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlLimitS32
+<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlAbsS32
 </UL>
-<BR>[Called By]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
-<LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_CurrentCommandUpdate
+<BR>[Called By]<UL><LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
+<LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_CurrentCommandUpdate
 </UL>
 
-<P><STRONG><a name="[9b]"></a>Motor_SpeedRampUpdate</STRONG> (Thumb, 74 bytes, Stack size 16 bytes, mcs_control.o(i.Motor_SpeedRampUpdate))
+<P><STRONG><a name="[9d]"></a>Motor_SpeedRampUpdate</STRONG> (Thumb, 74 bytes, Stack size 16 bytes, mcs_control.o(i.Motor_SpeedRampUpdate))
 <BR><BR>[Stack]<UL><LI>Max Depth = 28<LI>Call Chain = Motor_SpeedRampUpdate &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_uidivmod
-<LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlStepTowards
+<BR>[Calls]<UL><LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ControlStepTowards
+<LI><a href="#[1c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_uidivmod
 </UL>
-<BR>[Called By]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
+<BR>[Called By]<UL><LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_SpeedControlUpdate1ms
 </UL>
 
 <P><STRONG><a name="[2c]"></a>FocHw_AdcToCurrentMa</STRONG> (Thumb, 14 bytes, Stack size 4 bytes, mcs_foc_hw.o(i.FocHw_AdcToCurrentMa))
@@ -1183,25 +1193,25 @@ Local Symbols
 </UL>
 
 <P><STRONG><a name="[50]"></a>Hall_AbsS32</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, mcs_hall.o(i.Hall_AbsS32))
-<BR><BR>[Called By]<UL><LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_UpdateTravel
-<LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ProcessAlignment
-<LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_OffsetConverged
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_MinMaxChangedWithin
-<LI><a href="#[4f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ApproxVectorMagnitude
-<LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<BR><BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
 <LI><a href="#[29]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_FastUpdate
 <LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnBuildControlRequest
+<LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_UpdateTravel
+<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ProcessAlignment
+<LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_OffsetConverged
+<LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_MinMaxChangedWithin
+<LI><a href="#[4f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ApproxVectorMagnitude
 </UL>
 
 <P><STRONG><a name="[4b]"></a>Hall_AccumulateOffset</STRONG> (Thumb, 130 bytes, Stack size 32 bytes, mcs_hall.o(i.Hall_AccumulateOffset))
 <BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = Hall_AccumulateOffset &rArr; Hall_CalculateOrthogonal
 </UL>
-<BR>[Calls]<UL><LI><a href="#[4d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Foc_Atan2Q16
+<BR>[Calls]<UL><LI><a href="#[2f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_GetSinCosQ15
+<LI><a href="#[4d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Foc_Atan2Q16
 <LI><a href="#[4e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_MechanicalToElectrical
 <LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_CalculateOrthogonal
-<LI><a href="#[2f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_GetSinCosQ15
 </UL>
-<BR>[Called By]<UL><LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
 </UL>
 
 <P><STRONG><a name="[4f]"></a>Hall_ApproxVectorMagnitude</STRONG> (Thumb, 38 bytes, Stack size 16 bytes, mcs_hall.o(i.Hall_ApproxVectorMagnitude))
@@ -1226,18 +1236,19 @@ Local Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[52]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_Normalize
 </UL>
-<BR>[Called By]<UL><LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ProcessAlignment
+<BR>[Called By]<UL><LI><a href="#[29]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_FastUpdate
+<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ProcessAlignment
 <LI><a href="#[4b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_AccumulateOffset
-<LI><a href="#[29]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_FastUpdate
 </UL>
 
 <P><STRONG><a name="[58]"></a>Hall_ClearBytes</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, mcs_hall.o(i.Hall_ClearBytes))
-<BR><BR>[Called By]<UL><LI><a href="#[57]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_CopyCalibrationToRecord
-<LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<BR><BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnInit
+<LI><a href="#[57]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_CopyCalibrationToRecord
 </UL>
 
-<P><STRONG><a name="[6e]"></a>Hall_ClearCalibration</STRONG> (Thumb, 34 bytes, Stack size 0 bytes, mcs_hall.o(i.Hall_ClearCalibration))
-<BR><BR>[Called By]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ResetLearning
+<P><STRONG><a name="[6f]"></a>Hall_ClearCalibration</STRONG> (Thumb, 34 bytes, Stack size 0 bytes, mcs_hall.o(i.Hall_ClearCalibration))
+<BR><BR>[Called By]<UL><LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ResetLearning
 </UL>
 
 <P><STRONG><a name="[53]"></a>Hall_CompleteOrthogonalStage</STRONG> (Thumb, 114 bytes, Stack size 16 bytes, mcs_hall.o(i.Hall_CompleteOrthogonalStage))
@@ -1247,7 +1258,7 @@ Local Symbols
 <LI><a href="#[55]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_Fail
 <LI><a href="#[51]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_CalculateGain
 </UL>
-<BR>[Called By]<UL><LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
 </UL>
 
 <P><STRONG><a name="[56]"></a>Hall_CompleteRawStage</STRONG> (Thumb, 114 bytes, Stack size 16 bytes, mcs_hall.o(i.Hall_CompleteRawStage))
@@ -1257,7 +1268,7 @@ Local Symbols
 <LI><a href="#[55]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_Fail
 <LI><a href="#[51]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_CalculateGain
 </UL>
-<BR>[Called By]<UL><LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
 </UL>
 
 <P><STRONG><a name="[57]"></a>Hall_CopyCalibrationToRecord</STRONG> (Thumb, 98 bytes, Stack size 8 bytes, mcs_hall.o(i.Hall_CopyCalibrationToRecord))
@@ -1266,13 +1277,17 @@ Local Symbols
 <BR>[Calls]<UL><LI><a href="#[59]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_Crc32
 <LI><a href="#[58]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ClearBytes
 </UL>
-<BR>[Called By]<UL><LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+</UL>
+
+<P><STRONG><a name="[61]"></a>Hall_CopyRecordToCalibration</STRONG> (Thumb, 64 bytes, Stack size 0 bytes, mcs_hall.o(i.Hall_CopyRecordToCalibration))
+<BR><BR>[Called By]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnInit
 </UL>
 
 <P><STRONG><a name="[59]"></a>Hall_Crc32</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, mcs_hall.o(i.Hall_Crc32))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = Hall_Crc32
 </UL>
-<BR>[Called By]<UL><LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_RecordIsValid
+<BR>[Called By]<UL><LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_RecordIsValid
 <LI><a href="#[57]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_CopyCalibrationToRecord
 </UL>
 
@@ -1288,108 +1303,109 @@ Local Symbols
 <LI><a href="#[4f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ApproxVectorMagnitude
 <LI><a href="#[1b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_idivmod
 </UL>
-<BR>[Called By]<UL><LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_OffsetConverged
+<BR>[Called By]<UL><LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_OffsetConverged
 </UL>
 
 <P><STRONG><a name="[4e]"></a>Hall_MechanicalToElectrical</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, mcs_hall.o(i.Hall_MechanicalToElectrical))
-<BR><BR>[Called By]<UL><LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ProcessAlignment
+<BR><BR>[Called By]<UL><LI><a href="#[29]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_FastUpdate
+<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ProcessAlignment
 <LI><a href="#[4b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_AccumulateOffset
-<LI><a href="#[29]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_FastUpdate
 </UL>
 
-<P><STRONG><a name="[6a]"></a>Hall_MinMaxChangedWithin</STRONG> (Thumb, 74 bytes, Stack size 16 bytes, mcs_hall.o(i.Hall_MinMaxChangedWithin))
+<P><STRONG><a name="[6b]"></a>Hall_MinMaxChangedWithin</STRONG> (Thumb, 74 bytes, Stack size 16 bytes, mcs_hall.o(i.Hall_MinMaxChangedWithin))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = Hall_MinMaxChangedWithin
 </UL>
 <BR>[Calls]<UL><LI><a href="#[50]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_AbsS32
 </UL>
-<BR>[Called By]<UL><LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_MinMaxConverged
+<BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_MinMaxConverged
 </UL>
 
-<P><STRONG><a name="[69]"></a>Hall_MinMaxConverged</STRONG> (Thumb, 96 bytes, Stack size 16 bytes, mcs_hall.o(i.Hall_MinMaxConverged))
+<P><STRONG><a name="[6a]"></a>Hall_MinMaxConverged</STRONG> (Thumb, 96 bytes, Stack size 16 bytes, mcs_hall.o(i.Hall_MinMaxConverged))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = Hall_MinMaxConverged &rArr; Hall_MinMaxChangedWithin
 </UL>
-<BR>[Calls]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_SaveMinMaxCheckpoint
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_MinMaxChangedWithin
+<BR>[Calls]<UL><LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_SaveMinMaxCheckpoint
+<LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_MinMaxChangedWithin
 </UL>
-<BR>[Called By]<UL><LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
 </UL>
 
 <P><STRONG><a name="[52]"></a>Hall_Normalize</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, mcs_hall.o(i.Hall_Normalize))
-<BR><BR>[Called By]<UL><LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_CalculateOrthogonal
-<LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<BR><BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_CalculateOrthogonal
 </UL>
 
-<P><STRONG><a name="[67]"></a>Hall_OffsetConverged</STRONG> (Thumb, 184 bytes, Stack size 24 bytes, mcs_hall.o(i.Hall_OffsetConverged))
+<P><STRONG><a name="[68]"></a>Hall_OffsetConverged</STRONG> (Thumb, 184 bytes, Stack size 24 bytes, mcs_hall.o(i.Hall_OffsetConverged))
 <BR><BR>[Stack]<UL><LI>Max Depth = 76<LI>Call Chain = Hall_OffsetConverged &rArr; Hall_GetOffsetCandidate &rArr; __aeabi_idivmod &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ResetOffsetWindow
+<BR>[Calls]<UL><LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ResetOffsetWindow
 <LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_GetOffsetCandidate
 <LI><a href="#[50]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_AbsS32
 </UL>
-<BR>[Called By]<UL><LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
 </UL>
 
-<P><STRONG><a name="[65]"></a>Hall_ProcessAlignment</STRONG> (Thumb, 330 bytes, Stack size 40 bytes, mcs_hall.o(i.Hall_ProcessAlignment))
+<P><STRONG><a name="[66]"></a>Hall_ProcessAlignment</STRONG> (Thumb, 330 bytes, Stack size 40 bytes, mcs_hall.o(i.Hall_ProcessAlignment))
 <BR><BR>[Stack]<UL><LI>Max Depth = 80<LI>Call Chain = Hall_ProcessAlignment &rArr; Hall_CalculateOrthogonal
 </UL>
-<BR>[Calls]<UL><LI><a href="#[4d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Foc_Atan2Q16
+<BR>[Calls]<UL><LI><a href="#[2f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_GetSinCosQ15
+<LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_IsPwmEnabled
+<LI><a href="#[4d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Foc_Atan2Q16
 <LI><a href="#[4e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_MechanicalToElectrical
 <LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_CalculateOrthogonal
 <LI><a href="#[50]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_AbsS32
-<LI><a href="#[2f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_GetSinCosQ15
-<LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_IsPwmEnabled
 </UL>
-<BR>[Called By]<UL><LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
 </UL>
 
-<P><STRONG><a name="[64]"></a>Hall_RecordIsValid</STRONG> (Thumb, 112 bytes, Stack size 16 bytes, mcs_hall.o(i.Hall_RecordIsValid))
+<P><STRONG><a name="[60]"></a>Hall_RecordIsValid</STRONG> (Thumb, 112 bytes, Stack size 16 bytes, mcs_hall.o(i.Hall_RecordIsValid))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = Hall_RecordIsValid &rArr; Hall_Crc32
 </UL>
 <BR>[Calls]<UL><LI><a href="#[59]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_Crc32
 </UL>
-<BR>[Called By]<UL><LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
-</UL>
-
-<P><STRONG><a name="[5f]"></a>Hall_ResetLearning</STRONG> (Thumb, 62 bytes, Stack size 8 bytes, mcs_hall.o(i.Hall_ResetLearning))
-<BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = Hall_ResetLearning
-</UL>
-<BR>[Calls]<UL><LI><a href="#[54]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ResetStage
-<LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ClearCalibration
-</UL>
-<BR>[Called By]<UL><LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
 <LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnInit
 </UL>
 
-<P><STRONG><a name="[6c]"></a>Hall_ResetOffsetWindow</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, mcs_hall.o(i.Hall_ResetOffsetWindow))
-<BR><BR>[Called By]<UL><LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_OffsetConverged
+<P><STRONG><a name="[62]"></a>Hall_ResetLearning</STRONG> (Thumb, 62 bytes, Stack size 8 bytes, mcs_hall.o(i.Hall_ResetLearning))
+<BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = Hall_ResetLearning
+</UL>
+<BR>[Calls]<UL><LI><a href="#[54]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ResetStage
+<LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ClearCalibration
+</UL>
+<BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnInit
+</UL>
+
+<P><STRONG><a name="[6d]"></a>Hall_ResetOffsetWindow</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, mcs_hall.o(i.Hall_ResetOffsetWindow))
+<BR><BR>[Called By]<UL><LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_OffsetConverged
 </UL>
 
 <P><STRONG><a name="[54]"></a>Hall_ResetStage</STRONG> (Thumb, 64 bytes, Stack size 0 bytes, mcs_hall.o(i.Hall_ResetStage))
-<BR><BR>[Called By]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ResetLearning
+<BR><BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_ResetLearning
 <LI><a href="#[56]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_CompleteRawStage
 <LI><a href="#[53]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_CompleteOrthogonalStage
-<LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
 </UL>
 
-<P><STRONG><a name="[6b]"></a>Hall_SaveMinMaxCheckpoint</STRONG> (Thumb, 22 bytes, Stack size 8 bytes, mcs_hall.o(i.Hall_SaveMinMaxCheckpoint))
+<P><STRONG><a name="[6c]"></a>Hall_SaveMinMaxCheckpoint</STRONG> (Thumb, 22 bytes, Stack size 8 bytes, mcs_hall.o(i.Hall_SaveMinMaxCheckpoint))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = Hall_SaveMinMaxCheckpoint
 </UL>
-<BR>[Called By]<UL><LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_MinMaxConverged
+<BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_MinMaxConverged
 </UL>
 
-<P><STRONG><a name="[68]"></a>Hall_UpdateMinMax</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, mcs_hall.o(i.Hall_UpdateMinMax))
-<BR><BR>[Called By]<UL><LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<P><STRONG><a name="[69]"></a>Hall_UpdateMinMax</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, mcs_hall.o(i.Hall_UpdateMinMax))
+<BR><BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
 </UL>
 
-<P><STRONG><a name="[66]"></a>Hall_UpdateTravel</STRONG> (Thumb, 82 bytes, Stack size 16 bytes, mcs_hall.o(i.Hall_UpdateTravel))
+<P><STRONG><a name="[67]"></a>Hall_UpdateTravel</STRONG> (Thumb, 82 bytes, Stack size 16 bytes, mcs_hall.o(i.Hall_UpdateTravel))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = Hall_UpdateTravel
 </UL>
 <BR>[Calls]<UL><LI><a href="#[50]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_AbsS32
 </UL>
-<BR>[Called By]<UL><LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
+<BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hall_LearnTask1ms
 </UL>
 
-<P><STRONG><a name="[b1]"></a>foc_sensorless_reset</STRONG> (Thumb, 70 bytes, Stack size 16 bytes, sensorless_ctrl.o(i.foc_sensorless_reset))
+<P><STRONG><a name="[b3]"></a>foc_sensorless_reset</STRONG> (Thumb, 70 bytes, Stack size 16 bytes, sensorless_ctrl.o(i.foc_sensorless_reset))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = foc_sensorless_reset
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_reset
@@ -1397,30 +1413,30 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[2e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_sensorless_update
 </UL>
 
-<P><STRONG><a name="[af]"></a>observer_div_1000</STRONG> (Thumb, 26 bytes, Stack size 8 bytes, sensorless_ctrl.o(i.observer_div_1000))
+<P><STRONG><a name="[b1]"></a>observer_div_1000</STRONG> (Thumb, 26 bytes, Stack size 8 bytes, sensorless_ctrl.o(i.observer_div_1000))
 <BR><BR>[Stack]<UL><LI>Max Depth = 36<LI>Call Chain = observer_div_1000 &rArr; __aeabi_idivmod &rArr; __aeabi_uidivmod
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_idivmod
 </UL>
-<BR>[Called By]<UL><LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_update
+<BR>[Called By]<UL><LI><a href="#[b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_update
 </UL>
 
-<P><STRONG><a name="[ac]"></a>observer_truncate_abs</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, sensorless_ctrl.o(i.observer_truncate_abs))
-<BR><BR>[Called By]<UL><LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_update
-<LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_pll_run
-<LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_apply_correction
+<P><STRONG><a name="[ae]"></a>observer_truncate_abs</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, sensorless_ctrl.o(i.observer_truncate_abs))
+<BR><BR>[Called By]<UL><LI><a href="#[b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_update
+<LI><a href="#[af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_pll_run
+<LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_observer_apply_correction
 </UL>
 
 <P><STRONG><a name="[45]"></a>SVM_LimitInt32</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, mcs_math.o(i.SVM_LimitInt32))
 <BR><BR>[Called By]<UL><LI><a href="#[43]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SVM_Q15
 </UL>
 
-<P><STRONG><a name="[b6]"></a>utils_abs_s32</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, mcs_math.o(i.utils_abs_s32))
+<P><STRONG><a name="[b8]"></a>utils_abs_s32</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, mcs_math.o(i.utils_abs_s32))
 <BR><BR>[Called By]<UL><LI><a href="#[30]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;utils_max_abs
 </UL>
 
-<P><STRONG><a name="[a9]"></a>Foc_AbsS32</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, mcs_pwm_foc.o(i.Foc_AbsS32))
-<BR><BR>[Called By]<UL><LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;control_current
+<P><STRONG><a name="[ab]"></a>Foc_AbsS32</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, mcs_pwm_foc.o(i.Foc_AbsS32))
+<BR><BR>[Called By]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;control_current
 </UL>
 
 <P><STRONG><a name="[48]"></a>Foc_InitMotorStruct</STRONG> (Thumb, 82 bytes, Stack size 16 bytes, mcs_pwm_foc.o(i.Foc_InitMotorStruct))
@@ -1428,47 +1444,47 @@ Local Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[49]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Foc_LimitS32
 </UL>
-<BR>[Called By]<UL><LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FocInit
+<BR>[Called By]<UL><LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_FocInit
 </UL>
 
-<P><STRONG><a name="[a8]"></a>Foc_IntegrateCurrentError</STRONG> (Thumb, 20 bytes, Stack size 8 bytes, mcs_pwm_foc.o(i.Foc_IntegrateCurrentError))
+<P><STRONG><a name="[aa]"></a>Foc_IntegrateCurrentError</STRONG> (Thumb, 20 bytes, Stack size 8 bytes, mcs_pwm_foc.o(i.Foc_IntegrateCurrentError))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = Foc_IntegrateCurrentError
 </UL>
-<BR>[Called By]<UL><LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;control_current
+<BR>[Called By]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;control_current
 </UL>
 
 <P><STRONG><a name="[49]"></a>Foc_LimitS32</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, mcs_pwm_foc.o(i.Foc_LimitS32))
-<BR><BR>[Called By]<UL><LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;control_current
+<BR><BR>[Called By]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;control_current
 <LI><a href="#[48]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Foc_InitMotorStruct
 </UL>
 
-<P><STRONG><a name="[a7]"></a>Foc_SatS16</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, mcs_pwm_foc.o(i.Foc_SatS16))
-<BR><BR>[Called By]<UL><LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;control_current
+<P><STRONG><a name="[a9]"></a>Foc_SatS16</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, mcs_pwm_foc.o(i.Foc_SatS16))
+<BR><BR>[Called By]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;control_current
 </UL>
 
-<P><STRONG><a name="[aa]"></a>Foc_WriteSvmPwm</STRONG> (Thumb, 44 bytes, Stack size 8 bytes, mcs_pwm_foc.o(i.Foc_WriteSvmPwm))
+<P><STRONG><a name="[ac]"></a>Foc_WriteSvmPwm</STRONG> (Thumb, 44 bytes, Stack size 8 bytes, mcs_pwm_foc.o(i.Foc_WriteSvmPwm))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = Foc_WriteSvmPwm
 </UL>
-<BR>[Called By]<UL><LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;control_current
+<BR>[Called By]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;control_current
 </UL>
 
-<P><STRONG><a name="[91]"></a>control_current</STRONG> (Thumb, 542 bytes, Stack size 72 bytes, mcs_pwm_foc.o(i.control_current))
+<P><STRONG><a name="[92]"></a>control_current</STRONG> (Thumb, 542 bytes, Stack size 72 bytes, mcs_pwm_foc.o(i.control_current))
 <BR><BR>[Stack]<UL><LI>Max Depth = 120<LI>Call Chain = control_current &rArr; FOC_SVM_Q15 &rArr; __ARM_common_switch8
 </UL>
-<BR>[Calls]<UL><LI><a href="#[aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Foc_WriteSvmPwm
-<LI><a href="#[a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Foc_SatS16
+<BR>[Calls]<UL><LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Foc_WriteSvmPwm
+<LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Foc_SatS16
 <LI><a href="#[49]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Foc_LimitS32
-<LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Foc_IntegrateCurrentError
-<LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Foc_AbsS32
+<LI><a href="#[aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Foc_IntegrateCurrentError
+<LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Foc_AbsS32
 <LI><a href="#[43]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SVM_Q15
 <LI><a href="#[1b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_idivmod
 </UL>
 <BR>[Called By]<UL><LI><a href="#[32]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_CurrentLoopRun
 </UL>
 
-<P><STRONG><a name="[78]"></a>NVIC_SetPriority</STRONG> (Thumb, 60 bytes, Stack size 0 bytes, hardware_init.o(i.NVIC_SetPriority))
-<BR><BR>[Called By]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_HardWare_Init
-<LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
+<P><STRONG><a name="[79]"></a>NVIC_SetPriority</STRONG> (Thumb, 60 bytes, Stack size 0 bytes, hardware_init.o(i.NVIC_SetPriority))
+<BR><BR>[Called By]<UL><LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Hardware_init
+<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_HardWare_Init
 </UL>
 <P>
 <H3>

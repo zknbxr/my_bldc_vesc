@@ -29,7 +29,7 @@
 #define HALL_ALIGN_MEASURED_TOLERANCE_MA      (150L)
 
 /* 正常模式每4个PWM周期提取一次霍尔原始角，其余周期按角度差速度外推。 */
-#define HALL_RUNTIME_ANGLE_DIV                (4U)
+#define HALL_RUNTIME_ANGLE_DIV                (2U)
 #define HALL_RUNTIME_MAX_PHASE_STEP           (8192L)
 #define HALL_RUNTIME_SPEED_FILTER_DIV         (16L)
 /* 14 kHz PWM、每4周期更新时，每1 ERPM对应的Q16角度步进。 */
