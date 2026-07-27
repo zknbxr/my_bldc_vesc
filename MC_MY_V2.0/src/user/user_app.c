@@ -7,6 +7,7 @@ static void User_Uart_Receive_Check(void);
 static void AnalyseUART0(void);
 uint8_t UARTADD(uint8_t *pStream,uint8_t uLen,uint8_t uDir);
 static void Run_Status_Check(void);
+static u16 s_lastTargetHeight = APP_POSITION_MANUAL_TARGET;
 
 void User_App_Task_Run(const TASK_TICK *tick)
 {
@@ -22,6 +23,11 @@ void User_App_Task_Run(const TASK_TICK *tick)
         
         // 连续3ms没接收到数据就认为数据接收完毕 
         User_Uart_Receive_Check();
+        AppHeight_Task1ms(tick->ms1);
+    }
+    if(tick->ms10 != 0U)
+    {
+        AppHeight_Task10ms();
     }
     if(tick->ms100 != 0U) {
         Uartrx_Error_Check();
@@ -35,8 +41,9 @@ static void User_App_DispatchUartCommand(void)
 		return;
 	}
 
-	/* 相同命令只更新通信诊断，不重复触发电机状态转换。 */
-	if(KeyState == LastKeyState){
+	/* 命令字和目标行程都不变时，不重复触发状态转换。 */
+	if((KeyState == LastKeyState) &&
+	   (Uart_TargetHeight == s_lastTargetHeight)){
 		return;
 	}
     
@@ -53,29 +60,12 @@ static void User_App_DispatchUartCommand(void)
 	 * 重发同一个命令不会自动启动，必须再次出现不同的新命令。
 	 */
 	LastKeyState = KeyState;
+	s_lastTargetHeight = Uart_TargetHeight;
 	if(Motor_FaultIsActive()){
 		return;
 	}
 
-	/* BYTE3命令字：0x01正转，0x02反转，0x03停止。 */
-	switch(KeyState){
-	case Motor_Up:
-		gMotorCommand.direction = MCS_MOTOR_DIRECTION_FORWARD;
-		gMotorCommand.run = 1U;
-		break;
-
-	case Motor_Down:
-		gMotorCommand.direction = MCS_MOTOR_DIRECTION_REVERSE;
-		gMotorCommand.run = 1U;
-		break;
-
-	case Motor_Stop:
-		gMotorCommand.run = 0U;
-		break;
-
-	default:
-		break;
-	}
+	AppHeight_HandleCommand(KeyState, Uart_TargetHeight);
 }
 
 
@@ -125,6 +115,9 @@ static void AnalyseUART0(void)
 				(UART0_Message.RXBuffer[2] == Motor_Address) &&
 				UARTADD(UART0_Message.RXBuffer, 6U, 0U)){
 			command = UART0_Message.RXBuffer[3];
+			Uart_TargetHeight =
+				((u16)UART0_Message.RXBuffer[6] << 8) |
+				(u16)UART0_Message.RXBuffer[7];
 			frameValid = 1U;
 		}
 
@@ -188,9 +181,9 @@ static void Run_Status_Check(void)
         UART0_Message.TXBuffer[0] = Head_TxH;
         UART0_Message.TXBuffer[1] = Head_TxL;
 		UART0_Message.TXBuffer[2] = Motor_Address;
-		UART0_Message.TXBuffer[3] = 0;//Run_CurrentStatus
-		UART0_Message.TXBuffer[4] = 0;//(gDeskMianMbr.currentHeight >> 8) & 0xFF
-		UART0_Message.TXBuffer[5] = 0;//gDeskMianMbr.currentHeight & 0xFF
+		UART0_Message.TXBuffer[3] = m_motor.m_run_state;//Run_CurrentStatus
+		UART0_Message.TXBuffer[4] = (gAppPositionCurrent01mm >> 8) & 0xFF;
+		UART0_Message.TXBuffer[5] = gAppPositionCurrent01mm & 0xFF;
 		UART0_Message.TXBuffer[6] = 0;
 		UART0_Message.TXBuffer[8] = 0;
 		UART0_Message.TXBuffer[9] = 0;

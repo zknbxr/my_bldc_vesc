@@ -10,6 +10,7 @@
       <TargetName>Target_1</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pArmCC>5060960::V5.06 update 7 (build 960)::.\ARMCC</pArmCC>
       <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
@@ -563,6 +564,11 @@
               <FileName>mcs_const.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\include\mcs\mcs_const.h</FilePath>
+            </File>
+            <File>
+              <FileName>main.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\测试\new_project\new_project\MC_MY_V2.0\include\app\main.h</FilePath>
             </File>
           </Files>
         </Group>

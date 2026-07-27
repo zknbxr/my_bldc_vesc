@@ -32,8 +32,8 @@
 #define HALL_RUNTIME_ANGLE_DIV                (2U)
 #define HALL_RUNTIME_MAX_PHASE_STEP           (8192L)
 #define HALL_RUNTIME_SPEED_FILTER_DIV         (16L)
-/* 14 kHz PWM、每4周期更新时，每1 ERPM对应的Q16角度步进。 */
-#define HALL_RUNTIME_STEP_Q16_PER_ERPM        (20452L)
+/* 14 kHz PWM、每2周期更新时，每1 ERPM对应的Q16角度步进。 */
+#define HALL_RUNTIME_STEP_Q16_PER_ERPM        (10226L)
 
 /* 霍尔参数独占主Flash最后一个512字节扇区。 */
 #define HALL_FLASH_MAGIC                      (0x48414C4CUL)

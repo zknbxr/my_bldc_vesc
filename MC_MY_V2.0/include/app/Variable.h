@@ -18,6 +18,7 @@ extern volatile u8 gUartLastCommand;
 
 extern volatile u8 KeyState;											//¼üÖµ
 extern u8 LastKeyState;
+extern u16 Uart_TargetHeight;
 extern volatile u16 TickCounter;
 extern u8 motor_run_errorflag;
 extern DESK_MAIN_CMD_STR gDeskMianMbr;
