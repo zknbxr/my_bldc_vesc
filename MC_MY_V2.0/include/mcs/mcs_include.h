@@ -6,6 +6,7 @@
 #include "mcs_error_type.h"
 #include "mcs_foc_hw_type.h"
 #include "mcs_motor_type.h"
+#include "mcs_math.h"
 #include "sensorless_ctrl.h"
 #include "mcs_motor.h"
 #include "mcs_hall.h"

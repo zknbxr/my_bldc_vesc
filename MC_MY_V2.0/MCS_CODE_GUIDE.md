@@ -1,6 +1,6 @@
 # MC_MY_V2.0 电机控制代码阅读与修改指南
 
-> 文档对应当前工程状态，整理日期：2026-07-23。
+> 文档对应当前工程状态，整理日期：2026-07-28。
 >
 > 本工程是从 VESC FOC 思路移植到 LKS32MC03x 的定点实现。源码采用 GB2312/CP936 和 CRLF；控制核心不使用浮点数。
 
@@ -23,11 +23,11 @@
 |---|---:|---|
 | 上电工作模式 | `MCS_WORK_MODE_CONTROL` | `include/mcs/mcs_const.h` |
 | 控制角度来源 | `FOC_SENSOR_MODE_HALL` | `include/mcs/mcs_const.h` |
-| 默认目标速度 | 4000 ERPM | `MCS_SPEED_TARGET_DEFAULT_ERPM` |
+| 推杆额定速度 | 4.0 mm/s，最大13440 ERPM | `APP_POSITION_TRAVEL_SPEED_01MM_S` |
 | PWM/电流环频率 | 14 kHz | `PWM_FREQ` |
 | 速度环频率 | 1 kHz | `Mcs_Task_Run()` |
 | 霍尔绝对角计算频率 | 3.5 kHz | 14 kHz / 4 |
-| 速度 PI 驱动电流上限 | 1500 mA | `gMotorSpeedIqLimitMa` |
+| 速度 PI 驱动电流上限 | 1500 mA | `gMotorSpeedControl.iq_limit_ma` |
 | 速度 PI 制动电流上限 | 1000 mA | `MCS_SPEED_BRAKE_IQ_LIMIT_MA` |
 | 软件相电流保护 | 2000 mA，连续 3 ms | `gMotorCurrentLimitMa` |
 | 电机相电阻 | 254 mOhm | `FOC_MOTOR_R_MOHM` |
@@ -43,13 +43,20 @@
     |
     v
 User_App_DispatchUartCommand()
-    |  gMotorCommand（运行请求、方向、速度）
+    |  AppHeight_HandleCommand()
+    v
+gAppHeight                           应用层唯一持久控制对象
+    |  command：串口命令、运行请求、方向
+    |  position：当前位置、目标位置、位置误差
+    |  trajectory：位置斜坡、带符号速度请求
+    |  storage：掉电保存状态
     v
 Motor_FaultTask1ms()                   1 ms 独立故障监控
     |
     v
 Motor_ControlTask1ms()                 1 ms 模式和运行状态机
     |  LEARN/CONTROL -> motor_control_request_t
+    |  position -> speed -> current 分层请求
     |  启动延时、停机斜坡、PWM 启停
     v
 Motor_SpeedControlUpdate1ms()          1 ms 速度外环
@@ -115,8 +122,8 @@ PWM 触发 ADC -> ADC_IRQHandler()                       |
    看线性霍尔学习、Flash 参数和运行角度估算。
 9. `src/mcs/sensorless_ctrl.c`
    看磁链观测器、校正项、CORDIC 和 PLL。
-10. `src/mcs/mcs_math.c`、`src/mcs/mcs_motor.c`
-    看定点三角函数、SVM 和底层辅助运算。
+10. `include/mcs/mcs_math.h`、`src/mcs/mcs_math.c`、`src/mcs/mcs_motor.c`
+    看统一定点数学接口、三角函数和SVM。
 11. `src/bsp/hardware_init.c`、`include/bsp/bsp_user.h`
     最后核对 PWM、ADC 触发、死区和硬件通道。
 
@@ -244,16 +251,31 @@ m_motor
 ### 5.4 命令、状态和硬件输出不能混用
 
 ```text
-gMotorCommand.run              应用层“请求运行”
+gAppHeight.command.run              应用层“请求运行”
 m_motor.m_run_state            软件状态机实际阶段
 m_motor.m_control_mode         当前控制算法
 Motor_IsPwmEnabled()           MCPWM MOE 是否实际打开
 Motor_IsRotorMoving()          估算速度是否超过指定门限
 ```
 
-`gMotorCommand.run = 1` 不代表电机已经运行，它可能仍在启动延时或已被故障阻止。对外报告软件状态应读取 `m_run_state`；判断功率输出应读取 MOE；判断转子是否真的转动应读取速度。
+`gAppHeight.command.run = 1` 不代表电机已经运行，它可能仍在启动延时或已被故障阻止。对外报告软件状态应读取 `m_run_state`；判断功率输出应读取 MOE；判断转子是否真的转动应读取速度。
 
 `motor_control_request_t` 是模式层和公共运行状态机之间的唯一接口。学习模式与操作模式分别填充请求，公共状态机不再包含 `if (learning_control)`。
+
+### 5.5 四个结构各自负责什么
+
+```text
+gAppHeight.command      用户请求，是否想运行
+gAppHeight.position     推杆位置反馈和最终目标
+gAppHeight.trajectory   位置环输出的带符号ERPM
+motor_control_request_t 本次1 ms的临时分发快照
+gMotorSpeedControl      速度PI参数和监视量
+m_motor                 已生效的电机实时状态
+```
+
+不要通过 `gAppHeight.command.run` 判断电机是否已经输出PWM，也不要把
+`m_motor.m_run_state` 当成新的串口命令源。应用层写 `gAppHeight`，控制状态机
+写 `m_motor`，二者通过每周期临时的 `motor_control_request_t` 连接。
 
 ## 6. 定点格式和物理单位
 
@@ -286,6 +308,28 @@ mechanical_rpm = ERPM / pole_pairs
 ERPM = mechanical_rpm * pole_pairs
 ```
 
+### 6.1 通用数学接口
+
+简单限幅和Q15乘法会出现在ADC快速环中，因此集中定义为头文件内联函数；
+步进逼近、绝对值比较和开方等较长函数实现在`mcs_math.c`：
+
+```text
+McsMath_LimitS32()        s32区间限幅
+McsMath_LimitAbsS32()     对称正负限幅
+McsMath_SatS16()          s32饱和转换为s16
+McsMath_AbsS32()          s32绝对值，INT32_MIN时饱和
+McsMath_AbsU32()          完整无符号绝对值
+McsMath_MulQ15()          Q15乘法
+McsMath_PhaseDiffQ16()    Q16圆周角最短有符号差值
+McsMath_StepTowardsS32()  按步长逼近目标
+McsMath_StepTowardsS16()  s16目标斜坡
+McsMath_MaxAbs3S32()      三个数的最大绝对值
+```
+
+新增通用数学运算时先放进这套接口，不要在FOC、霍尔、速度环或应用文件里
+再定义带模块前缀的`AbsS32/LimitS32/SatS16`副本。属于具体业务公式的函数，
+例如霍尔矢量幅值近似、观测器除法取整和PWM计数换算，仍保留在所属模块。
+
 ## 7. ADC 电流采样
 
 ### 7.1 两相采样与符号
@@ -315,7 +359,8 @@ i_u + i_v + i_w = 0
 i_w = -(i_u + i_v)
 ```
 
-`curr0`、`curr1` 已经在 ADC 转换函数中饱和到 `s16`，第三相由两者相加，范围可能达到 +/-65535，所以 `curr2` 仍必须做一次 `FocHw_SatS16()`。
+`curr0`、`curr1` 已经在ADC转换函数中饱和到`s16`，第三相由两者相加，
+范围可能达到+/-65535，所以`curr2`仍必须做一次`McsMath_SatS16()`。
 
 ### 7.3 Clarke 变换
 
@@ -457,12 +502,12 @@ speed error -> speed PI -> iq_target -> current PI -> voltage -> PWM
 
 ### 9.2 目标速度和方向
 
-`gMotorCommand.speed_target_erpm` 保存速度幅值，方向由 `gMotorCommand.direction` 决定：
+`gAppHeight.trajectory.speed_request_erpm` 已经是带符号速度。方向字段用于
+应用状态显示和行程限位，不再由MCS层重复拼接符号：
 
 ```text
-target_signed = abs(target) * direction
-direction = +1 正转
-direction = -1 反转
+speed_request_erpm > 0  正转
+speed_request_erpm < 0  反转
 ```
 
 正反转不应修改 ADC 电流符号，也不应镜像霍尔原始输入，只改变有符号速度/转矩命令。
@@ -473,11 +518,13 @@ direction = -1 反转
 delta_speed_per_call = ramp_erpm_per_s * elapsed_ms / 1000
 ```
 
-余数会累计，避免低斜率因整数除法永久变成 0。当前 `6000 ERPM/s`，从 0 到 4000 ERPM 理论上约需 0.67 s。
+余数会累计，避免低斜率因整数除法永久变成0。当前斜坡为
+`30000 ERPM/s`；位置环给出的目标会随梯形行程轨迹连续变化，并非固定ERPM。
 
 ### 9.4 速度反馈滤波
 
-速度反馈使用 Q8 状态低通，当前时间尺度约 8 ms。反馈过度滤波会使负载响应慢；滤波过弱会把霍尔角噪声送入 PI，引起电流和速度来回摆动。
+霍尔预测或无感PLL已经完成角度和速度平滑，速度PI直接读取
+`m_motor.m_pll_speed`，不再叠加8 ms低通，以减少负载变化后的响应延迟。
 
 ### 9.5 速度 PI
 
@@ -751,7 +798,7 @@ Flash 记录包含：
 
 ### 13.2 控制模式
 
-- 上电默认不转，`gMotorCommand.run = 0`。
+- 上电默认不转，`gAppHeight.command.run = 0`。
 - MCPWM 计数器和 ADC 触发保持运行，但 MOE 关闭，六路功率输出不工作。
 - 加载有效霍尔参数；如果宏选择霍尔但 Flash 无效，会自动退回学习模式。
 - 串口命令决定正转、反转和停止。
@@ -783,7 +830,10 @@ Flash 记录包含：
 
 串口控制按命令变化触发。`LastKeyState` 保存上一次有效命令，相同命令的重复帧只更新通信诊断，不重复执行启动或停止状态转换。启动延时由电机状态机中的 `gMotorStartDelayMs` 完成，串口解析本身不阻塞。
 
-目前 BYTE4 尚未写入 `gMotorCommand.speed_target_erpm`，所以速度始终使用宏定义默认值。后续接入时要先明确 BYTE4 的比例，例如 `1 count = 100 ERPM`，并做上下限校验和目标斜坡。
+目前BYTE4仍为保留字段。推杆速度不是固定MCS默认值，而是由
+`app_height`中的4 mm/s机械参数、位置轨迹速度和位置误差共同换算成
+`gAppHeight.trajectory.speed_request_erpm`。后续若启用BYTE4，应把它解释为
+线速度或速度上限，并在应用层参与轨迹规划，不要直接越过位置环写速度PI。
 
 ## 14. 状态机和保护
 
@@ -845,16 +895,26 @@ PWM 未开启本身不是故障。`Motor_FaultTask1ms()` 只在控制算法已激活且 MOE 已开启时
 
 ## 15. 参数在哪里改
 
-### 15.1 工作模式、角度源、速度目标
+### 15.1 工作模式和角度源
 
 文件：`include/mcs/mcs_const.h`
 
 ```text
 MCS_POWER_ON_WORK_MODE
 MCS_CONTROL_SENSOR_MODE
-MCS_SPEED_TARGET_DEFAULT_ERPM
 MCS_SPEED_EST_MAX_ERPM
 MCS_SPEED_BRAKE_IQ_LIMIT_MA
+```
+
+推杆机械参数、额定线速度和霍尔学习速度位于
+`include/app/app_height.h`：
+
+```text
+APP_POSITION_SCREW_LEAD_01MM
+APP_POSITION_REDUCTION_RATIO
+APP_POSITION_TRAVEL_SPEED_01MM_S
+APP_POSITION_MAX_SPEED_ERPM
+APP_HALL_LEARN_SPEED_ERPM
 ```
 
 ### 15.2 速度环和启动行为
@@ -862,14 +922,14 @@ MCS_SPEED_BRAKE_IQ_LIMIT_MA
 文件：`src/mcs/mcs_control.c`
 
 ```text
-gMotorSpeedRampErpmPerS
-gMotorSpeedKpQ10
-gMotorSpeedKiQ10
-gMotorSpeedIqLimitMa
-gMotorSpeedStartCurrentMa
-gMotorSpeedCurrentRampMaPerMs
-gMotorSpeedCloseLoopMinErpm
-gMotorSpeedCloseLoopStableMs
+gMotorSpeedControl.ramp_erpm_per_s
+gMotorSpeedControl.kp_q10
+gMotorSpeedControl.ki_q10
+gMotorSpeedControl.iq_limit_ma
+gMotorSpeedControl.start_current_ma
+gMotorSpeedControl.current_ramp_ma_per_ms
+gMotorSpeedControl.close_loop_min_erpm
+gMotorSpeedControl.close_loop_stable_ms
 gMotorStartDelayMs
 gMotorCurrentLimitMa
 ```
@@ -929,7 +989,7 @@ FOC_MOTOR_FLUX_LINKAGE_UWB
 3. 暂时减小 `Ki`，逐步增加 `Kp`，直到负载响应快但没有持续振荡。
 4. 再逐步增加 `Ki`，消除稳态速度误差。
 5. 分别测试正转、反转、加载、卸载和制动。
-6. 同时观察 `gMotorSpeedErrorErpm`、`gMotorSpeedIqCommandMa`、实际 `iq` 和电流限幅。
+6. 同时观察 `gMotorSpeedControl.error_erpm`、`gMotorSpeedControl.iq_command_ma`、实际 `iq` 和电流限幅。
 
 如果速度周期性波动：先判断是速度反馈波动还是 PI 输出自身振荡。不要直接同时改霍尔滤波、速度 Kp、Ki 和电流斜坡。
 
@@ -994,12 +1054,14 @@ target_erpm = byte4 * ERPM_PER_COUNT
 ### 17.1 速度环
 
 ```text
-gMotorCommand.speed_target_erpm
-gMotorSpeedTargetRampErpm
-gMotorSpeedFeedbackErpm
-gMotorSpeedErrorErpm
-gMotorSpeedIqCommandMa
-gMotorSpeedClosedLoopActive
+gAppHeight.position.current_01mm
+gAppHeight.position.target_01mm
+gAppHeight.trajectory.speed_request_erpm
+gMotorSpeedControl.target_ramp_erpm
+gMotorSpeedControl.feedback_erpm
+gMotorSpeedControl.error_erpm
+gMotorSpeedControl.iq_command_ma
+gMotorSpeedControl.closed_loop_active
 m_motor.m_pll_speed
 m_motor.m_iq_set_target
 m_motor.m_iq_set
@@ -1056,7 +1118,9 @@ errTimer
 errTimerMax
 m_motor.m_run_state
 m_motor.m_fault_code
-gMotorCommand
+gAppHeight.command
+gAppHeight.position
+gAppHeight.trajectory
 gShortFaultCount
 MCPWM_FAIL012
 ```
@@ -1065,7 +1129,7 @@ MCPWM_FAIL012
 
 | 现象 | 优先检查 |
 |---|---|
-| 上电立刻转一下 | `gMotorCommand.run` 默认值、工作模式、学习模式是否自动运行 |
+| 上电立刻转一下 | `gAppHeight.command.run` 默认值、工作模式、学习模式是否自动运行 |
 | 电机只吸附不旋转 | 控制角是否更新、`m_pll_speed`、`iq_target`、MOE |
 | 正转正常反转振荡 | 速度符号、霍尔角差环绕、反转 iq 限幅、相位映射方向 |
 | 速度周期性波动 | 霍尔速度噪声、速度 Kp/Ki、iq 是否饱和、负载周期性变化 |

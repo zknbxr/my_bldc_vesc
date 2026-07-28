@@ -5,23 +5,9 @@
 #define APP_POSITION_FLASH_ERASE_KEY          (0x9A0D361FUL)
 #define APP_POSITION_FLASH_PROGRAM_KEY        (0x9AFDA40CUL)
 
-#define APP_POSITION_SCREW_LEAD_01MM           (25L)         // 导程
-#define APP_POSITION_REDUCTION_RATIO           (35L)         // 减速比
-#define APP_POSITION_PHASE_PER_TURN            (65536L)      // 电角度
+#define APP_POSITION_PHASE_PER_TURN            (65536L)
 #define APP_POSITION_PHASE_PER_SCREW_TURN      \
-    (APP_POSITION_PHASE_PER_TURN * APP_POSITION_REDUCTION_RATIO) // 丝杆转一圈对应角度
-
-/* 速度使用0.1 mm/s；机械参数变化时由公式重新计算ERPM，避免重复维护常数。 */
-#define APP_POSITION_TRAVEL_SPEED_01MM_S        (40L) // 电机速度
-// erpm换算
-#define APP_POSITION_ERPM_PER_01MM_S            \
-    ((60L * APP_POSITION_REDUCTION_RATIO * Pole_Pairs) / \
-     APP_POSITION_SCREW_LEAD_01MM)
-
-// 最大运行速度
-#define APP_POSITION_MAX_SPEED_ERPM             \
-    (APP_POSITION_TRAVEL_SPEED_01MM_S * \
-     APP_POSITION_ERPM_PER_01MM_S)
+    (APP_POSITION_PHASE_PER_TURN * APP_POSITION_REDUCTION_RATIO)
      
 #define APP_POSITION_TRAJECTORY_HZ              (100L)  // 更新周期 10ms
 #define APP_POSITION_ACCEL_01MM_S2              (80L)   // 加速度 
@@ -42,84 +28,41 @@ typedef struct
 } app_position_flash_record_t;
 
 
-volatile s16 gAppPositionCurrent01mm;     // 当前推杆位置
-volatile s16 gAppPositionTarget01mm;      // 目标位置
-volatile s16 gAppPositionError01mm;       // 位置误差
-volatile s16 gAppPositionSpeedErpm;       // 当前输出速度
-volatile s16 gAppPositionRamp01mm;        // 轨迹规划的位置
-volatile s16 gAppPositionRampSpeed01mmS;  // 轨迹规划速度
-volatile s16 gAppPositionSaved01mm;       // Flash保存的位置
-volatile s32 gAppPositionCumulativePhase; // 累计机械角度
-volatile u8 gAppPositionValid;            // 当前位置是否有效
-volatile u8 gAppPositionMode;             // 当前模式
-volatile u8 gAppPositionStorageState;     // Flash状态
+/* 应用层命令、位置、轨迹和存储状态统一从这个对象观察。 */
+volatile APP_HEIGHT_CONTROL gAppHeight;
 
 extern volatile u32 gBusVoltageMv;
 
-static s16 s_positionBase01mm;
-static u16 s_phaseLast;
-static bool s_phaseInitialized;
-static bool s_powerSaveArmed;
-static bool s_savePending;
-static s8 s_manualDirection;
-static s32 s_rampPositionQ16;
-static s32 s_rampSpeedQ16;
+/* 仅供本文件使用的算法历史量，不作为应用接口或Keil命令入口。 */
+typedef struct
+{
+    s16 position_base_01mm;
+    u16 phase_last;
+    bool phase_initialized;
+    bool power_save_armed;
+    bool save_pending;
+    s32 ramp_position_q16;
+    s32 ramp_speed_q16;
+} app_height_runtime_t;
+
+static app_height_runtime_t s_appHeightRuntime;
 
 static void AppHeight_UpdateTargetControl(void);
 
-static s32 AppHeight_LimitS32(s32 value, s32 min_value, s32 max_value)
-{
-    if(value < min_value)
-    {
-        return min_value;
-    }
-    if(value > max_value)
-    {
-        return max_value;
-    }
-    return value;
-}
-
-static s32 AppHeight_AbsS32(s32 value)
-{
-    return (value >= 0L) ? value : -value;
-}
-
-static s32 AppHeight_StepTowardsS32(s32 value, s32 target, s32 step)
-{
-    if(value < target)
-    {
-        value += step;
-        if(value > target)
-        {
-            value = target;
-        }
-    }
-    else if(value > target)
-    {
-        value -= step;
-        if(value < target)
-        {
-            value = target;
-        }
-    }
-    return value;
-}
-
 static void AppHeight_UpdateTrajectoryMonitor(void)
 {
-    gAppPositionRamp01mm = (s16)(s_rampPositionQ16 / 65536L);
-    gAppPositionRampSpeed01mmS = (s16)(s_rampSpeedQ16 / 65536L);
+    gAppHeight.trajectory.ramp_01mm = (s16)(s_appHeightRuntime.ramp_position_q16 / 65536L);
+    gAppHeight.trajectory.ramp_speed_01mm_s = (s16)(s_appHeightRuntime.ramp_speed_q16 / 65536L);
 }
 
 static void AppHeight_ResetTrajectory(void)
 {
     s32 ramp_speed_q16;
 
-    s_rampPositionQ16 = (s32)gAppPositionCurrent01mm * 65536L;
+    s_appHeightRuntime.ramp_position_q16 = (s32)gAppHeight.position.current_01mm * 65536L;
     ramp_speed_q16 = (s32)(((int64_t)m_motor.m_pll_speed * 65536LL) /
         APP_POSITION_ERPM_PER_01MM_S);
-    s_rampSpeedQ16 = AppHeight_LimitS32(
+    s_appHeightRuntime.ramp_speed_q16 = McsMath_LimitS32(
         ramp_speed_q16,
         -(APP_POSITION_TRAVEL_SPEED_01MM_S * 65536L),
         APP_POSITION_TRAVEL_SPEED_01MM_S * 65536L);
@@ -144,12 +87,12 @@ static void AppHeight_UpdateTrajectory(void)
     s32 position_next_q16;
     
     // 最终目标
-    target_q16 = (s32)gAppPositionTarget01mm * 65536L;
+    target_q16 = (s32)gAppHeight.position.target_01mm * 65536L;
     // 剩余距离
-    remaining_q16 = target_q16 - s_rampPositionQ16;
-    remaining_abs_q16 = AppHeight_AbsS32(remaining_q16);
+    remaining_q16 = target_q16 - s_appHeightRuntime.ramp_position_q16;
+    remaining_abs_q16 = McsMath_AbsS32(remaining_q16);
     
-    speed_abs_q16 = AppHeight_AbsS32(s_rampSpeedQ16);
+    speed_abs_q16 = McsMath_AbsS32(s_appHeightRuntime.ramp_speed_q16);
     
     // 计算制动距离，提前多久减速
     speed_square = (int64_t)speed_abs_q16 * speed_abs_q16;
@@ -168,8 +111,8 @@ static void AppHeight_UpdateTrajectory(void)
     {
         desired_speed_q16 = 0L;
     }
-    else if(((remaining_q16 > 0L) && (s_rampSpeedQ16 < 0L)) ||
-            ((remaining_q16 < 0L) && (s_rampSpeedQ16 > 0L)) ||
+    else if(((remaining_q16 > 0L) && (s_appHeightRuntime.ramp_speed_q16 < 0L)) ||
+            ((remaining_q16 < 0L) && (s_appHeightRuntime.ramp_speed_q16 > 0L)) ||
             (remaining_abs_q16 <= braking_guard_q16))
     {
         desired_speed_q16 = 0L;
@@ -186,15 +129,15 @@ static void AppHeight_UpdateTrajectory(void)
         (APP_POSITION_ACCEL_01MM_S2 * 65536L) /
         APP_POSITION_TRAJECTORY_HZ;
     
-    s_rampSpeedQ16 = AppHeight_StepTowardsS32(
-        s_rampSpeedQ16, desired_speed_q16, speed_step_q16);
+    s_appHeightRuntime.ramp_speed_q16 = McsMath_StepTowardsS32(
+        s_appHeightRuntime.ramp_speed_q16, desired_speed_q16, speed_step_q16);
     // s_k+1 = s_k + vt;
-    position_next_q16 = s_rampPositionQ16 +
-        s_rampSpeedQ16 / APP_POSITION_TRAJECTORY_HZ;
+    position_next_q16 = s_appHeightRuntime.ramp_position_q16 +
+        s_appHeightRuntime.ramp_speed_q16 / APP_POSITION_TRAJECTORY_HZ;
     
     if((remaining_abs_q16 <=
         (APP_POSITION_TOLERANCE_01MM * 65536L)) &&
-       (s_rampSpeedQ16 == 0L))
+       (s_appHeightRuntime.ramp_speed_q16 == 0L))
     {
         position_next_q16 = target_q16;
     }
@@ -202,9 +145,9 @@ static void AppHeight_UpdateTrajectory(void)
        ((remaining_q16 < 0L) && (position_next_q16 <= target_q16)))
     {
         position_next_q16 = target_q16;
-        s_rampSpeedQ16 = 0L;
+        s_appHeightRuntime.ramp_speed_q16 = 0L;
     }
-    s_rampPositionQ16 = position_next_q16;
+    s_appHeightRuntime.ramp_position_q16 = position_next_q16;
     AppHeight_UpdateTrajectoryMonitor();
 }
 
@@ -338,20 +281,20 @@ static void AppHeight_UpdatePosition(void)
 
     if(!AppHeight_PositionFeedbackReady())
     {
-        s_phaseInitialized = false;
+        s_appHeightRuntime.phase_initialized = false;
         return;
     }
 
     phase_now = (u16)gHallMechanicalPhase;
-    if(!s_phaseInitialized)
+    if(!s_appHeightRuntime.phase_initialized)
     {
-        s_phaseLast = phase_now;
-        s_phaseInitialized = true;
+        s_appHeightRuntime.phase_last = phase_now;
+        s_appHeightRuntime.phase_initialized = true;
         return;
     }
 
-    phase_delta = (s32)(s16)(phase_now - s_phaseLast);
-    s_phaseLast = phase_now;
+    phase_delta = (s32)(s16)(phase_now - s_appHeightRuntime.phase_last);
+    s_appHeightRuntime.phase_last = phase_now;
 
     /*
      * Hall标定若选择反向角度，正ERPM对应原始机械角减小。
@@ -362,9 +305,9 @@ static void AppHeight_UpdatePosition(void)
         phase_delta = -phase_delta;
     }
 
-    gAppPositionCumulativePhase += phase_delta;
+    gAppHeight.position.cumulative_phase += phase_delta;
     travel_numerator =
-        (int64_t)gAppPositionCumulativePhase *
+        (int64_t)gAppHeight.position.cumulative_phase *
         (int64_t)APP_POSITION_SCREW_LEAD_01MM;
     if(travel_numerator >= 0)
     {
@@ -377,14 +320,14 @@ static void AppHeight_UpdatePosition(void)
 
     position_delta = (s32)(
         travel_numerator / APP_POSITION_PHASE_PER_SCREW_TURN);
-    gAppPositionCurrent01mm = (s16)AppHeight_LimitS32(
-        (s32)s_positionBase01mm + position_delta, -32768L, 32767L);
+    gAppHeight.position.current_01mm = (s16)McsMath_LimitS32(
+        (s32)s_appHeightRuntime.position_base_01mm + position_delta, -32768L, 32767L);
 }
 
 static void AppHeight_StopCommand(void)
 {
-    gMotorCommand.run = 0U;
-    gAppPositionSpeedErpm = 0;
+    gAppHeight.command.run = 0U;
+    gAppHeight.trajectory.speed_request_erpm = 0;
 }
 
 /*
@@ -393,20 +336,20 @@ static void AppHeight_StopCommand(void)
  */
 static void AppHeight_ApplyTravelLimit(void)
 {
-    if((gAppPositionMode == APP_POSITION_MODE_RESET) ||
-       (gAppPositionValid == 0U) ||
-       (gMotorCommand.run == 0U))
+    if((gAppHeight.position.mode == APP_POSITION_MODE_RESET) ||
+       (gAppHeight.position.valid == 0U) ||
+       (gAppHeight.command.run == 0U))
     {
         return;
     }
 
-    if(((gMotorCommand.direction == MCS_MOTOR_DIRECTION_FORWARD) &&
-        (gAppPositionCurrent01mm >= APP_POSITION_MAX_01MM)) ||
-       ((gMotorCommand.direction == MCS_MOTOR_DIRECTION_REVERSE) &&
-        (gAppPositionCurrent01mm <= APP_POSITION_MIN_01MM)))
+    if(((gAppHeight.command.direction == MCS_MOTOR_DIRECTION_FORWARD) &&
+        (gAppHeight.position.current_01mm >= APP_POSITION_MAX_01MM)) ||
+       ((gAppHeight.command.direction == MCS_MOTOR_DIRECTION_REVERSE) &&
+        (gAppHeight.position.current_01mm <= APP_POSITION_MIN_01MM)))
     {
         AppHeight_StopCommand();
-        gAppPositionMode = APP_POSITION_MODE_IDLE;
+        gAppHeight.position.mode = APP_POSITION_MODE_IDLE;
     }
 }
 
@@ -414,52 +357,52 @@ static void AppHeight_UpdatePowerSave(void)
 {
     s16 position_to_save;
 
-    if(s_savePending)
+    if(s_appHeightRuntime.save_pending)
     {
         AppHeight_StopCommand();
-        gAppPositionMode = APP_POSITION_MODE_IDLE;
+        gAppHeight.position.mode = APP_POSITION_MODE_IDLE;
         if(Motor_IsPwmEnabled())
         {
             return;
         }
 
-        position_to_save = (s16)AppHeight_LimitS32(
-            (s32)gAppPositionCurrent01mm,
+        position_to_save = (s16)McsMath_LimitS32(
+            (s32)gAppHeight.position.current_01mm,
             APP_POSITION_MIN_01MM,
             APP_POSITION_MAX_01MM);
         if(AppHeight_SavePosition(position_to_save))
         {
-            gAppPositionSaved01mm = position_to_save;
-            gAppPositionStorageState = APP_POSITION_STORAGE_SAVED;
+            gAppHeight.storage.saved_01mm = position_to_save;
+            gAppHeight.storage.storage_state = APP_POSITION_STORAGE_SAVED;
         }
         else
         {
-            gAppPositionStorageState = APP_POSITION_STORAGE_FAILED;
+            gAppHeight.storage.storage_state = APP_POSITION_STORAGE_FAILED;
         }
-        s_savePending = false;
+        s_appHeightRuntime.save_pending = false;
         return;
     }
 
     if(gBusVoltageMv >= APP_POSITION_SAVE_ARM_VOLTAGE_MV)
     {
-        s_powerSaveArmed = true;
+        s_appHeightRuntime.power_save_armed = true;
         return;
     }
 
     if((gBusVoltageMv >= APP_POSITION_SAVE_VOLTAGE_MV) ||
-       !s_powerSaveArmed)
+       !s_appHeightRuntime.power_save_armed)
     {
         return;
     }
 
-    s_powerSaveArmed = false;
-    if((gAppPositionValid != 0U) &&
-       (gAppPositionCurrent01mm != gAppPositionSaved01mm))
+    s_appHeightRuntime.power_save_armed = false;
+    if((gAppHeight.position.valid != 0U) &&
+       (gAppHeight.position.current_01mm != gAppHeight.storage.saved_01mm))
     {
-        s_savePending = true;
-        gAppPositionStorageState = APP_POSITION_STORAGE_PENDING;
+        s_appHeightRuntime.save_pending = true;
+        gAppHeight.storage.storage_state = APP_POSITION_STORAGE_PENDING;
         AppHeight_StopCommand();
-        gAppPositionMode = APP_POSITION_MODE_IDLE;
+        gAppHeight.position.mode = APP_POSITION_MODE_IDLE;
     }
 }
 
@@ -469,16 +412,16 @@ static void AppHeight_UpdateManualControl(void)
      * 手动命令没有指定目标行程，但仍以对应机械端点作为内部位置目标。
      * 这样位置外环会在接近0/1100时逐步降低速度，而不是全速撞到限位才停。
      */
-    if((gAppPositionValid == 0U) ||
+    if((gAppHeight.position.valid == 0U) ||
        !AppHeight_PositionFeedbackReady())
     {
         AppHeight_StopCommand();
-        gAppPositionMode = APP_POSITION_MODE_IDLE;
+        gAppHeight.position.mode = APP_POSITION_MODE_IDLE;
         return;
     }
 
-    gAppPositionTarget01mm =
-        (s_manualDirection == MCS_MOTOR_DIRECTION_FORWARD) ?
+    gAppHeight.position.target_01mm =
+        (gAppHeight.command.direction == MCS_MOTOR_DIRECTION_FORWARD) ?
         APP_POSITION_MAX_01MM : APP_POSITION_MIN_01MM;
     AppHeight_UpdateTargetControl();
 }
@@ -491,41 +434,40 @@ static void AppHeight_UpdateTargetControl(void)
     s32 error;
     s32 tracking_error_q16;
     s32 speed_signed;
-    s32 speed_abs;
     // 位置是否有效，霍尔反馈是否有效
-    if((gAppPositionValid == 0U) ||
+    if((gAppHeight.position.valid == 0U) ||
        !AppHeight_PositionFeedbackReady())
     {
         AppHeight_StopCommand();
-        gAppPositionMode = APP_POSITION_MODE_IDLE;
+        gAppHeight.position.mode = APP_POSITION_MODE_IDLE;
         return;
     }
 
-    error = (s32)gAppPositionTarget01mm -
-            (s32)gAppPositionCurrent01mm;
-    error = AppHeight_LimitS32(error, -32768L, 32767L);
-    gAppPositionError01mm = (s16)error;
+    error = (s32)gAppHeight.position.target_01mm -
+            (s32)gAppHeight.position.current_01mm;
+    error = McsMath_LimitS32(error, -32768L, 32767L);
+    gAppHeight.position.error_01mm = (s16)error;
     
     /* 误差小于某个限位；
      * 已经达到目标；
      * 速度为0
      */ 
-    if((AppHeight_AbsS32(error) <= APP_POSITION_TOLERANCE_01MM) &&
-       (s_rampPositionQ16 ==
-        (s32)gAppPositionTarget01mm * 65536L) &&
-       (s_rampSpeedQ16 == 0L))
+    if((McsMath_AbsS32(error) <= APP_POSITION_TOLERANCE_01MM) &&
+       (s_appHeightRuntime.ramp_position_q16 ==
+        (s32)gAppHeight.position.target_01mm * 65536L) &&
+       (s_appHeightRuntime.ramp_speed_q16 == 0L))
     {
         AppHeight_StopCommand();
         return;
     }
-    // 更新轨迹，得到期望位置s_rampPositionQ16，梯度目标位置
+    // 更新轨迹，得到期望位置s_appHeightRuntime.ramp_position_q16，梯度目标位置
     AppHeight_UpdateTrajectory();
     // 梯度误差
-    tracking_error_q16 = s_rampPositionQ16 -
-        (s32)gAppPositionCurrent01mm * 65536L;
+    tracking_error_q16 = s_appHeightRuntime.ramp_position_q16 -
+        (s32)gAppHeight.position.current_01mm * 65536L;
     // 速度前馈
     speed_feedforward =
-        (int64_t)s_rampSpeedQ16 * APP_POSITION_ERPM_PER_01MM_S;
+        (int64_t)s_appHeightRuntime.ramp_speed_q16 * APP_POSITION_ERPM_PER_01MM_S;
     // 位置误差补偿
     position_correction =
         (int64_t)tracking_error_q16 *
@@ -534,57 +476,59 @@ static void AppHeight_UpdateTargetControl(void)
     speed_signed = (s32)(
         (speed_feedforward + position_correction) / 65536LL);
     
-    speed_signed = AppHeight_LimitS32(
+    speed_signed = McsMath_LimitS32(
         speed_signed,
         -APP_POSITION_MAX_SPEED_ERPM,
         APP_POSITION_MAX_SPEED_ERPM);
     
-    speed_abs = AppHeight_AbsS32(speed_signed);
-    // 设置方向
+    /* 速度请求本身带符号，方向字段只保存给应用层观察和限位判断。 */
     if(speed_signed > 0L)
     {
-        gMotorCommand.direction = MCS_MOTOR_DIRECTION_FORWARD;
+        gAppHeight.command.direction = MCS_MOTOR_DIRECTION_FORWARD;
     }
     else if(speed_signed < 0L)
     {
-        gMotorCommand.direction = MCS_MOTOR_DIRECTION_REVERSE;
+        gAppHeight.command.direction = MCS_MOTOR_DIRECTION_REVERSE;
     }
-    // 给到命令给速度环
-    gMotorCommand.speed_target_erpm = (s16)speed_abs;
-    gAppPositionSpeedErpm = (s16)speed_signed;
-    gMotorCommand.run = 1U;
+
+    /* 位置环只发布带符号ERPM；速度环再把速度误差变成q轴电流。 */
+    gAppHeight.trajectory.speed_request_erpm = (s16)speed_signed;
+    gAppHeight.command.run = 1U;
 }
 
 void AppHeight_Init(void)
 {
     s16 stored_position;
 
-    gAppPositionCurrent01mm = 0;
-    gAppPositionTarget01mm = 0;
-    gAppPositionError01mm = 0;
-    gAppPositionSpeedErpm = 0;
-    gAppPositionRamp01mm = 0;
-    gAppPositionRampSpeed01mmS = 0;
-    gAppPositionSaved01mm = -1;
-    gAppPositionCumulativePhase = 0L;
-    gAppPositionValid = 0U;
-    gAppPositionMode = APP_POSITION_MODE_IDLE;
-    gAppPositionStorageState = APP_POSITION_STORAGE_EMPTY;
-    s_positionBase01mm = 0;
-    s_phaseLast = 0U;
-    s_phaseInitialized = false;
-    s_powerSaveArmed = false;
-    s_savePending = false;
-    s_manualDirection = MCS_MOTOR_DIRECTION_DEFAULT;
+    gAppHeight.position.current_01mm = 0;
+    gAppHeight.position.target_01mm = 0;
+    gAppHeight.position.error_01mm = 0;
+    gAppHeight.trajectory.speed_request_erpm = 0;
+    gAppHeight.trajectory.ramp_01mm = 0;
+    gAppHeight.trajectory.ramp_speed_01mm_s = 0;
+    gAppHeight.storage.saved_01mm = -1;
+    gAppHeight.position.cumulative_phase = 0L;
+    gAppHeight.position.valid = 0U;
+    gAppHeight.position.mode = APP_POSITION_MODE_IDLE;
+    gAppHeight.storage.storage_state = APP_POSITION_STORAGE_EMPTY;
+    gAppHeight.command.command = Motor_Stop;
+    gAppHeight.command.run = 0U;
+    gAppHeight.command.direction = MCS_MOTOR_DIRECTION_DEFAULT;
+    gAppHeight.command.serial_target_01mm = APP_POSITION_MANUAL_TARGET;
+    s_appHeightRuntime.position_base_01mm = 0;
+    s_appHeightRuntime.phase_last = 0U;
+    s_appHeightRuntime.phase_initialized = false;
+    s_appHeightRuntime.power_save_armed = false;
+    s_appHeightRuntime.save_pending = false;
 
     if(AppHeight_LoadPosition(&stored_position))
     {
-        gAppPositionCurrent01mm = stored_position;
-        gAppPositionTarget01mm = stored_position;
-        gAppPositionSaved01mm = stored_position;
-        s_positionBase01mm = stored_position;
-        gAppPositionValid = 1U;
-        gAppPositionStorageState = APP_POSITION_STORAGE_LOADED;
+        gAppHeight.position.current_01mm = stored_position;
+        gAppHeight.position.target_01mm = stored_position;
+        gAppHeight.storage.saved_01mm = stored_position;
+        s_appHeightRuntime.position_base_01mm = stored_position;
+        gAppHeight.position.valid = 1U;
+        gAppHeight.storage.storage_state = APP_POSITION_STORAGE_LOADED;
     }
     else
     {
@@ -592,11 +536,11 @@ void AppHeight_Init(void)
          * 复位状态机尚未接入时，无有效Flash记录暂以机械下限作为位置原点。
          * 这允许首次上电向上运行，同时普通向下命令仍会被0行程限位挡住。
          */
-        gAppPositionCurrent01mm = APP_POSITION_MIN_01MM;
-        gAppPositionTarget01mm = APP_POSITION_MIN_01MM;
-        s_positionBase01mm = APP_POSITION_MIN_01MM;
-        gAppPositionCumulativePhase = 0L;
-        gAppPositionValid = 1U;
+        gAppHeight.position.current_01mm = APP_POSITION_MIN_01MM;
+        gAppHeight.position.target_01mm = APP_POSITION_MIN_01MM;
+        s_appHeightRuntime.position_base_01mm = APP_POSITION_MIN_01MM;
+        gAppHeight.position.cumulative_phase = 0L;
+        gAppHeight.position.valid = 1U;
     }
     AppHeight_ResetTrajectory();
 }
@@ -619,11 +563,11 @@ void AppHeight_Task10ms(void)
        (gMotorWorkMode != MCS_WORK_MODE_CONTROL))
     {
         AppHeight_StopCommand();
-        gAppPositionMode = APP_POSITION_MODE_IDLE;
+        gAppHeight.position.mode = APP_POSITION_MODE_IDLE;
         return;
     }
 
-    switch((APP_POSITION_MODE)gAppPositionMode)
+    switch((APP_POSITION_MODE)gAppHeight.position.mode)
     {
     case APP_POSITION_MODE_MANUAL:
         AppHeight_UpdateManualControl();
@@ -646,42 +590,45 @@ void AppHeight_Task10ms(void)
 
 void AppHeight_HandleCommand(u8 command, u16 target_01mm)
 {
+    /* 串口层只在命令变化时调用；这里保存完整应用命令快照。 */
+    gAppHeight.command.command = command;
+    gAppHeight.command.serial_target_01mm = target_01mm;
+
     switch(command)
     {
     case Motor_Up:
     case Motor_Down:
         if(target_01mm == APP_POSITION_MANUAL_TARGET)
         {
-            gAppPositionMode = APP_POSITION_MODE_MANUAL;
-            s_manualDirection =
+            gAppHeight.position.mode = APP_POSITION_MODE_MANUAL;
+            gAppHeight.command.direction =
                 (command == Motor_Up) ?
                 MCS_MOTOR_DIRECTION_FORWARD :
                 MCS_MOTOR_DIRECTION_REVERSE;
-            gMotorCommand.direction = s_manualDirection;
             AppHeight_ResetTrajectory();
             AppHeight_UpdateManualControl();
         }
         else
         {
-            gAppPositionTarget01mm = (s16)AppHeight_LimitS32(
+            gAppHeight.position.target_01mm = (s16)McsMath_LimitS32(
                 (s32)target_01mm,
                 APP_POSITION_MIN_01MM,
                 APP_POSITION_MAX_01MM);
-            gAppPositionMode = APP_POSITION_MODE_TARGET;
+            gAppHeight.position.mode = APP_POSITION_MODE_TARGET;
             AppHeight_ResetTrajectory();
             AppHeight_UpdateTargetControl();
         }
         break;
 
     case Motor_Reset:
-        gAppPositionMode = APP_POSITION_MODE_RESET;
+        gAppHeight.position.mode = APP_POSITION_MODE_RESET;
         AppHeight_StopCommand();
         break;
 
     case Motor_Stop:
     default:
-        gAppPositionMode = APP_POSITION_MODE_IDLE;
-        gAppPositionError01mm = 0;
+        gAppHeight.position.mode = APP_POSITION_MODE_IDLE;
+        gAppHeight.position.error_01mm = 0;
         AppHeight_StopCommand();
         break;
     }
@@ -689,38 +636,20 @@ void AppHeight_HandleCommand(u8 command, u16 target_01mm)
 
 void AppHeight_SetCurrent(s16 position_01mm)
 {
-    position_01mm = (s16)AppHeight_LimitS32(
+    position_01mm = (s16)McsMath_LimitS32(
         (s32)position_01mm,
         APP_POSITION_MIN_01MM,
         APP_POSITION_MAX_01MM);
-    s_positionBase01mm = position_01mm;
-    gAppPositionCurrent01mm = position_01mm;
-    gAppPositionTarget01mm = position_01mm;
-    gAppPositionCumulativePhase = 0L;
-    gAppPositionValid = 1U;
-    s_phaseInitialized = false;
+    s_appHeightRuntime.position_base_01mm = position_01mm;
+    gAppHeight.position.current_01mm = position_01mm;
+    gAppHeight.position.target_01mm = position_01mm;
+    gAppHeight.position.cumulative_phase = 0L;
+    gAppHeight.position.valid = 1U;
+    s_appHeightRuntime.phase_initialized = false;
     AppHeight_ResetTrajectory();
 }
 
 int AppHeight_GetCurrent(void)
 {
-    return (int)gAppPositionCurrent01mm;
-}
-
-void AppHeight_GetStatus(APP_HEIGHT_STATUS *status)
-{
-    if(status == 0)
-    {
-        return;
-    }
-
-    status->current_01mm = gAppPositionCurrent01mm;
-    status->target_01mm = gAppPositionTarget01mm;
-    status->error_01mm = gAppPositionError01mm;
-    status->speed_command_erpm = gAppPositionSpeedErpm;
-    status->ramp_01mm = gAppPositionRamp01mm;
-    status->ramp_speed_01mm_s = gAppPositionRampSpeed01mmS;
-    status->valid = gAppPositionValid;
-    status->mode = gAppPositionMode;
-    status->storage_state = gAppPositionStorageState;
+    return (int)gAppHeight.position.current_01mm;
 }

@@ -1,14 +1,5 @@
 #include "main.h"
 
-/*
- * 操作模式命令由应用层写入。run 只是“请求运行”，实际状态必须观察
- * m_motor.m_run_state；转子是否真的运动则观察 m_pll_speed。
- */
-volatile motor_command_t gMotorCommand = {
-    0U,
-    MCS_MOTOR_DIRECTION_DEFAULT,
-    MCS_SPEED_TARGET_DEFAULT_ERPM
-};
 /* 软件相电流保护阈值，单位 mA；任一相连续超限 3 ms 后立即停机，0 表示关闭。 */
 volatile u16 gMotorCurrentLimitMa = 2000U;
 /* 上电或重新启动时，PWM 使能前的等待时间，单位 ms。 500*/
@@ -19,89 +10,50 @@ volatile u16 gMotorStartDelayMs = 10U;
  */
 volatile u8 gMotorWorkMode = MCS_POWER_ON_WORK_MODE;
 
-/* 速度目标斜坡，单位ERPM/s；4000表示从0升到3000约需0.75秒。 */
-volatile u16 gMotorSpeedRampErpmPerS = 30000U;
-/* 速度PI参数，Q10单位分别为mA/ERPM和mA/(ERPM*s)。 */
-volatile s16 gMotorSpeedKpQ10 = 410;
-volatile s16 gMotorSpeedKiQ10 = 1024;
-/* 速度PI输出限幅与可选固定启动电流，单位mA；启动电流为0时由PI直接起步。 */
-volatile u16 gMotorSpeedIqLimitMa = 1500U;
-volatile u16 gMotorSpeedStartCurrentMa = 0U;
-/* 速度模式单独使用更快的电流斜坡，使负载突变时能及时增加转矩。60 */
-volatile u16 gMotorSpeedCurrentRampMaPerMs = 100U;
-/* 无感/Hall启动达到该速度并稳定一段时间后，速度PI才接管。 */
-volatile u16 gMotorSpeedCloseLoopMinErpm = 500U;
-volatile u16 gMotorSpeedCloseLoopStableMs = 20U;
-/* 速度环运行诊断量，均可直接放入Keil Watch。 */
-volatile s16 gMotorSpeedTargetRampErpm;
-volatile s16 gMotorSpeedFeedbackErpm;
-volatile s16 gMotorSpeedErrorErpm;
-volatile s16 gMotorSpeedIqCommandMa;
-volatile u8 gMotorSpeedClosedLoopActive;
+/*
+ * 速度环集中状态。前8项是可调参数，后5项是运行监视量。
+ * Watch中展开gMotorSpeedControl即可同时观察目标、反馈、误差和iq输出。
+ */
+volatile motor_speed_control_t gMotorSpeedControl = {
+    30000U, /* ramp_erpm_per_s：速度目标斜坡 */
+    410,    /* kp_q10：比例增益，Q10 mA/ERPM */
+    1024,   /* ki_q10：积分增益，Q10 mA/(ERPM*s) */
+    1500U,  /* iq_limit_ma：驱动电流上限 */
+    0U,     /* start_current_ma：0表示速度PI直接启动 */
+    100U,   /* current_ramp_ma_per_ms：q轴电流斜坡 */
+    500U,   /* close_loop_min_erpm：闭环接管最低速度 */
+    20U,    /* close_loop_stable_ms：接管稳定时间 */
+    0,      /* target_ramp_erpm */
+    0,      /* feedback_erpm */
+    0,      /* error_erpm */
+    0,      /* iq_command_ma */
+    0U      /* closed_loop_active */
+};
 
-/* 已累计的启动等待时间，单位 ms；达到 gMotorStartDelayMs 后使能 PWM。 */
-static u16 s_motorStartElapsedMs;
-/* 积分项使用Q10 mA，避免慢速变化被整数截断。 */
-static s32 s_motorSpeedITermQ10;
-static u16 s_motorSpeedStableMs;
-static u16 s_motorSpeedRampRemainder;
-
-static s32 Motor_ControlAbsS32(s32 value)
+/* 控制模块私有历史量；参数和监视量仍统一放在gMotorSpeedControl中。 */
+typedef struct
 {
-    return (value >= 0L) ? value : -value;
-}
+    u16 start_elapsed_ms;      /* 启动等待累计时间 */
+    s32 speed_i_term_q10;      /* 速度PI积分，Q10 mA */
+    u16 speed_stable_ms;       /* 闭环接管前的稳定时间 */
+    u16 speed_ramp_remainder;  /* ERPM斜坡除以1000后的余数 */
+} motor_control_runtime_t;
 
-static s32 Motor_ControlLimitS32(s32 value, s32 min, s32 max)
-{
-    if(value > max)
-    {
-        return max;
-    }
-    if(value < min)
-    {
-        return min;
-    }
-    return value;
-}
-
-static s16 Motor_ControlStepTowards(s16 value, s16 target, s32 step)
-{
-    s32 next;
-
-    next = (s32)value;
-    if(next < (s32)target)
-    {
-        next += step;
-        if(next > (s32)target)
-        {
-            next = target;
-        }
-    }
-    else if(next > (s32)target)
-    {
-        next -= step;
-        if(next < (s32)target)
-        {
-            next = target;
-        }
-    }
-
-    return (s16)next;
-}
+static motor_control_runtime_t s_motorControlRuntime;
 
 static void Motor_SpeedControlReset(bool reset_target_ramp)
 {
-    s_motorSpeedITermQ10 = 0L;
-    s_motorSpeedStableMs = 0U;
-    gMotorSpeedClosedLoopActive = 0U;
-    gMotorSpeedErrorErpm = 0;
-    gMotorSpeedIqCommandMa = 0;
+    s_motorControlRuntime.speed_i_term_q10 = 0L;
+    s_motorControlRuntime.speed_stable_ms = 0U;
+    gMotorSpeedControl.closed_loop_active = 0U;
+    gMotorSpeedControl.error_erpm = 0;
+    gMotorSpeedControl.iq_command_ma = 0;
 
     if(reset_target_ramp)
     {
-        gMotorSpeedTargetRampErpm = 0;
-        s_motorSpeedRampRemainder = 0U;
-        gMotorSpeedFeedbackErpm = 0;
+        gMotorSpeedControl.target_ramp_erpm = 0;
+        s_motorControlRuntime.speed_ramp_remainder = 0U;
+        gMotorSpeedControl.feedback_erpm = 0;
     }
 }
 
@@ -109,24 +61,24 @@ static s32 Motor_SpeedGetIqLimit(const motor_all_state_t *motor)
 {
     s32 current_limit;
 
-    current_limit = (s32)gMotorSpeedIqLimitMa;
+    current_limit = (s32)gMotorSpeedControl.iq_limit_ma;
     if((motor != 0) && (motor->m_conf != 0))
     {
-        if(Motor_ControlAbsS32((s32)motor->m_conf->lo_current_max) <
+        if(McsMath_AbsS32((s32)motor->m_conf->lo_current_max) <
            current_limit)
         {
-            current_limit = Motor_ControlAbsS32(
+            current_limit = McsMath_AbsS32(
                 (s32)motor->m_conf->lo_current_max);
         }
-        if(Motor_ControlAbsS32((s32)motor->m_conf->lo_current_min) <
+        if(McsMath_AbsS32((s32)motor->m_conf->lo_current_min) <
            current_limit)
         {
-            current_limit = Motor_ControlAbsS32(
+            current_limit = McsMath_AbsS32(
                 (s32)motor->m_conf->lo_current_min);
         }
     }
 
-    return Motor_ControlLimitS32(current_limit, 0L, 32767L);
+    return McsMath_LimitS32(current_limit, 0L, 32767L);
 }
 
 /* 对带符号的速度目标做斜坡，余数累积避免低斜率在1ms整数计算中丢失。 */
@@ -135,28 +87,28 @@ static s16 Motor_SpeedRampUpdate(s16 target, u16 elapsed_ms)
     u32 numerator;
     s32 step;
 
-    if(gMotorSpeedRampErpmPerS == 0U)
+    if(gMotorSpeedControl.ramp_erpm_per_s == 0U)
     {
-        gMotorSpeedTargetRampErpm = target;
-        s_motorSpeedRampRemainder = 0U;
+        gMotorSpeedControl.target_ramp_erpm = target;
+        s_motorControlRuntime.speed_ramp_remainder = 0U;
         return target;
     }
 
-    numerator = (u32)gMotorSpeedRampErpmPerS * (u32)elapsed_ms +
-                (u32)s_motorSpeedRampRemainder;
+    numerator = (u32)gMotorSpeedControl.ramp_erpm_per_s * (u32)elapsed_ms +
+                (u32)s_motorControlRuntime.speed_ramp_remainder;
     step = (s32)(numerator / 1000UL);
-    s_motorSpeedRampRemainder = (u16)(numerator % 1000UL);
+    s_motorControlRuntime.speed_ramp_remainder = (u16)(numerator % 1000UL);
     if(step > 32767L)
     {
         step = 32767L;
     }
     if(step > 0L)
     {
-        gMotorSpeedTargetRampErpm = Motor_ControlStepTowards(
-            gMotorSpeedTargetRampErpm, target, step);
+        gMotorSpeedControl.target_ramp_erpm = McsMath_StepTowardsS16(
+            gMotorSpeedControl.target_ramp_erpm, target, step);
     }
 
-    return gMotorSpeedTargetRampErpm;
+    return gMotorSpeedControl.target_ramp_erpm;
 }
 
 bool Motor_IsControlRunning(const motor_all_state_t *motor)
@@ -187,8 +139,8 @@ bool Motor_IsRotorMoving(const motor_all_state_t *motor, s16 min_erpm)
         return false;
     }
 
-    speed_abs = Motor_ControlAbsS32((s32)motor->m_pll_speed);
-    threshold = Motor_ControlAbsS32((s32)min_erpm);
+    speed_abs = McsMath_AbsS32((s32)motor->m_pll_speed);
+    threshold = McsMath_AbsS32((s32)min_erpm);
     return speed_abs > threshold;
 }
 
@@ -203,16 +155,16 @@ void Motor_SetCurrentTarget(motor_all_state_t *motor,
         return;
     }
 
-    current_limit = Motor_ControlAbsS32((s32)motor->m_conf->lo_current_max);
-    if(Motor_ControlAbsS32((s32)motor->m_conf->lo_current_min) > current_limit)
+    current_limit = McsMath_AbsS32((s32)motor->m_conf->lo_current_max);
+    if(McsMath_AbsS32((s32)motor->m_conf->lo_current_min) > current_limit)
     {
-        current_limit = Motor_ControlAbsS32((s32)motor->m_conf->lo_current_min);
+        current_limit = McsMath_AbsS32((s32)motor->m_conf->lo_current_min);
     }
-    current_limit = Motor_ControlLimitS32(current_limit, 0L, 32767L);
+    current_limit = McsMath_LimitS32(current_limit, 0L, 32767L);
 
-    motor->m_id_set_target = (s16)Motor_ControlLimitS32(
+    motor->m_id_set_target = (s16)McsMath_LimitS32(
         (s32)id_target_ma, -current_limit, current_limit);
-    motor->m_iq_set_target = (s16)Motor_ControlLimitS32(
+    motor->m_iq_set_target = (s16)McsMath_LimitS32(
         (s32)iq_target_ma, -current_limit, current_limit);
 }
 
@@ -246,16 +198,16 @@ void Motor_CurrentCommandUpdate(motor_all_state_t *motor, u16 elapsed_ms)
     /* 速度环需要快速增加转矩；学习和直接电流模式仍使用配置中的慢斜坡。 */
     ramp_ma_per_ms = (s32)motor->m_conf->current_ramp_ma_per_ms;
     if((motor->m_control_mode == CONTROL_MODE_SPEED) &&
-       (gMotorSpeedCurrentRampMaPerMs > 0U))
+       (gMotorSpeedControl.current_ramp_ma_per_ms > 0U))
     {
-        ramp_ma_per_ms = (s32)gMotorSpeedCurrentRampMaPerMs;
+        ramp_ma_per_ms = (s32)gMotorSpeedControl.current_ramp_ma_per_ms;
     }
     
     if(motor->m_control_mode == CONTROL_MODE_SPEED)
     {
         /* 最后一层钳位，防止任何异常目标绕过速度PI的iq限流。 */
         speed_iq_limit = Motor_SpeedGetIqLimit(motor);
-        iq_target = (s16)Motor_ControlLimitS32(
+        iq_target = (s16)McsMath_LimitS32(
             (s32)iq_target, -speed_iq_limit, speed_iq_limit);
     }
 
@@ -270,15 +222,15 @@ void Motor_CurrentCommandUpdate(motor_all_state_t *motor, u16 elapsed_ms)
     else
     {
         /* d/q 两轴分别向目标移动，且不会越过目标值。 */
-        step = Motor_ControlLimitS32(step, 1L, 32767L);
-        id_next = Motor_ControlStepTowards(
+        step = McsMath_LimitS32(step, 1L, 32767L);
+        id_next = McsMath_StepTowardsS16(
             motor->m_id_set, motor->m_id_set_target, step);
-        iq_next = Motor_ControlStepTowards(
+        iq_next = McsMath_StepTowardsS16(
             motor->m_iq_set, iq_target, step);
     }
     if(motor->m_control_mode == CONTROL_MODE_SPEED)
     {
-        iq_next = (s16)Motor_ControlLimitS32(
+        iq_next = (s16)McsMath_LimitS32(
             (s32)iq_next, -speed_iq_limit, speed_iq_limit);
     }
 
@@ -344,15 +296,15 @@ void Motor_SpeedControlUpdate1ms(motor_all_state_t *motor, u16 elapsed_ms)
     }
 
     target_signed = motor->m_speed_pid_set_rpm;
-    target_abs = Motor_ControlAbsS32((s32)target_signed);
-    target_abs = Motor_ControlLimitS32(target_abs, 0L, 32767L);
+    target_abs = McsMath_AbsS32((s32)target_signed);
+    target_abs = McsMath_LimitS32(target_abs, 0L, 32767L);
     // 速度斜坡
     target_ramped = Motor_SpeedRampUpdate(target_signed, elapsed_ms);
 
     /* Hall测速和无感PLL已经完成平滑，速度PI直接使用该反馈以减少延迟。 */
     feedback = (s32)motor->m_pll_speed;
-    feedback = Motor_ControlLimitS32(feedback, -32768L, 32767L);
-    gMotorSpeedFeedbackErpm = (s16)feedback;
+    feedback = McsMath_LimitS32(feedback, -32768L, 32767L);
+    gMotorSpeedControl.feedback_erpm = (s16)feedback;
 
     iq_limit = Motor_SpeedGetIqLimit(motor);
     if((target_abs == 0L) || (iq_limit == 0L))
@@ -364,7 +316,7 @@ void Motor_SpeedControlUpdate1ms(motor_all_state_t *motor, u16 elapsed_ms)
     
     output_limit_q10 = iq_limit << 10;
     
-    brake_limit = Motor_ControlLimitS32(
+    brake_limit = McsMath_LimitS32(
         MCS_SPEED_BRAKE_IQ_LIMIT_MA, 0L, iq_limit);
     
     if(target_signed > 0)
@@ -381,7 +333,7 @@ void Motor_SpeedControlUpdate1ms(motor_all_state_t *motor, u16 elapsed_ms)
     }
 
     /* 低目标速度时把接管门限降到目标值，避免永远停留在固定启动电流。 */
-    entry_speed = (s32)gMotorSpeedCloseLoopMinErpm;
+    entry_speed = (s32)gMotorSpeedControl.close_loop_min_erpm;
     if(target_abs < entry_speed)
     {
         entry_speed = target_abs;
@@ -392,47 +344,47 @@ void Motor_SpeedControlUpdate1ms(motor_all_state_t *motor, u16 elapsed_ms)
         entry_speed = 50L;
     }
 
-    if(gMotorSpeedClosedLoopActive == 0U)
+    if(gMotorSpeedControl.closed_loop_active == 0U)
     {
-        if(gMotorSpeedStartCurrentMa == 0U)
+        if(gMotorSpeedControl.start_current_ma == 0U)
         {
             /* 不使用固定启动电流，速度PI从零积分、零电流开始直接接管。 */
-            s_motorSpeedStableMs = 0U;
-            s_motorSpeedITermQ10 = 0L;
-            gMotorSpeedClosedLoopActive = 1U;
+            s_motorControlRuntime.speed_stable_ms = 0U;
+            s_motorControlRuntime.speed_i_term_q10 = 0L;
+            gMotorSpeedControl.closed_loop_active = 1U;
         }
         else
         {
-        startup_current = Motor_ControlLimitS32(
-            (s32)gMotorSpeedStartCurrentMa, 0L, iq_limit);
+        startup_current = McsMath_LimitS32(
+            (s32)gMotorSpeedControl.start_current_ma, 0L, iq_limit);
         if(target_signed < 0)
         {
             startup_current = -startup_current;
         }
-        gMotorSpeedIqCommandMa = (s16)startup_current;
+        gMotorSpeedControl.iq_command_ma = (s16)startup_current;
         Motor_SetCurrentTarget(motor, 0, (s16)startup_current);
 
         if(motor->m_phase_control_initialized &&
-           (Motor_ControlAbsS32(feedback) >= entry_speed) &&
+           (McsMath_AbsS32(feedback) >= entry_speed) &&
            (((target_signed > 0) && (feedback > 0L)) ||
             ((target_signed < 0) && (feedback < 0L))))
         {
-            if(s_motorSpeedStableMs <
+            if(s_motorControlRuntime.speed_stable_ms <
                (u16)(65535U - elapsed_ms))
             {
-                s_motorSpeedStableMs += elapsed_ms;
+                s_motorControlRuntime.speed_stable_ms += elapsed_ms;
             }
             else
             {
-                s_motorSpeedStableMs = 65535U;
+                s_motorControlRuntime.speed_stable_ms = 65535U;
             }
         }
         else
         {
-            s_motorSpeedStableMs = 0U;
+            s_motorControlRuntime.speed_stable_ms = 0U;
         }
 
-        if(s_motorSpeedStableMs < gMotorSpeedCloseLoopStableMs)
+        if(s_motorControlRuntime.speed_stable_ms < gMotorSpeedControl.close_loop_stable_ms)
         {
             return;
         }
@@ -442,35 +394,35 @@ void Motor_SpeedControlUpdate1ms(motor_all_state_t *motor, u16 elapsed_ms)
          * 这样不会在高速接管瞬间继续加速，也不会立即施加反向制动。
          */
         error = (s32)target_ramped - feedback;
-        p_term_q10 = error * Motor_ControlLimitS32(
-            (s32)gMotorSpeedKpQ10, 0L, 32767L);
+        p_term_q10 = error * McsMath_LimitS32(
+            (s32)gMotorSpeedControl.kp_q10, 0L, 32767L);
         if(((target_signed > 0) && (error > 0L)) ||
            ((target_signed < 0) && (error < 0L)))
         {
             takeover_iq_q10 = (s32)motor->m_iq_set * 1024L;
-            s_motorSpeedITermQ10 = takeover_iq_q10 - p_term_q10;
+            s_motorControlRuntime.speed_i_term_q10 = takeover_iq_q10 - p_term_q10;
         }
         else
         {
-            s_motorSpeedITermQ10 = 0L;
+            s_motorControlRuntime.speed_i_term_q10 = 0L;
         }
-        s_motorSpeedITermQ10 = Motor_ControlLimitS32(
-            s_motorSpeedITermQ10, output_min_q10, output_max_q10);
-        gMotorSpeedClosedLoopActive = 1U;
+        s_motorControlRuntime.speed_i_term_q10 = McsMath_LimitS32(
+            s_motorControlRuntime.speed_i_term_q10, output_min_q10, output_max_q10);
+        gMotorSpeedControl.closed_loop_active = 1U;
         }
     }
 
     error = (s32)target_ramped - feedback;
-    gMotorSpeedErrorErpm = (s16)Motor_ControlLimitS32(
+    gMotorSpeedControl.error_erpm = (s16)McsMath_LimitS32(
         error, -32768L, 32767L);
-    p_term_q10 = error * Motor_ControlLimitS32(
-        (s32)gMotorSpeedKpQ10, 0L, 32767L);
+    p_term_q10 = error * McsMath_LimitS32(
+        (s32)gMotorSpeedControl.kp_q10, 0L, 32767L);
 
     dt_ms = (elapsed_ms > 20U) ? 20L : (s32)elapsed_ms;
-    i_delta_q10 = (s32)(((int64_t)error * (int64_t)Motor_ControlLimitS32(
-        (s32)gMotorSpeedKiQ10, 0L, 32767L) * (int64_t)dt_ms) / 1000LL);
-    i_candidate_q10 = Motor_ControlLimitS32(
-        s_motorSpeedITermQ10 + i_delta_q10,
+    i_delta_q10 = (s32)(((int64_t)error * (int64_t)McsMath_LimitS32(
+        (s32)gMotorSpeedControl.ki_q10, 0L, 32767L) * (int64_t)dt_ms) / 1000LL);
+    i_candidate_q10 = McsMath_LimitS32(
+        s_motorControlRuntime.speed_i_term_q10 + i_delta_q10,
         output_min_q10, output_max_q10);
     output_q10 = p_term_q10 + i_candidate_q10;
 
@@ -478,13 +430,13 @@ void Motor_SpeedControlUpdate1ms(motor_all_state_t *motor, u16 elapsed_ms)
     if(!(((output_q10 > output_max_q10) && (error > 0L)) ||
          ((output_q10 < output_min_q10) && (error < 0L))))
     {
-        s_motorSpeedITermQ10 = i_candidate_q10;
+        s_motorControlRuntime.speed_i_term_q10 = i_candidate_q10;
     }
-    output_q10 = Motor_ControlLimitS32(
-        p_term_q10 + s_motorSpeedITermQ10,
+    output_q10 = McsMath_LimitS32(
+        p_term_q10 + s_motorControlRuntime.speed_i_term_q10,
         output_min_q10, output_max_q10);
-    gMotorSpeedIqCommandMa = (s16)(output_q10 >> 10);
-    Motor_SetCurrentTarget(motor, 0, gMotorSpeedIqCommandMa);
+    gMotorSpeedControl.iq_command_ma = (s16)(output_q10 >> 10);
+    Motor_SetCurrentTarget(motor, 0, gMotorSpeedControl.iq_command_ma);
 }
 
 static void Motor_ControlRequestReset(motor_control_request_t *request)
@@ -492,30 +444,39 @@ static void Motor_ControlRequestReset(motor_control_request_t *request)
     request->run = false;
     request->control_mode = CONTROL_MODE_NONE;
     request->sensor_mode = FOC_SENSOR_MODE_SENSORLESS;
-    request->speed_target_erpm = 0;
     request->phase_override = false;
     request->phase_override_q16 = 0;
-    request->id_target_ma = 0;
-    request->iq_target_ma = 0;
+    request->position.enable = false;
+    request->position.target_01mm = 0;
+    request->speed.enable = false;
+    request->speed.target_erpm = 0;
+    request->current.enable = false;
+    request->current.id_target_ma = 0;
+    request->current.iq_target_ma = 0;
 }
 
 /* 正常操作模式只解释应用命令，不直接启停 PWM。 */
 static void Motor_OperationBuildControlRequest(
     motor_control_request_t *request)
 {
-    s32 target_abs;
-
     if((request == 0) || (gMotorWorkMode != MCS_WORK_MODE_CONTROL))
     {
         return;
     }
     
     /*
-     * 运动状态，运行模式，传感器模式
+     * app_height是操作模式命令源。位置层先产生带符号速度请求，
+     * 本函数只把应用状态整理成统一控制请求，不重复计算方向和速度。
      */
-    request->run = gMotorCommand.run != 0U;
+    request->run = gAppHeight.command.run != 0U;
     request->control_mode = CONTROL_MODE_SPEED;
     request->sensor_mode = FOC_SENSOR_MODE_SENSORLESS;
+    request->position.enable =
+        gAppHeight.position.mode != APP_POSITION_MODE_IDLE;
+    request->position.target_01mm = gAppHeight.position.target_01mm;
+    request->speed.enable = request->run;
+    request->speed.target_erpm =
+        gAppHeight.trajectory.speed_request_erpm;
     
     if((MCS_CONTROL_SENSOR_MODE == FOC_SENSOR_MODE_HALL) &&
        Hall_CalibrationIsValid())
@@ -523,14 +484,6 @@ static void Motor_OperationBuildControlRequest(
         request->sensor_mode = FOC_SENSOR_MODE_HALL;
     }
 
-    target_abs = Motor_ControlAbsS32(
-        (s32)gMotorCommand.speed_target_erpm);
-    target_abs = Motor_ControlLimitS32(target_abs, 0L, 32767L);
-    if(gMotorCommand.direction == MCS_MOTOR_DIRECTION_REVERSE)
-    {
-        target_abs = -target_abs;
-    }
-    request->speed_target_erpm = (s16)target_abs;
 }
 
 /* 顶层模式只在这一处选择，后面的公共状态机不需要了解请求来源。 */
@@ -549,6 +502,7 @@ static void Motor_ModeBuildControlRequest(motor_control_request_t *request)
         break;
 
     case MCS_WORK_MODE_CONTROL:
+        // 传递运动状态，运行模式，传感器模式，目标速度
         Motor_OperationBuildControlRequest(request);
         break;
 
@@ -570,7 +524,7 @@ static void Motor_RunStateStop(void)
         m_motor.m_speed_pid_set_rpm = 0;
         Motor_SetCurrentTarget(&m_motor, 0, 0);
         Motor_SpeedControlReset(true);
-        s_motorStartElapsedMs = 0U;
+        s_motorControlRuntime.start_elapsed_ms = 0U;
         m_motor.m_run_state = MOTOR_RUN_STATE_OFF;
         return;
 
@@ -595,7 +549,7 @@ static void Motor_RunStateStop(void)
         PwmAOutputs(DISABLE);
         __enable_irq();
         m_motor.m_run_state = MOTOR_RUN_STATE_OFF;
-        s_motorStartElapsedMs = 0U;
+        s_motorControlRuntime.start_elapsed_ms = 0U;
         return;
 
     case MOTOR_RUN_STATE_FAULT:
@@ -645,9 +599,9 @@ static void Motor_RunStateTask1ms(
        (m_motor.m_run_state == MOTOR_RUN_STATE_START_DELAY))
     {
         m_motor.m_run_state = MOTOR_RUN_STATE_START_DELAY;
-        if(s_motorStartElapsedMs < gMotorStartDelayMs)
+        if(s_motorControlRuntime.start_elapsed_ms < gMotorStartDelayMs)
         {
-            s_motorStartElapsedMs += elapsed_ms;
+            s_motorControlRuntime.start_elapsed_ms += elapsed_ms;
             return;
         }
 
@@ -658,7 +612,7 @@ static void Motor_RunStateTask1ms(
             m_motor.m_motor_state.phase = request->phase_override_q16;
         }
 
-        m_motor.m_speed_pid_set_rpm = request->speed_target_erpm;
+        m_motor.m_speed_pid_set_rpm = request->speed.target_erpm;
 
         __disable_irq();
         m_motor.m_control_mode = request->control_mode;
@@ -683,13 +637,14 @@ static void Motor_RunStateTask1ms(
     {
         m_motor.m_motor_state.phase = request->phase_override_q16;
     }
-    m_motor.m_speed_pid_set_rpm = request->speed_target_erpm;
+    m_motor.m_speed_pid_set_rpm = request->speed.target_erpm;
 
-    if(request->control_mode == CONTROL_MODE_CURRENT)
+    if((request->control_mode == CONTROL_MODE_CURRENT) &&
+       request->current.enable)
     {
         Motor_SetCurrentTarget(&m_motor,
-                               request->id_target_ma,
-                               request->iq_target_ma);
+                               request->current.id_target_ma,
+                               request->current.iq_target_ma);
     }
 }
 
@@ -705,14 +660,11 @@ void Motor_ControlInit(void)
     Motor_SpeedControlReset(true);
     Motor_FaultInit();
 
-    /* 操作模式默认关闭；学习模式由霍尔学习状态机生成自动运行请求。 */
-    gMotorCommand.run = 0U;
-    gMotorCommand.direction = MCS_MOTOR_DIRECTION_DEFAULT;
-    gMotorCommand.speed_target_erpm = MCS_SPEED_TARGET_DEFAULT_ERPM;
+    /* 应用命令由AppHeight_Init初始化；MCS初始化只整理电机实时状态。 */
     m_motor.m_run_state = MOTOR_RUN_STATE_OFF;
     m_motor.m_fault_code = MOTOR_FAULT_NONE;
     m_motor.m_speed_pid_set_rpm = 0;
-    s_motorStartElapsedMs = 0U;
+    s_motorControlRuntime.start_elapsed_ms = 0U;
 }
 
 /*
@@ -721,6 +673,11 @@ void Motor_ControlInit(void)
  */
 void Motor_ControlTask1ms(u16 elapsed_ms)
 {
+    /*
+     * gAppHeight：应用层长期状态；
+     * request：本次1ms生成的分层请求快照；
+     * m_motor：已经作用于控制器的电机实时状态。
+     */
     motor_control_request_t request;
 
     if(elapsed_ms == 0U)

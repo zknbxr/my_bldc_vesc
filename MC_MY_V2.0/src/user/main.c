@@ -9,7 +9,7 @@ N 下管导通
 */
 
 /*
- * 运行命令观察 gMotorCommand，权威软件状态观察 m_motor.m_run_state。
+ * 应用命令观察 gAppHeight.command，权威软件状态观察 m_motor.m_run_state。
  * PWM 是否实际输出由 Motor_IsPwmEnabled() 判断，转子运动由 m_pll_speed 判断。
  */
 void Task_Scheduler(void);

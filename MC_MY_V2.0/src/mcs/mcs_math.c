@@ -3,15 +3,59 @@
 #define SVM_Q                         (15)
 #define SVM_Q_ONE                     (1L << SVM_Q)   /* 32768 */
 
-
-static u32 utils_abs_s32(s32 value)
+/*
+ * 以固定步长逼近目标。step<=0表示本周期不变化，结果不会越过target。
+ * S32版本供位置轨迹使用，S16版本供速度和电流命令斜坡使用。
+ */
+s32 McsMath_StepTowardsS32(s32 value, s32 target, s32 step)
 {
-    if(value >= 0)
+    if(step <= 0L)
     {
-        return (u32)value;
+        return value;
     }
 
-    return (u32)(-(value + 1L)) + 1UL;
+    if(value < target)
+    {
+        value += step;
+        if(value > target)
+        {
+            value = target;
+        }
+    }
+    else if(value > target)
+    {
+        value -= step;
+        if(value < target)
+        {
+            value = target;
+        }
+    }
+    return value;
+}
+
+s16 McsMath_StepTowardsS16(s16 value, s16 target, s32 step)
+{
+    return McsMath_SatS16(McsMath_StepTowardsS32(
+        (s32)value, (s32)target, step));
+}
+
+s32 McsMath_MaxAbs3S32(s32 a, s32 b, s32 c)
+{
+    s32 max_abs;
+    s32 value_abs;
+
+    max_abs = McsMath_AbsS32(a);
+    value_abs = McsMath_AbsS32(b);
+    if(value_abs > max_abs)
+    {
+        max_abs = value_abs;
+    }
+    value_abs = McsMath_AbsS32(c);
+    if(value_abs > max_abs)
+    {
+        max_abs = value_abs;
+    }
+    return max_abs;
 }
 
 void utils_truncate_number(s32 *number, s32 min, s32 max)
@@ -21,44 +65,26 @@ void utils_truncate_number(s32 *number, s32 min, s32 max)
         return;
     }
 
-    if(*number > max)
-    {
-        *number = max;
-    }
-    else if(*number < min)
-    {
-        *number = min;
-    }
+    *number = McsMath_LimitS32(*number, min, max);
 }
 
 void utils_truncate_number_abs(s32 *number, s32 max)
 {
-    s32 max_abs;
-
     if(number == 0)
     {
         return;
     }
-
-    if(max == (-2147483647L - 1L))
-    {
-        max_abs = 2147483647L;
-    }
-    else
-    {
-        max_abs = (max < 0) ? -max : max;
-    }
-    utils_truncate_number(number, -max_abs, max_abs);
+    *number = McsMath_LimitAbsS32(*number, max);
 }
 
 s32 utils_min_abs(s32 va, s32 vb)
 {
-    return (utils_abs_s32(va) < utils_abs_s32(vb)) ? va : vb;
+    return (McsMath_AbsU32(va) < McsMath_AbsU32(vb)) ? va : vb;
 }
 
 s32 utils_max_abs(s32 va, s32 vb)
 {
-    return (utils_abs_s32(va) > utils_abs_s32(vb)) ? va : vb;
+    return (McsMath_AbsU32(va) > McsMath_AbsU32(vb)) ? va : vb;
 }
 
 u32 utils_sqrt_u32(u32 value)
@@ -89,25 +115,10 @@ u32 utils_sqrt_u32(u32 value)
     return result;
 }
 
-static int32_t SVM_Q15_Mul(int32_t a, int32_t b)
-{
-   
-    return (int32_t)((a * b) >> SVM_Q);
-}
-
 static int32_t SVM_Q15_ToPwmCount(int32_t q15_value, uint32_t pwm_period)
 {
     
     return (int32_t)((q15_value * (int32_t)pwm_period) >> SVM_Q);
-}
-
-static void SVM_LimitInt32(int32_t *value, int32_t min_value, int32_t max_value)
-{
-    if (*value < min_value) {
-        *value = min_value;
-    } else if (*value > max_value) {
-        *value = max_value;
-    }
 }
 
 /*
@@ -147,7 +158,8 @@ void FOC_SVM_Q15(int16_t alpha_q15_in,
      * 用于扇区判断：
      * beta / sqrt(3)
      */
-    int32_t beta_div_sqrt3_q15 = SVM_Q15_Mul(beta_q15, ONE_BY_SQRT3);
+    int32_t beta_div_sqrt3_q15 =
+        McsMath_MulQ15(beta_q15, ONE_BY_SQRT3);
 
     /*
      * 1. 扇区判断
@@ -201,8 +213,9 @@ void FOC_SVM_Q15(int16_t alpha_q15_in,
          * V1 = 100
          * V2 = 110
          */
-        int32_t t1_q15 = alpha_q15 - SVM_Q15_Mul(beta_q15, ONE_BY_SQRT3);
-        int32_t t2_q15 = SVM_Q15_Mul(beta_q15, TWO_BY_SQRT3);
+        int32_t t1_q15 = alpha_q15 -
+            McsMath_MulQ15(beta_q15, ONE_BY_SQRT3);
+        int32_t t2_q15 = McsMath_MulQ15(beta_q15, TWO_BY_SQRT3);
 
         int32_t t1 = SVM_Q15_ToPwmCount(t1_q15, PWMFullDutyCycle);
         int32_t t2 = SVM_Q15_ToPwmCount(t2_q15, PWMFullDutyCycle);
@@ -220,8 +233,10 @@ void FOC_SVM_Q15(int16_t alpha_q15_in,
          * V2 = 110
          * V3 = 010
          */
-        int32_t t2_q15 = alpha_q15 + SVM_Q15_Mul(beta_q15, ONE_BY_SQRT3);
-        int32_t t3_q15 = -alpha_q15 + SVM_Q15_Mul(beta_q15, ONE_BY_SQRT3);
+        int32_t t2_q15 = alpha_q15 +
+            McsMath_MulQ15(beta_q15, ONE_BY_SQRT3);
+        int32_t t3_q15 = -alpha_q15 +
+            McsMath_MulQ15(beta_q15, ONE_BY_SQRT3);
 
         int32_t t2 = SVM_Q15_ToPwmCount(t2_q15, PWMFullDutyCycle);
         int32_t t3 = SVM_Q15_ToPwmCount(t3_q15, PWMFullDutyCycle);
@@ -239,8 +254,9 @@ void FOC_SVM_Q15(int16_t alpha_q15_in,
          * V3 = 010
          * V4 = 011
          */
-        int32_t t3_q15 = SVM_Q15_Mul(beta_q15, TWO_BY_SQRT3);
-        int32_t t4_q15 = -alpha_q15 - SVM_Q15_Mul(beta_q15, ONE_BY_SQRT3);
+        int32_t t3_q15 = McsMath_MulQ15(beta_q15, TWO_BY_SQRT3);
+        int32_t t4_q15 = -alpha_q15 -
+            McsMath_MulQ15(beta_q15, ONE_BY_SQRT3);
 
         int32_t t3 = SVM_Q15_ToPwmCount(t3_q15, PWMFullDutyCycle);
         int32_t t4 = SVM_Q15_ToPwmCount(t4_q15, PWMFullDutyCycle);
@@ -258,8 +274,9 @@ void FOC_SVM_Q15(int16_t alpha_q15_in,
          * V4 = 011
          * V5 = 001
          */
-        int32_t t4_q15 = -alpha_q15 + SVM_Q15_Mul(beta_q15, ONE_BY_SQRT3);
-        int32_t t5_q15 = -SVM_Q15_Mul(beta_q15, TWO_BY_SQRT3);
+        int32_t t4_q15 = -alpha_q15 +
+            McsMath_MulQ15(beta_q15, ONE_BY_SQRT3);
+        int32_t t5_q15 = -McsMath_MulQ15(beta_q15, TWO_BY_SQRT3);
 
         int32_t t4 = SVM_Q15_ToPwmCount(t4_q15, PWMFullDutyCycle);
         int32_t t5 = SVM_Q15_ToPwmCount(t5_q15, PWMFullDutyCycle);
@@ -277,8 +294,10 @@ void FOC_SVM_Q15(int16_t alpha_q15_in,
          * V5 = 001
          * V6 = 101
          */
-        int32_t t5_q15 = -alpha_q15 - SVM_Q15_Mul(beta_q15, ONE_BY_SQRT3);
-        int32_t t6_q15 = alpha_q15 - SVM_Q15_Mul(beta_q15, ONE_BY_SQRT3);
+        int32_t t5_q15 = -alpha_q15 -
+            McsMath_MulQ15(beta_q15, ONE_BY_SQRT3);
+        int32_t t6_q15 = alpha_q15 -
+            McsMath_MulQ15(beta_q15, ONE_BY_SQRT3);
 
         int32_t t5 = SVM_Q15_ToPwmCount(t5_q15, PWMFullDutyCycle);
         int32_t t6 = SVM_Q15_ToPwmCount(t6_q15, PWMFullDutyCycle);
@@ -297,8 +316,9 @@ void FOC_SVM_Q15(int16_t alpha_q15_in,
          * V6 = 101
          * V1 = 100
          */
-        int32_t t6_q15 = -SVM_Q15_Mul(beta_q15, TWO_BY_SQRT3);
-        int32_t t1_q15 = alpha_q15 + SVM_Q15_Mul(beta_q15, ONE_BY_SQRT3);
+        int32_t t6_q15 = -McsMath_MulQ15(beta_q15, TWO_BY_SQRT3);
+        int32_t t1_q15 = alpha_q15 +
+            McsMath_MulQ15(beta_q15, ONE_BY_SQRT3);
 
         int32_t t6 = SVM_Q15_ToPwmCount(t6_q15, PWMFullDutyCycle);
         int32_t t1 = SVM_Q15_ToPwmCount(t1_q15, PWMFullDutyCycle);
@@ -313,18 +333,14 @@ void FOC_SVM_Q15(int16_t alpha_q15_in,
     /*
      * 3. 限幅
      */
-    if (max_mod_q15 < 0) {
-        max_mod_q15 = 0;
-    } else if (max_mod_q15 > SVM_Q_ONE) {
-        max_mod_q15 = SVM_Q_ONE;
-    }
+    max_mod_q15 = McsMath_LimitS32(max_mod_q15, 0, SVM_Q_ONE);
 
     int32_t t_max = (int32_t)(((int32_t)PWMFullDutyCycle *
                               (SVM_Q_ONE + max_mod_q15)) >> (SVM_Q + 1));
 
-    SVM_LimitInt32(&tA, 0, t_max);
-    SVM_LimitInt32(&tB, 0, t_max);
-    SVM_LimitInt32(&tC, 0, t_max);
+    tA = McsMath_LimitS32(tA, 0, t_max);
+    tB = McsMath_LimitS32(tB, 0, t_max);
+    tC = McsMath_LimitS32(tC, 0, t_max);
 
     *tAout = (uint32_t)tA;
     *tBout = (uint32_t)tB;

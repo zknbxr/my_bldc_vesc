@@ -48,51 +48,6 @@ static mc_configuration m_motor_conf = {
 
 motor_all_state_t m_motor;
 
-static s32 Foc_LimitS32(s32 value, s32 min, s32 max)
-{
-    if(value > max)
-    {
-        return max;
-    }
-
-    if(value < min)
-    {
-        return min;
-    }
-
-    return value;
-}
-
-static s16 Foc_SatS16(s32 value)
-{
-    if(value > 32767L)
-    {
-        return 32767;
-    }
-
-    if(value < -32768L)
-    {
-        return -32768;
-    }
-
-    return (s16)value;
-}
-
-static s32 Foc_AbsS32(s32 value)
-{
-    if(value == (-2147483647L - 1L))
-    {
-        return 2147483647L;
-    }
-
-    return (value < 0) ? -value : value;
-}
-
-static s32 Foc_MulQ15(s32 a, s32 b)
-{
-    return (a * b) >> MCS_Q15_SHIFT;
-}
-
 static s32 Foc_IntegrateCurrentError(s32 integral,
                                      s32 error,
                                      s32 ki_q15,
@@ -124,14 +79,14 @@ static void Foc_InitMotorStruct(motor_all_state_t *motor)
         motor->m_control_mode = CONTROL_MODE_NONE;
 
         /* 这些配置在运行中保持不变，预先计算以减少快速环中的限幅和乘法。 */
-        max_duty = Foc_LimitS32((s32)motor->m_conf->l_max_duty,
+        max_duty = McsMath_LimitS32((s32)motor->m_conf->l_max_duty,
                                 0L,
                                 MCS_Q15_ONE);
-        overmod_factor = Foc_LimitS32((s32)motor->m_conf->foc_overmod_factor,
+        overmod_factor = McsMath_LimitS32((s32)motor->m_conf->foc_overmod_factor,
                                       0L,
                                       MCS_Q15_ONE);
-        max_v_mag = Foc_MulQ15(max_duty, overmod_factor);
-        max_v_mag = Foc_MulQ15(max_v_mag, MCS_SQRT3_BY_2_Q15);
+        max_v_mag = McsMath_MulQ15(max_duty, overmod_factor);
+        max_v_mag = McsMath_MulQ15(max_v_mag, MCS_SQRT3_BY_2_Q15);
 
         motor->m_motor_state.max_duty = (s16)max_duty;
         motor->p_max_v_mag = (s16)max_v_mag;
@@ -254,8 +209,8 @@ static void control_current(motor_all_state_t *motor, u16 dt)
     iq = (((s32)state_m->i_beta * trig.cos) -
           ((s32)state_m->i_alpha * trig.sin)) >> 15;
 
-    state_m->id = Foc_SatS16(id);
-    state_m->iq = Foc_SatS16(iq);
+    state_m->id = McsMath_SatS16(id);
+    state_m->iq = McsMath_SatS16(iq);
 
     /* 快速环保留未滤波值，监控显示所需的滤波放到慢速任务中完成。暂时未使用，注释掉 */
     // state_m->id_filter = state_m->id;
@@ -298,28 +253,28 @@ static void control_current(motor_all_state_t *motor, u16 dt)
     
     /* 先将积分状态限制在 Q15 有效范围，保证后续 32 位乘法不溢出。 */
     integral_before_limit = vd_int;
-    vd_int = Foc_LimitS32(vd_int, -MCS_Q15_ONE, MCS_Q15_ONE);
+    vd_int = McsMath_LimitS32(vd_int, -MCS_Q15_ONE, MCS_Q15_ONE);
     if(vd_int != integral_before_limit)
     {
         state_m->vd_int_residual = 0;
     }
     integral_before_limit = vq_int;
-    vq_int = Foc_LimitS32(vq_int, -MCS_Q15_ONE, MCS_Q15_ONE);
+    vq_int = McsMath_LimitS32(vq_int, -MCS_Q15_ONE, MCS_Q15_ONE);
     if(vq_int != integral_before_limit)
     {
         state_m->vq_int_residual = 0;
     }
 
-    vd = Foc_LimitS32(vd_int + p_d, -MCS_Q15_ONE, MCS_Q15_ONE);
-    vq = Foc_LimitS32(vq_int + p_q, -MCS_Q15_ONE, MCS_Q15_ONE);
+    vd = McsMath_LimitS32(vd_int + p_d, -MCS_Q15_ONE, MCS_Q15_ONE);
+    vq = McsMath_LimitS32(vq_int + p_q, -MCS_Q15_ONE, MCS_Q15_ONE);
 
     /*
      * 用 max(|vd|,|vq|) + 27/64*min(|vd|,|vq|) 保守近似圆形幅值。
      * 27/64 略大于 sqrt(2)-1，可保证近似值不小于真实幅值。
      * 只有超过上限时才执行一次除法并等比例缩放，保持电压矢量方向不变。
      */
-    vd_abs = Foc_AbsS32(vd);
-    vq_abs = Foc_AbsS32(vq);
+    vd_abs = McsMath_AbsS32(vd);
+    vq_abs = McsMath_AbsS32(vq);
     if(vd_abs >= vq_abs)
     {
         voltage_abs_max = vd_abs;
@@ -337,36 +292,36 @@ static void control_current(motor_all_state_t *motor, u16 dt)
     {
         voltage_scale_q15 = (max_v_mag << MCS_Q15_SHIFT) /
                             voltage_mag_approx;
-        vd = Foc_MulQ15(vd, voltage_scale_q15);
-        vq = Foc_MulQ15(vq, voltage_scale_q15);
-        vd_int = Foc_MulQ15(vd_int, voltage_scale_q15);
-        vq_int = Foc_MulQ15(vq_int, voltage_scale_q15);
+        vd = McsMath_MulQ15(vd, voltage_scale_q15);
+        vq = McsMath_MulQ15(vq, voltage_scale_q15);
+        vd_int = McsMath_MulQ15(vd_int, voltage_scale_q15);
+        vq_int = McsMath_MulQ15(vq_int, voltage_scale_q15);
         state_m->vd_int_residual = 0;
         state_m->vq_int_residual = 0;
     }
 
     state_m->vd_int = vd_int;
     state_m->vq_int = vq_int;
-    state_m->vd = Foc_SatS16(vd);
-    state_m->vq = Foc_SatS16(vq);
+    state_m->vd = McsMath_SatS16(vd);
+    state_m->vq = McsMath_SatS16(vq);
     state_m->mod_d = state_m->vd;
     state_m->mod_q = state_m->vq;
     
     /* 不计算 sqrt，以 max(|id|, |iq|) 近似电流幅值供诊断使用。 */
-    current_abs = Foc_AbsS32(id);
-    if(Foc_AbsS32(iq) > current_abs)
+    current_abs = McsMath_AbsS32(id);
+    if(McsMath_AbsS32(iq) > current_abs)
     {
-        current_abs = Foc_AbsS32(iq);
+        current_abs = McsMath_AbsS32(iq);
     }
-    state_m->i_abs_filter = Foc_SatS16(current_abs);
+    state_m->i_abs_filter = McsMath_SatS16(current_abs);
     
     
     /* 反 Park 变换：转子坐标系 d/q 调制度 -> 静止坐标系 alpha/beta 调制度。 */
     alpha = ((vd * trig.cos) - (vq * trig.sin)) >> 15;
     beta = ((vd * trig.sin) + (vq * trig.cos)) >> 15;
 
-    state_m->mod_alpha_raw = Foc_SatS16(alpha);
-    state_m->mod_beta_raw = Foc_SatS16(beta);
+    state_m->mod_alpha_raw = McsMath_SatS16(alpha);
+    state_m->mod_beta_raw = McsMath_SatS16(beta);
 
     /* SVM 将电压矢量转换为中心对齐的 U/V/W 三相占空比。 */
     FOC_SVM_Q15(state_m->mod_alpha_raw,

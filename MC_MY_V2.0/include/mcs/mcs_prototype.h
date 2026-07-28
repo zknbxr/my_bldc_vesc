@@ -65,8 +65,6 @@ void Motor_FocSlowUpdate1ms(void);
 void PwmAOutputs(FuncState t_state);
 void Motor_WriteNeutralPwm(void);
 s32 FocHw_ModToVoltageMv(s16 modulation, s32 bus_voltage);
-s16 FocHw_SatS16(s32 value);
-s16 FocHw_PhaseDifference(s16 phase, s16 reference);
 
 //mcs_control.c
 void CurrentErrDetc(void);
@@ -83,22 +81,6 @@ void Motor_SetCurrentTarget(motor_all_state_t *motor,
                             s16 iq_target_ma);
 void Motor_CurrentCommandUpdate(motor_all_state_t *motor, u16 elapsed_ms);
 void Motor_CurrentCommandReset(motor_all_state_t *motor);
-
-//mcs_math.c
-void utils_truncate_number(s32 *number, s32 min, s32 max);
-void utils_truncate_number_abs(s32 *number, s32 max);
-s32 utils_min_abs(s32 va, s32 vb);
-s32 utils_max_abs(s32 va, s32 vb);
-u32 utils_sqrt_u32(u32 value);
-
-void FOC_SVM_Q15(int16_t alpha_q15_in,
-                 int16_t beta_q15_in,
-                 int32_t max_mod_q15,
-                 uint32_t PWMFullDutyCycle,
-                 uint32_t *tAout,
-                 uint32_t *tBout,
-                 uint32_t *tCout,
-                 uint32_t *svm_sector);
 
 #endif
 

@@ -8,11 +8,6 @@ static u16 s_motorCurrentOverMs;
 /* 故障源连续恢复正常的时间，达到门限后只解锁到 OFF，不自动启动。 */
 static u16 s_motorFaultRecoveryMs;
 
-static s32 Motor_FaultAbsS32(s32 value)
-{
-    return (value >= 0L) ? value : -value;
-}
-
 static bool Motor_FaultCurrentExceeded(void)
 {
     s32 current_max;
@@ -22,15 +17,10 @@ static bool Motor_FaultCurrentExceeded(void)
         return false;
     }
 
-    current_max = Motor_FaultAbsS32((s32)ADC_curr_norm_value[0]);
-    if(Motor_FaultAbsS32((s32)ADC_curr_norm_value[1]) > current_max)
-    {
-        current_max = Motor_FaultAbsS32((s32)ADC_curr_norm_value[1]);
-    }
-    if(Motor_FaultAbsS32((s32)ADC_curr_norm_value[2]) > current_max)
-    {
-        current_max = Motor_FaultAbsS32((s32)ADC_curr_norm_value[2]);
-    }
+    current_max = McsMath_MaxAbs3S32(
+        (s32)ADC_curr_norm_value[0],
+        (s32)ADC_curr_norm_value[1],
+        (s32)ADC_curr_norm_value[2]);
 
     return current_max > (s32)gMotorCurrentLimitMa;
 }
@@ -83,7 +73,8 @@ void Motor_FaultTrip(motor_fault_t fault)
     PwmAOutputs(DISABLE);
     __enable_irq();
 
-    gMotorCommand.run = 0U;
+    /* 故障发生后撤销应用运行请求，恢复后必须收到新的串口命令。 */
+    gAppHeight.command.run = 0U;
     s_motorCurrentOverMs = 0U;
     s_motorFaultRecoveryMs = 0U;
 }
@@ -111,7 +102,7 @@ void Motor_FaultTask1ms(u16 elapsed_ms)
             else
             {
                 /*
-                 * 只解除故障锁存并回到 OFF。gMotorCommand.run 在故障发生时
+                 * 只解除故障锁存并回到OFF。应用run在故障发生时
                  * 已经清零，因此没有新的串口命令变化就不会重新开启 PWM。
                  */
                 __disable_irq();

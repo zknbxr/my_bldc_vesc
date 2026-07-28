@@ -64,6 +64,7 @@
 .\objects\hardware_init.o: .\include\mcs\mcs_error_type.h
 .\objects\hardware_init.o: .\include\mcs\mcs_foc_hw_type.h
 .\objects\hardware_init.o: .\include\mcs\mcs_motor_type.h
+.\objects\hardware_init.o: .\include\mcs\mcs_math.h
 .\objects\hardware_init.o: .\include\mcs\sensorless_ctrl.h
 .\objects\hardware_init.o: .\include\mcs\mcs_motor.h
 .\objects\hardware_init.o: .\include\mcs\mcs_hall.h

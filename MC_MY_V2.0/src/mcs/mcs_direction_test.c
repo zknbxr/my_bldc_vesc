@@ -120,24 +120,11 @@ static void DirectionTest_ResetPi(void)
     m_motor.m_motor_state.iq_error = 0;
 }
 
-static u32 DirectionTest_AbsS32(s32 value)
-{
-    if(value >= 0L)
-    {
-        return (u32)value;
-    }
-
-    return (u32)(-(value + 1L)) + 1UL;
-}
-
 static s32 DirectionTest_ApplyMotorDirection(s32 magnitude)
 {
-    if(magnitude < 0L)
-    {
-        magnitude = -magnitude;
-    }
+    magnitude = McsMath_AbsS32(magnitude);
 
-    if(gMotorCommand.direction == MCS_MOTOR_DIRECTION_REVERSE)
+    if(gAppHeight.command.direction == MCS_MOTOR_DIRECTION_REVERSE)
     {
         return -magnitude;
     }
@@ -164,15 +151,10 @@ static bool DirectionTest_SensorlessCurrentExceeded(void)
         return false;
     }
 
-    currentMax = DirectionTest_AbsS32((s32)ADC_curr_norm_value[0]);
-    if(DirectionTest_AbsS32((s32)ADC_curr_norm_value[1]) > currentMax)
-    {
-        currentMax = DirectionTest_AbsS32((s32)ADC_curr_norm_value[1]);
-    }
-    if(DirectionTest_AbsS32((s32)ADC_curr_norm_value[2]) > currentMax)
-    {
-        currentMax = DirectionTest_AbsS32((s32)ADC_curr_norm_value[2]);
-    }
+    currentMax = (u32)McsMath_MaxAbs3S32(
+        (s32)ADC_curr_norm_value[0],
+        (s32)ADC_curr_norm_value[1],
+        (s32)ADC_curr_norm_value[2]);
 
     return currentMax > (u32)gSensorlessCurrentLimitMa;
 }

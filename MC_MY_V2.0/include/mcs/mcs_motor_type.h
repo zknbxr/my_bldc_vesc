@@ -172,27 +172,60 @@ typedef enum {
     MOTOR_FAULT_HARDWARE_SHORT
 } motor_fault_t;
 
-/* 操作模式的应用命令。run 表示请求，不代表电机已经运行。 */
+/* 位置外环发布的信息，主要用于统一请求快照和调试观察。 */
 typedef struct {
-    u8 run;
-    s8 direction;
-    s16 speed_target_erpm;
-} motor_command_t;
+    bool enable;
+    s16 target_01mm;
+} motor_position_request_t;
+
+/* 速度外环请求。target_erpm带符号，正负直接表示机械方向。 */
+typedef struct {
+    bool enable;
+    s16 target_erpm;
+} motor_speed_request_t;
+
+/* 电流环请求。速度模式下由速度PI产生，直接电流模式下由模式层产生。 */
+typedef struct {
+    bool enable;
+    s16 id_target_ma;
+    s16 iq_target_ma;
+} motor_current_request_t;
 
 /*
  * 学习模式和操作模式都先生成同一种控制请求，再交给公共运行状态机执行。
- * 这样公共状态机不需要判断当前是不是学习模式。
+ * position -> speed -> current清楚表示三个控制环的级联关系。
  */
 typedef struct {
     bool run;
     mc_control_mode control_mode;
     mc_foc_sensor_mode sensor_mode;
-    s16 speed_target_erpm;
     bool phase_override;
     s16 phase_override_q16;
-    s16 id_target_ma;
-    s16 iq_target_ma;
+    motor_position_request_t position;
+    motor_speed_request_t speed;
+    motor_current_request_t current;
 } motor_control_request_t;
+
+/*
+ * 速度环的配置和运行监视量。配置成员可在调试器中修改；monitor成员只由
+ * 速度环更新。集中成一个对象后，不再需要一组含义相近的gMotorSpeed变量。
+ */
+typedef struct {
+    u16 ramp_erpm_per_s;
+    s16 kp_q10;
+    s16 ki_q10;
+    u16 iq_limit_ma;
+    u16 start_current_ma;
+    u16 current_ramp_ma_per_ms;
+    u16 close_loop_min_erpm;
+    u16 close_loop_stable_ms;
+
+    s16 target_ramp_erpm;
+    s16 feedback_erpm;
+    s16 error_erpm;
+    s16 iq_command_ma;
+    u8 closed_loop_active;
+} motor_speed_control_t;
 
 typedef enum {
 	MTPA_MODE_OFF = 0,

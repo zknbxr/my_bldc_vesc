@@ -42,45 +42,6 @@ static const s16 s_sinCosTable[256] =
 };
 
 
-
-static u16 Motor_ClampPwmCompare(s32 value)
-{
-    if(value < MCS_MOTOR_PWM_CMD_MIN)
-    {
-        return (u16)MCS_MOTOR_PWM_CMD_MIN;
-    }
-
-    if(value > MCS_MOTOR_PWM_CMD_MAX)
-    {
-        return (u16)MCS_MOTOR_PWM_CMD_MAX;
-    }
-
-    return (u16)value;
-}
-
-static s32 Motor_AbsS32(s32 value)
-{
-    return (value >= 0) ? value : -value;
-}
-
-static s32 Motor_MaxAbs3(s32 a, s32 b, s32 c)
-{
-    s32 maxAbs;
-
-    maxAbs = Motor_AbsS32(a);
-    if(Motor_AbsS32(b) > maxAbs)
-    {
-        maxAbs = Motor_AbsS32(b);
-    }
-
-    if(Motor_AbsS32(c) > maxAbs)
-    {
-        maxAbs = Motor_AbsS32(c);
-    }
-
-    return maxAbs;
-}
-
 static s16 Motor_PwmOffsetToModQ15(s32 offset)
 {
     int64_t modulation;
@@ -88,16 +49,7 @@ static s16 Motor_PwmOffsetToModQ15(s32 offset)
     /* Q15 modulation 1.0 represents 2/3 of the DC bus in alpha-beta. */
     modulation = ((int64_t)offset * 3LL * 32768LL) /
                  ((int64_t)PWM_PERIOD * 2LL);
-    if(modulation > 32767LL)
-    {
-        modulation = 32767LL;
-    }
-    else if(modulation < -32768LL)
-    {
-        modulation = -32768LL;
-    }
-
-    return (s16)modulation;
+    return McsMath_SatS16((s32)modulation);
 }
 
 void Motor_WritePwmCompare(u16 phaseA, u16 phaseB, u16 phaseC)
@@ -172,7 +124,7 @@ static void Motor_WriteAlphaBetaVector(s16 alpha, s16 beta)
      * phase=PWM_PERIOD/2 对应三相中性 50% 占空比。
      * 因此三相相电压偏移量必须限制在 [-center, +center] 内。
      */
-    maxOffset = Motor_MaxAbs3(phaseAOffset, phaseBOffset, phaseCOffset);
+    maxOffset = McsMath_MaxAbs3S32(phaseAOffset, phaseBOffset, phaseCOffset);
     if(maxOffset > center)
     {
         alphaCmd = (alphaCmd * center) / maxOffset;
@@ -187,9 +139,15 @@ static void Motor_WriteAlphaBetaVector(s16 alpha, s16 beta)
     m_motor.m_motor_state.mod_beta_raw = Motor_PwmOffsetToModQ15(betaCmd);
 
     Motor_WritePwmCompare(
-        Motor_ClampPwmCompare(center + phaseAOffset),
-        Motor_ClampPwmCompare(center + phaseBOffset),
-        Motor_ClampPwmCompare(center + phaseCOffset));
+        (u16)McsMath_LimitS32(center + phaseAOffset,
+                              MCS_MOTOR_PWM_CMD_MIN,
+                              MCS_MOTOR_PWM_CMD_MAX),
+        (u16)McsMath_LimitS32(center + phaseBOffset,
+                              MCS_MOTOR_PWM_CMD_MIN,
+                              MCS_MOTOR_PWM_CMD_MAX),
+        (u16)McsMath_LimitS32(center + phaseCOffset,
+                              MCS_MOTOR_PWM_CMD_MIN,
+                              MCS_MOTOR_PWM_CMD_MAX));
 }
 
 

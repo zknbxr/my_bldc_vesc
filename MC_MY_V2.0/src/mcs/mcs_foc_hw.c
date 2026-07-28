@@ -21,30 +21,10 @@ INT16 hal2;
 
 static volatile s16 s_busAdcLatest;
 
-s16 FocHw_PhaseDifference(s16 phase, s16 reference)
-{
-    return (s16)((u16)phase - (u16)reference);
-}
-
-s16 FocHw_SatS16(s32 value)
-{
-    if(value > 32767L)
-    {
-        return 32767;
-    }
-
-    if(value < -32768L)
-    {
-        return -32768;
-    }
-
-    return (s16)value;
-}
-
 static s16 FocHw_AdcToCurrentMa(s32 adc_value)
 {
     /* 最坏情况下的乘积仍不会超出有符号32位范围。 */
-    return FocHw_SatS16(
+    return McsMath_SatS16(
         (adc_value * MCS_CURRENT_ADC_TO_MA_Q15) >> 15);
 }
 
@@ -125,14 +105,15 @@ void AdcSampleCal(void)
 
     /* 第三相没有独立ADC通道，根据ia+ib+ic=0重构。 */
     curr2 = -(curr0 + curr1);
-    ADC_curr_norm_value[0] =curr0;//FocHw_SatS16(curr0)
-    ADC_curr_norm_value[1] =curr1;//FocHw_SatS16(curr1)
+    
+    ADC_curr_norm_value[0] =curr0;//McsMath_SatS16(curr0)
+    ADC_curr_norm_value[1] =curr1;//McsMath_SatS16(curr1)
     // curr2需要经过一次s16饱和。
-    ADC_curr_norm_value[2] = FocHw_SatS16(curr2);
+    ADC_curr_norm_value[2] = McsMath_SatS16(curr2);
 
     /* 对满足三相电流平衡的两电阻采样结果进行Clarke变换。 */
     state_now->i_alpha = ADC_curr_norm_value[0];
-    state_now->i_beta = FocHw_SatS16(
+    state_now->i_beta = McsMath_SatS16(
         ((s32)ONE_BY_SQRT3 * ADC_curr_norm_value[0] +
          (s32)TWO_BY_SQRT3 * ADC_curr_norm_value[1]) >> 15);
 
@@ -172,8 +153,8 @@ void AdcSampleCal(void)
             utils_truncate_number_abs(&iq_set_tmp, current_max_abs);
         }
 
-        state_now->id_target = FocHw_SatS16(id_set_tmp);
-        state_now->iq_target = FocHw_SatS16(iq_set_tmp);
+        state_now->id_target = McsMath_SatS16(id_set_tmp);
+        state_now->iq_target = McsMath_SatS16(iq_set_tmp);
     }
     /* 第6步：Park -> 电流PI -> 反Park -> SVM -> 更新PWM比较值。 */
     Motor_CurrentLoopRun(1U);
@@ -208,7 +189,7 @@ void Motor_FocSlowUpdate1ms(void)
 
     bus_adc = s_busAdcLatest;
     bus_mv = FocHw_AdcToBusMv(bus_adc);
-    gBUS_Vol_ADC = FocHw_SatS16((s32)gBUS_Vol_ADC +
+    gBUS_Vol_ADC = McsMath_SatS16((s32)gBUS_Vol_ADC +
         (((s32)bus_adc - (s32)gBUS_Vol_ADC) * MCS_BUS_FILTER_Q15 >> 15));
     bus_mv_filtered = (s32)gBusVoltageMv +
         (((s32)bus_mv - (s32)gBusVoltageMv) * MCS_BUS_FILTER_Q15 >> 15);

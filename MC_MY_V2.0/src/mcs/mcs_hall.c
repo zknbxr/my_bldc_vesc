@@ -130,11 +130,6 @@ static bool s_hallElectricalPhaseValid;
 static u16 s_hallElectricalPhaseLast;
 static s32 s_hallSpeedStepQ16;
 
-static s32 Hall_AbsS32(s32 value)
-{
-    return (value >= 0L) ? value : -value;
-}
-
 static u32 Hall_Crc32(const u8 *data, u32 length)
 {
     u32 crc;
@@ -475,7 +470,7 @@ static void Hall_UpdateTravel(u16 reference_phase)
 
     phase_step = (s32)(s16)(reference_phase - s_hallReferencePhaseLast);
     s_hallReferencePhaseLast = reference_phase;
-    if(Hall_AbsS32(phase_step) > HALL_LEARN_MAX_PHASE_STEP)
+    if(McsMath_AbsS32(phase_step) > HALL_LEARN_MAX_PHASE_STEP)
     {
         return;
     }
@@ -483,7 +478,7 @@ static void Hall_UpdateTravel(u16 reference_phase)
     if(((s_hallLearnDirection > 0) && (phase_step > 0L)) ||
        ((s_hallLearnDirection < 0) && (phase_step < 0L)))
     {
-        s_hallElectricalTravel += (u32)Hall_AbsS32(phase_step);
+        s_hallElectricalTravel += (u32)McsMath_AbsS32(phase_step);
     }
 
     one_mechanical_turn = (u32)Pole_Pairs << 16;
@@ -496,13 +491,13 @@ static void Hall_UpdateTravel(u16 reference_phase)
 
 static bool Hall_MinMaxChangedWithin(s32 tolerance)
 {
-    return (Hall_AbsS32(s_hallMinMax.min_a -
+    return (McsMath_AbsS32(s_hallMinMax.min_a -
                         s_hallMinMaxCheckpoint.min_a) <= tolerance) &&
-           (Hall_AbsS32(s_hallMinMax.max_a -
+           (McsMath_AbsS32(s_hallMinMax.max_a -
                         s_hallMinMaxCheckpoint.max_a) <= tolerance) &&
-           (Hall_AbsS32(s_hallMinMax.min_b -
+           (McsMath_AbsS32(s_hallMinMax.min_b -
                         s_hallMinMaxCheckpoint.min_b) <= tolerance) &&
-           (Hall_AbsS32(s_hallMinMax.max_b -
+           (McsMath_AbsS32(s_hallMinMax.max_b -
                         s_hallMinMaxCheckpoint.max_b) <= tolerance);
 }
 
@@ -620,8 +615,8 @@ static s32 Hall_ApproxVectorMagnitude(s32 x, s32 y)
     s32 max_value;
     s32 min_value;
 
-    x = Hall_AbsS32(x);
-    y = Hall_AbsS32(y);
+    x = McsMath_AbsS32(x);
+    y = McsMath_AbsS32(y);
     if(x >= y)
     {
         max_value = x;
@@ -714,8 +709,8 @@ static bool Hall_OffsetConverged(void)
 
     stable = s_hallOffsetCandidateValid &&
              (inverted == s_hallOffsetInvertedLast) &&
-             (Hall_AbsS32((s32)(s16)((u16)offset -
-                 (u16)s_hallOffsetCandidateLast)) <=
+             (McsMath_AbsS32((s32)McsMath_PhaseDiffQ16(
+                 offset, s_hallOffsetCandidateLast)) <=
                  HALL_LEARN_OFFSET_TOLERANCE) &&
              (quality >= HALL_LEARN_MIN_QUALITY_Q15);
     if(stable)
@@ -800,8 +795,10 @@ static void Hall_AccumulateOffset(s16 raw_a, s16 raw_b,
     gHallNormY = hall_y;
     gHallMechanicalPhase = (s16)mechanical_phase;
 
-    error_positive = (s16)((u16)reference_phase - electrical_positive);
-    error_negative = (s16)((u16)reference_phase - electrical_negative);
+    error_positive = McsMath_PhaseDiffQ16(
+        reference_phase, (s16)electrical_positive);
+    error_negative = McsMath_PhaseDiffQ16(
+        reference_phase, (s16)electrical_negative);
 
     error_trig = Motor_GetSinCosQ15((u16)error_positive);
     s_hallOffsetSinPositive += error_trig.sin;
@@ -834,17 +831,17 @@ static void Hall_ProcessAlignment(s16 raw_a, s16 raw_b)
     s16 offset;
     s16 phase_step;
 
-    current_error = Hall_AbsS32((s32)m_motor.m_id_set -
-        Hall_AbsS32((s32)gHallLearnAlignCurrentMa));
+    current_error = McsMath_AbsS32((s32)m_motor.m_id_set -
+        McsMath_AbsS32((s32)gHallLearnAlignCurrentMa));
     if((m_motor.m_run_state != MOTOR_RUN_STATE_RUNNING) ||
        !Motor_IsPwmEnabled() ||
        (m_motor.m_control_mode != CONTROL_MODE_CURRENT) ||
        !m_motor.m_phase_override ||
        (current_error > HALL_ALIGN_CURRENT_TOLERANCE_MA) ||
-       (Hall_AbsS32((s32)m_motor.m_motor_state.id -
-           Hall_AbsS32((s32)gHallLearnAlignCurrentMa)) >
+       (McsMath_AbsS32((s32)m_motor.m_motor_state.id -
+           McsMath_AbsS32((s32)gHallLearnAlignCurrentMa)) >
            HALL_ALIGN_MEASURED_TOLERANCE_MA) ||
-       (Hall_AbsS32((s32)m_motor.m_motor_state.iq) >
+       (McsMath_AbsS32((s32)m_motor.m_motor_state.iq) >
            HALL_ALIGN_MEASURED_TOLERANCE_MA))
     {
         s_hallAlignPhaseValid = false;
@@ -875,8 +872,8 @@ static void Hall_ProcessAlignment(s16 raw_a, s16 raw_b)
 
     phase_step = (s16)(electrical_phase - (u16)s_hallAlignPhaseLast);
     s_hallAlignPhaseLast = (s16)electrical_phase;
-    if((Hall_AbsS32((s32)phase_step) > HALL_ALIGN_MAX_PHASE_STEP) ||
-       (Hall_AbsS32((s32)(s16)(electrical_phase -
+    if((McsMath_AbsS32((s32)phase_step) > HALL_ALIGN_MAX_PHASE_STEP) ||
+       (McsMath_AbsS32((s32)(s16)(electrical_phase -
            (u16)s_hallAlignPhaseAnchor)) >
            HALL_ALIGN_MAX_PHASE_DEVIATION))
     {
@@ -886,7 +883,8 @@ static void Hall_ProcessAlignment(s16 raw_a, s16 raw_b)
         return;
     }
     text_check = 3;
-    offset = (s16)((u16)gHallLearnAlignPhase - electrical_phase);
+    offset = McsMath_PhaseDiffQ16(
+        gHallLearnAlignPhase, (s16)electrical_phase);
     offset_trig = Motor_GetSinCosQ15((u16)offset);
     s_hallAlignOffsetSin += offset_trig.sin;
     s_hallAlignOffsetCos += offset_trig.cos;
@@ -948,11 +946,12 @@ void Hall_LearnBuildControlRequest(motor_control_request_t *request)
     case HALL_LEARN_DRIVE_SENSORLESS:
         request->run = true;
         request->control_mode = CONTROL_MODE_SPEED;
-        request->speed_target_erpm = MCS_SPEED_TARGET_DEFAULT_ERPM;
+        request->speed.enable = true;
+        request->speed.target_erpm = APP_HALL_LEARN_SPEED_ERPM;
         break;
 
     case HALL_LEARN_DRIVE_ALIGN:
-        align_current = Hall_AbsS32((s32)gHallLearnAlignCurrentMa);
+        align_current = McsMath_AbsS32((s32)gHallLearnAlignCurrentMa);
         if(align_current > 32767L)
         {
             align_current = 32767L;
@@ -961,8 +960,9 @@ void Hall_LearnBuildControlRequest(motor_control_request_t *request)
         request->control_mode = CONTROL_MODE_CURRENT;
         request->phase_override = true;
         request->phase_override_q16 = gHallLearnAlignPhase;
-        request->id_target_ma = (s16)align_current;
-        request->iq_target_ma = 0;
+        request->current.enable = true;
+        request->current.id_target_ma = (s16)align_current;
+        request->current.iq_target_ma = 0;
         break;
 
     default:
@@ -1055,7 +1055,7 @@ void Hall_FastUpdate(motor_all_state_t *motor, s16 hall_a, s16 hall_b)
              * 霍尔给出绝对角度，控制角无需再经过无感PLL积分。
              * 只对相邻绝对角的差值测速；异常跳点不更新角度和速度。
              */
-            if(Hall_AbsS32(phase_step) <= HALL_RUNTIME_MAX_PHASE_STEP)
+            if(McsMath_AbsS32(phase_step) <= HALL_RUNTIME_MAX_PHASE_STEP)
             {
                 speed_step_target_q16 = phase_step * 65536L;
                 s_hallSpeedStepQ16 +=
@@ -1095,8 +1095,8 @@ void Hall_FastUpdate(motor_all_state_t *motor, s16 hall_a, s16 hall_b)
         motor->m_pll_phase = (s16)(motor->m_phase_control_q16 >> 16);
         state->phase = motor->m_pll_phase;
         gHallControlPhase = state->phase;
-        gHallPhaseError = (s16)((u16)gHallElectricalPhase -
-                                (u16)gHallControlPhase);
+        gHallPhaseError = McsMath_PhaseDiffQ16(
+            gHallElectricalPhase, gHallControlPhase);
     }
 }
 
@@ -1226,7 +1226,7 @@ void Hall_LearnTask1ms(u16 elapsed_ms)
         if(gHallStorageState == HALL_STORAGE_STATE_WAIT_STOP)
         {
             /* 防止保存完成前被新的串口运行命令重新启动。 */
-            gMotorCommand.run = 0U;
+            gAppHeight.command.run = 0U;
             if((m_motor.m_control_mode == CONTROL_MODE_NONE) &&
                (m_motor.m_run_state == MOTOR_RUN_STATE_OFF))
             {
@@ -1276,7 +1276,7 @@ void Hall_LearnTask1ms(u16 elapsed_ms)
         return;
     }
 
-    speed_abs = Hall_AbsS32((s32)m_motor.m_pll_speed);
+    speed_abs = McsMath_AbsS32((s32)m_motor.m_pll_speed);
     if((m_motor.m_run_state != MOTOR_RUN_STATE_RUNNING) ||
        (m_motor.m_conf == 0) ||
        (m_motor.m_conf->foc_sensor_mode != FOC_SENSOR_MODE_SENSORLESS) ||

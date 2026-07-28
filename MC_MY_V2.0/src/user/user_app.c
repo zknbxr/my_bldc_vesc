@@ -182,8 +182,8 @@ static void Run_Status_Check(void)
         UART0_Message.TXBuffer[1] = Head_TxL;
 		UART0_Message.TXBuffer[2] = Motor_Address;
 		UART0_Message.TXBuffer[3] = m_motor.m_run_state;//Run_CurrentStatus
-		UART0_Message.TXBuffer[4] = (gAppPositionCurrent01mm >> 8) & 0xFF;
-		UART0_Message.TXBuffer[5] = gAppPositionCurrent01mm & 0xFF;
+		UART0_Message.TXBuffer[4] = (gAppHeight.position.current_01mm >> 8) & 0xFF;
+		UART0_Message.TXBuffer[5] = gAppHeight.position.current_01mm & 0xFF;
 		UART0_Message.TXBuffer[6] = 0;
 		UART0_Message.TXBuffer[8] = 0;
 		UART0_Message.TXBuffer[9] = 0;

@@ -74,21 +74,6 @@ static s32 observer_div_1000(s32 value)
     return value / OBSERVER_MILLI_SCALE;
 }
 
-static s32 observer_truncate_abs(s32 value, s32 max_abs)
-{
-    if(value > max_abs)
-    {
-        return max_abs;
-    }
-
-    if(value < -max_abs)
-    {
-        return -max_abs;
-    }
-
-    return value;
-}
-
 /* 定点 CORDIC atan2，返回 0~65535 的无符号电角度。 */
 u16 Foc_Atan2Q16(s32 y, s32 x)
 {
@@ -242,8 +227,8 @@ void foc_observer_update(s32 v_alpha, s32 v_beta,
         (v_beta - r_i_beta) * (s32)dt -
         conf_now->foc_motor_l * (i_beta_now - state->i_beta_last));
 
-    state->x1 = observer_truncate_abs(state->x1 + x1_step, lambda);
-    state->x2 = observer_truncate_abs(state->x2 + x2_step, lambda);
+    state->x1 = McsMath_LimitAbsS32(state->x1 + x1_step, lambda);
+    state->x2 = McsMath_LimitAbsS32(state->x2 + x2_step, lambda);
     state->i_alpha_last = i_alpha_now;
     state->i_beta_last = i_beta_now;
 }
@@ -290,7 +275,7 @@ void foc_observer_apply_correction(observer_state *state,
 
     error_q13 = (flux_error_scaled * OBSERVER_Q13_ONE) /
                 lambda_sq_scaled;
-    error_q13 = observer_truncate_abs(error_q13, OBSERVER_Q13_ONE);
+    error_q13 = McsMath_LimitAbsS32(error_q13, OBSERVER_Q13_ONE);
     correction_gain_q13 =
         (error_q13 * OBSERVER_GAIN_TS_Q13) / OBSERVER_Q13_ONE;
 
@@ -302,9 +287,9 @@ void foc_observer_apply_correction(observer_state *state,
         (state->x1 * correction_gain_q13) / OBSERVER_Q13_ONE;
     correction_x2 =
         (state->x2 * correction_gain_q13) / OBSERVER_Q13_ONE;
-    state->x1 = observer_truncate_abs(
+    state->x1 = McsMath_LimitAbsS32(
         state->x1 + correction_x1, lambda);
-    state->x2 = observer_truncate_abs(
+    state->x2 = McsMath_LimitAbsS32(
         state->x2 + correction_x2, lambda);
 
     gObserverFluxErrorQ13 = (s16)error_q13;
@@ -341,8 +326,8 @@ void foc_observer_pll_run(s16 phase, observer_state *state,
     else
     {
         state->pll_phase_q16 += (u32)state->pll_speed_step_q16;
-        phase_error = (s16)((u16)phase -
-            (u16)(state->pll_phase_q16 >> 16));
+        phase_error = McsMath_PhaseDiffQ16(
+            phase, (s16)(state->pll_phase_q16 >> 16));
 
         phase_correction_q16 =
             phase_error * (OBSERVER_PLL_KP_Q15 * 2L);
@@ -353,12 +338,12 @@ void foc_observer_pll_run(s16 phase, observer_state *state,
 
         speed_limit_q16 = OBSERVER_PLL_MAX_ERPM *
                           OBSERVER_PLL_STEP_Q16_PER_ERPM;
-        state->pll_speed_step_q16 = observer_truncate_abs(
+        state->pll_speed_step_q16 = McsMath_LimitAbsS32(
             state->pll_speed_step_q16, speed_limit_q16);
     }
 
-    phase_error = (s16)((u16)phase -
-        (u16)(state->pll_phase_q16 >> 16));
+    phase_error = McsMath_PhaseDiffQ16(
+        phase, (s16)(state->pll_phase_q16 >> 16));
     speed_erpm = state->pll_speed_step_q16 /
                  OBSERVER_PLL_STEP_Q16_PER_ERPM;
     motor->m_pll_phase = (s16)(state->pll_phase_q16 >> 16);
@@ -369,21 +354,14 @@ void foc_observer_pll_run(s16 phase, observer_state *state,
 
 void foc_sensorless_update(motor_all_state_t *motor_now)
 {
-    motor_state_t *state_now;
-    s32 observerVAlphaAvg;
-    s32 observerVBetaAvg;
-    s32 observerModAlphaAvg;
-    s32 observerModBetaAvg;
-    s32 observerIAlphaAvg;
-    s32 observerIBetaAvg;
-    bool pllUpdated;
+    
     
     if((motor_now == 0) || (motor_now->m_conf == 0))
     {
         return;
     }
 
-    state_now = &motor_now->m_motor_state;
+    
 
     /* 退出运行或切换到其他传感器时，使下次进入无感必定重新初始化。 */
     if(!Motor_IsControlActive(motor_now) ||
@@ -392,7 +370,18 @@ void foc_sensorless_update(motor_all_state_t *motor_now)
         motor_now->m_observer_initial = false;
         return;
     }
-
+    
+    motor_state_t *state_now;
+    state_now = &motor_now->m_motor_state;
+    
+    s32 observerVAlphaAvg;
+    s32 observerVBetaAvg;
+    s32 observerModAlphaAvg;
+    s32 observerModBetaAvg;
+    s32 observerIAlphaAvg;
+    s32 observerIBetaAvg;
+    bool pllUpdated;
+    
     if(!motor_now->m_observer_initial)
     {
         foc_sensorless_reset(motor_now, state_now);
@@ -422,9 +411,9 @@ void foc_sensorless_update(motor_all_state_t *motor_now)
         observerModBetaAvg = s_observerModBetaSum /
                              (s32)FOC_OBSERVER_FLUX_DIV;
         observerVAlphaAvg = FocHw_ModToVoltageMv(
-            FocHw_SatS16(observerModAlphaAvg), state_now->v_bus);
+            McsMath_SatS16(observerModAlphaAvg), state_now->v_bus);
         observerVBetaAvg = FocHw_ModToVoltageMv(
-            FocHw_SatS16(observerModBetaAvg), state_now->v_bus);
+            McsMath_SatS16(observerModBetaAvg), state_now->v_bus);
         state_now->v_alpha = observerVAlphaAvg;
         state_now->v_beta = observerVBetaAvg;
         observerIAlphaAvg = s_observerIAlphaSum / (s32)FOC_OBSERVER_FLUX_DIV;
@@ -459,7 +448,7 @@ void foc_sensorless_update(motor_all_state_t *motor_now)
             &motor_now->m_observer_state, motor_now);
         pllUpdated = true;
         gObserverPhase = motor_now->m_phase_now_observer;
-        gObserverPhaseError = FocHw_PhaseDifference(
+        gObserverPhaseError = McsMath_PhaseDiffQ16(
             motor_now->m_phase_now_observer, state_now->phase);
         s_observerPostFluxSlot = 0U;
     }
